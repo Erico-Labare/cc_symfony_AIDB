@@ -1,7 +1,10 @@
 ## Contexte
 
 
-## Languages et packages utilisés
+## Stack technique (Languages et packages utilisés)
+
+
+## Installation
 
 
 ## Utilisation & Fonctionnement
@@ -18,7 +21,16 @@ Il est possible de configurer le .env ainsi :
 - TODO config .env.local
 
 
-## Testes
+TODO : Compte de teste / BDD déjà remplit
+
+## BDD
+
+
+
+## Architecture
+
+
+## Testes & Converture
 
 
 ## Risques, Limites et Dettes techniques
