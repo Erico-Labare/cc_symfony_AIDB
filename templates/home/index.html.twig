@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+
+<div class="p-5 bg-light rounded">
+
+    <h1>Bienvenue sur la plateforme de réservation</h1>
+
+    <p class="lead">
+        Recherchez et réservez des chambres d'hôtel en quelques clics.
+    </p>
+
+
+    
+    {% if app.user %}
+
+        <div class="alert alert-success">
+            <p><strong>Utilisateur connecté :</strong></p>
+
+            <p>Email : {{ app.user.userIdentifier }}</p>
+
+            <p>
+                Rôles :
+                {% for role in app.user.roles %}
+                    <span class="badge bg-primary">{{ role }}</span>
+                {% endfor %}
+            </p>
+        </div>
+    {% else %}
+        <a href="{{ path('app_register') }}" class="btn btn-primary">
+            Créer un compte
+        </a>
+
+        <a href="{{ path('app_login') }}" class="btn btn-outline-dark">
+            Se connecter
+        </a>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -42,38 +42,10 @@
  │         │    - function - filtrer les comptes par rôle
  │    ├── Entity/
  |    │    ├── Compte.php
-               - var - id
-               - var - role
-               - var - email
-               - var - password
-               - OneToMany - Reservation
  |    │    ├── Client.php
-               - var - id
-               - var - nom
-               - var - adresse
-               - var - email
-               - var - telephone
-               - OneToMany - Reservation
  |    │    ├── Chambre.php
-               - var - id
-               - var - etage
-               - var - type
-               - var - nombreLit
-               - ManyToOne - hotel
  |    │    ├── Hotel.php
-               - var - id
-               - var - nom
-               - var - adresse
-               - var - categorie
-               - OneToMany - chambres
  |    │    ├── Reservation.php
-               - var - id
-               - var - dateDebut
-               - var - dateFin
-               - var - commentaire
-               - ManyToOne - compte
-               - ManyToOne - client
-               - ManyToOne - chambre
  |    │    ├── ResetPasswordRequest.php
  ├── Repository/
  │    ├── ClientRepository.php
@@ -96,8 +68,6 @@
  │    ├── ChambreType.php
  │    ├── ClientType.php
  │    ├── HotelType.php
- ├── Security/
- │    ├── LoginFormAuthenticator.php
  ├── EventSubscriber/
  │    ├── ExceptionSubscriber.php
  ├── DataFixtures/

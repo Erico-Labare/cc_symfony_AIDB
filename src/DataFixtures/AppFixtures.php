@@ -9,12 +9,21 @@ use App\Entity\Chambre;
 use App\Entity\Reservation;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
 
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class AppFixtures extends Fixture
+class AppFixtures extends Fixture implements FixtureGroupInterface
 {
+    /**
+     * Permet de faire al séparation entre les fixture de développement et les fixtures de test.
+     */
+    public static function getGroups(): array
+    {
+        return ['dev'];
+    }
+
     private UserPasswordHasherInterface $passwordHasher;
 
     /**

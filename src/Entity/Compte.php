@@ -41,7 +41,7 @@ class Compte implements UserInterface, PasswordAuthenticatedUserInterface
      */
 
     #[ORM\Column(length: 50)]
-    private ?string $role = null;
+    private ?string $role = 'ROLE_USER';
 
     /**
      * Sert d'identifiant de connexion.
@@ -80,6 +80,9 @@ class Compte implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'compte', targetEntity: Reservation::class)]
 
     private Collection $reservations;
+
+    #[ORM\Column]
+    private bool $isVerified = false;
 
     /**
      * Constructeur
@@ -240,6 +243,18 @@ class Compte implements UserInterface, PasswordAuthenticatedUserInterface
                 $reservation->setCompte(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
 
         return $this;
     }

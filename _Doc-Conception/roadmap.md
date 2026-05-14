@@ -10,13 +10,15 @@
 #### 11/05/2026 - 17/05/2026
 Faire :
 - BDD fonctionnelle
-- entités prêtes
+- Entités prêtes
 - Login / logout
+- Register
 - Rôle
 
 Livrable :
 - Lancer le serveur du projet avec BDD repectant la conception
-- se connecter / se déconnecter en client ou admin
+- Créer un compte
+- Se connecter / se déconnecter en client ou admin
 - Interface avec navbar et footer
 
 #### 18/05/2026 - 24/05/2026
