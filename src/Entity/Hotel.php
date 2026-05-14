@@ -2,8 +2,7 @@
 
 namespace App\Entity;
 
-// A REACTIVER PLUS TARD
-// use App\Repository\HotelRepository;
+use App\Repository\HotelRepository;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,8 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-// A REACTIVER PLUS TARD
-// #[ORM\Entity(repositoryClass: HotelRepository::class)]
+#[ORM\Entity(repositoryClass: HotelRepository::class)]
 
 class Hotel
 {
@@ -78,9 +76,9 @@ class Hotel
      * @var Collection<int, Chambre>
      */
 
-    // A REACTIVER PLUS TARD
-    // #[ORM\OneToMany(mappedBy: 'hotel', targetEntity: Chambre::class)]
-    // private Collection $chambres;
+
+    #[ORM\OneToMany(mappedBy: 'hotel', targetEntity: Chambre::class)]
+    private Collection $chambres;
 
     /**
      * Constructeur
@@ -170,39 +168,39 @@ class Hotel
      * @return Collection<int, Chambre>
      */
 
-    // public function getChambres(): Collection
-    // {
-    //     return $this->chambres;
-    // }
+    public function getChambres(): Collection
+    {
+        return $this->chambres;
+    }
 
     /**
      * Ajoute une chambre à l'hôtel.
      */
-    // public function addChambre(Chambre $chambre): static
-    // {
-    //     if (!isset($this->chambres)) {
-    //         $this->chambres = new ArrayCollection();
-    //     }
+    public function addChambre(Chambre $chambre): static
+    {
+        if (!isset($this->chambres)) {
+            $this->chambres = new ArrayCollection();
+        }
 
-    //     if (!$this->chambres->contains($chambre)) {
-    //         $this->chambres->add($chambre);
-    //         $chambre->setHotel($this);
-    //     }
+        if (!$this->chambres->contains($chambre)) {
+            $this->chambres->add($chambre);
+            $chambre->setHotel($this);
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
     /**
      * Retire une chambre de l'hôtel.
      */
-    // public function removeChambre(Chambre $chambre): static
-    // {
-    //     if ($this->chambres->removeElement($chambre)) {
-    //         if ($chambre->getHotel() === $this) {
-    //             $chambre->setHotel(null);
-    //         }
-    //     }
+    public function removeChambre(Chambre $chambre): static
+    {
+        if ($this->chambres->removeElement($chambre)) {
+            if ($chambre->getHotel() === $this) {
+                $chambre->setHotel(null);
+            }
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 }

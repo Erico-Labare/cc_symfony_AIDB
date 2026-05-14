@@ -2,8 +2,8 @@
 
 namespace App\Entity;
 
-// A REACTIVER PLUS TARD
-// use App\Repository\CompteRepository;
+
+use App\Repository\CompteRepository;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -15,8 +15,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
-// A REACTIVER PLUS TARD
-// #[ORM\Entity(repositoryClass: CompteRepository::class)]
+
+#[ORM\Entity(repositoryClass: CompteRepository::class)]
 
 #[UniqueEntity(
     fields: ['email'],
@@ -44,13 +44,13 @@ class Compte implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $role = null;
 
     /**
-    * Sert d'identifiant de connexion.
-    *
-    * Contraintes :
-    * - obligatoire
-    * - format email valide
-    * - unique en base de données
-    */
+     * Sert d'identifiant de connexion.
+     *
+     * Contraintes :
+     * - obligatoire
+     * - format email valide
+     * - unique en base de données
+     */
 
     #[Assert\NotBlank]
     #[Assert\Email]
@@ -58,32 +58,32 @@ class Compte implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     /**
-    * Le mot de passe est stocké hashé via le composant
-    * Security de Symfony.
-    */
+     * Le mot de passe est stocké hashé via le composant
+     * Security de Symfony.
+     */
 
     #[ORM\Column(length: 255)]
     private ?string $password = null;
 
     /**
-    * Un compte peut posséder plusieurs réservations.
-    *
-    * Relation :
-    * Compte 1 <> 0,n Reservation
-    */
+     * Un compte peut posséder plusieurs réservations.
+     *
+     * Relation :
+     * Compte 1 <> 0,n Reservation
+     */
 
     /**
      * @var Collection<int, Reservation>
      */
 
-    // A REACTIVER PLUS TARD
-    // #[ORM\OneToMany(mappedBy: 'compte', targetEntity: Reservation::class)]
+
+    #[ORM\OneToMany(mappedBy: 'compte', targetEntity: Reservation::class)]
 
     private Collection $reservations;
 
     /**
-    * Constructeur
-    */
+     * Constructeur
+     */
 
     public function __construct()
     {
@@ -146,7 +146,6 @@ class Compte implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         /*
-        | IMPORTANT :
         | $this->role est une string.
         | Il faut donc retourner un tableau.
         */
@@ -212,7 +211,6 @@ class Compte implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->reservations;
     }
 
-    // A REACTIVER PLUS TARD
     /*
     |--------------------------------------------------------------------------
     | MÉTHODES DE GESTION DES RELATIONS
@@ -222,27 +220,27 @@ class Compte implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * Permet d'ajouter une réservation au compte.
      */
-    // public function addReservation(Reservation $reservation): static
-    // {
-    //     if (!$this->reservations->contains($reservation)) {
-    //         $this->reservations->add($reservation);
-    //         $reservation->setCompte($this);
-    //     }
-    //
-    //     return $this;
-    // }
+    public function addReservation(Reservation $reservation): static
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
+            $reservation->setCompte($this);
+        }
+
+        return $this;
+    }
 
     /**
      * Permet de retirer une réservation du compte.
      */
-    // public function removeReservation(Reservation $reservation): static
-    // {
-    //     if ($this->reservations->removeElement($reservation)) {
-    //         if ($reservation->getCompte() === $this) {
-    //             $reservation->setCompte(null);
-    //         }
-    //     }
-    //
-    //     return $this;
-    // }
+    public function removeReservation(Reservation $reservation): static
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            if ($reservation->getCompte() === $this) {
+                $reservation->setCompte(null);
+            }
+        }
+
+        return $this;
+    }
 }

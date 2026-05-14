@@ -2,15 +2,13 @@
 
 namespace App\Entity;
 
-// A REACTIVER PLUS TARD
-// use App\Repository\ReservationRepository;
+use App\Repository\ReservationRepository;
 
 use Doctrine\ORM\Mapping as ORM;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-// A REACTIVER PLUS TARD
-// #[ORM\Entity(repositoryClass: ReservationRepository::class)]
+#[ORM\Entity(repositoryClass: ReservationRepository::class)]
 
 class Reservation
 {
@@ -60,10 +58,9 @@ class Reservation
      * Reservation N <> 1 Compte
      */
 
-    // A REACTIVER PLUS TARD
-    // #[ORM\ManyToOne(inversedBy: 'reservations')]
-    // #[ORM\JoinColumn(nullable: false)]
-    // private ?Compte $compte = null;
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Compte $compte = null;
 
     /**
      * Relation :
@@ -72,10 +69,10 @@ class Reservation
      * Reservation N <> 1 Client
      */
 
-    // A REACTIVER PLUS TARD
-    // #[ORM\ManyToOne(inversedBy: 'reservations')]
-    // #[ORM\JoinColumn(nullable: false)]
-    // private ?Client $client = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Client $client = null;
 
     /**
      * Relation :
@@ -84,10 +81,9 @@ class Reservation
      * Reservation N <> 1 Chambre
      */
 
-    // A REACTIVER PLUS TARD
-    // #[ORM\ManyToOne(inversedBy: 'reservations')]
-    // #[ORM\JoinColumn(nullable: false)]
-    // private ?Chambre $chambre = null;
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Chambre $chambre = null;
 
     /*
     |--------------------------------------------------------------------------
@@ -166,52 +162,52 @@ class Reservation
     /**
      * Retourne le compte qui a créé la réservation.
      */
-    /**
-     * public function getCompte(): ?Compte
-     * {
-     *     return $this->compte;
-     * }
-     *
-     * public function setCompte(?Compte $compte): static
-     * {
-     *     $this->compte = $compte;
-     *     return $this;
-     * }
-     */
+
+    public function getCompte(): ?Compte
+    {
+        return $this->compte;
+    }
+
+    public function setCompte(?Compte $compte): static
+    {
+        $this->compte = $compte;
+        return $this;
+    }
+
 
     /**
      * Retourne le client auquel appartient la réservation.
      */
+
+    public function getClient(): ?Client
+    {
+        return $this->client;
+    }
+
+    public function setClient(?Client $client): static
+    {
+        $this->client = $client;
+        return $this;
+    }
+
+
     /**
-     * public function getClient(): ?Client
-     * {
-     *     return $this->client;
-     * }
-     *
-     * public function setClient(?Client $client): static
-     * {
-     *     $this->client = $client;
-     *     return $this;
-     * }
+     * Retourne la chambre concernée par la réservation.
      */
 
     /**
      * Retourne la chambre concernée par la réservation.
      */
-    
-    /**
-     * Retourne la chambre concernée par la réservation.
-     */
-    /**
-     * public function getChambre(): ?Chambre
-     * {
-     *     return $this->chambre;
-     * }
-     *
-     * public function setChambre(?Chambre $chambre): static
-     * {
-     *     $this->chambre = $chambre;
-     *     return $this;
-     * }
-     */
+
+    public function getChambre(): ?Chambre
+    {
+        return $this->chambre;
+    }
+
+    public function setChambre(?Chambre $chambre): static
+    {
+        $this->chambre = $chambre;
+        return $this;
+    }
+
 }

@@ -13,6 +13,7 @@ Faire :
 - entités prêtes
 - Login / logout
 - Rôle
+
 Livrable :
 - Lancer le serveur du projet avec BDD repectant la conception
 - se connecter / se déconnecter en client ou admin
@@ -23,6 +24,7 @@ Faire :
 - CRUD Chambre
 - CRUD Hôtel
 - CRUD Client
+
 Livrable :
 - espace admin utilisable pour gérer les chambres, les hôtels et les clients
 
@@ -31,6 +33,7 @@ Faire :
 - DisponibiliteService
 - ReservationService
 - ReservationController
+
 Livrable :
 - un client peut faire une réservation en choisissant une chambre disponible
 
@@ -39,6 +42,7 @@ Faire :
 - ClientController
 - ReservationController
 - Twig pour les page actuelles
+
 Livrable :
 - un client peut voir son profil, ses réservations, annuler une réservation et modifier son commentaire ... etc
 
@@ -47,6 +51,7 @@ A faire :
 - Recherche disponibilités
 - UX : message d'erreur, validation des formulaires,pagination ... etc
 - Responsive mobile / tablette ? (**optionel ?**)
+
 Livrable :
 - un client peut rechercher des chambres disponibles pour une date donnée
 - l'interface est validé
@@ -57,6 +62,7 @@ Faire :
 - Refacto ?
 - SonarQube ?
 - ExeptionSubscriber
+
 Livrable :
 - Code propre respectant les bonnes pratiques
 - Listes des dettes techniques restantes

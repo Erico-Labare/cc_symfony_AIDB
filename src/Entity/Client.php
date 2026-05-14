@@ -2,8 +2,7 @@
 
 namespace App\Entity;
 
-// A REACTIVER PLUS TARD
-// use App\Repository\ClientRepository;
+use App\Repository\ClientRepository;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,8 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-// A REACTIVER PLUS TARD
-// #[ORM\Entity(repositoryClass: ClientRepository::class)]
+#[ORM\Entity(repositoryClass: ClientRepository::class)]
 
 class Client
 {
@@ -85,8 +83,8 @@ class Client
      * @var Collection<int, Reservation>
      */
 
-    // A REACTIVER PLUS TARD
-    // #[ORM\OneToMany(mappedBy: 'client', targetEntity: Reservation::class)]
+
+    #[ORM\OneToMany(mappedBy: 'client', targetEntity: Reservation::class)]
 
     private Collection $reservations;
 
@@ -201,7 +199,6 @@ class Client
         return $this->reservations;
     }
 
-    // A REACTIVER PLUS TARD
     /*
     |--------------------------------------------------------------------------
     | MÉTHODES DE GESTION DES RELATIONS
@@ -211,27 +208,27 @@ class Client
     /**
      * Permet d'ajouter une réservation au client.
      */
-    // public function addReservation(Reservation $reservation): static
-    // {
-    //     if (!$this->reservations->contains($reservation)) {
-    //         $this->reservations->add($reservation);
-    //         $reservation->setClient($this);
-    //     }
-    //
-    //     return $this;
-    // }
+    public function addReservation(Reservation $reservation): static
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
+            $reservation->setClient($this);
+        }
+
+        return $this;
+    }
 
     /**
      * Permet de retirer une réservation du client.
      */
-    // public function removeReservation(Reservation $reservation): static
-    // {
-    //     if ($this->reservations->removeElement($reservation)) {
-    //         if ($reservation->getClient() === $this) {
-    //             $reservation->setClient(null);
-    //         }
-    //     }
-    //
-    //     return $this;
-    // }
+    public function removeReservation(Reservation $reservation): static
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            if ($reservation->getClient() === $this) {
+                $reservation->setClient(null);
+            }
+        }
+
+        return $this;
+    }
 }
