@@ -48,8 +48,8 @@ Il est possible de configurer le .env ainsi :
 ## Testes & Converture
 
 - Vérifiez que votre php.ini (localisable avec la commande ````php --ini````) est correctement configuré pour le projet (extention mysql et pdo_mysql activés).
+- (Optionel) Supprimer la base de données de test avec ````php bin/console doctrine:database:drop --env=test --force```` dans le terminal à la racine du projet ou manuellement dans votre SGBD.
 - Créer la base de données avec ````php bin/console doctrine:database:create --env=test```` dans le terminal à la racine du projet ou manuellement dans votre SGBD.
-- (Optionel)Générer une migration avec ````php bin/console make:migration --env=test```` dans le terminal à la racine si le fichier de migration n'est pas déjà présent dans /migrations.
 - Exécuter la migration avec ````php bin/console doctrine:migrations:migrate --env=test```` dans le terminal à la racine du projet ou manuellement dans votre SGBD.
 - (Optionel) Vérifier doctrine avec ````php bin/console doctrine:schema:validate --env=test```` dans le terminal à la racine du projet (Resultat attendu : ````[OK] The mapping files are correct. [OK] The database schema is in sync with the mapping files.````).
 - Installer des données par défault configurer dans ````DataDixtures\TestFixtures```` avec ````php bin/console doctrine:fixtures:load --env=test --group=test```` dans le terminal à la racine du projet.
@@ -62,4 +62,6 @@ Il est possible de configurer le .env ainsi :
 
 
 # Random TODO :
-- Vérifier que les emails envoyer lors de l'insciption marche bien et sont tester en teste fonctionnel
+- Vérifier que les emails envoyés lors de l'insciption marches bien et sont testés en teste fonctionnel
+
+- Ajouter des messages flash pour les actions de création, modification et suppression d'entités dans les controllers admin

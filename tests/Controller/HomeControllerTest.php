@@ -2,8 +2,6 @@
 
 namespace App\Tests\Controller;
 
-use App\Entity\Compte;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class HomeControllerTest extends WebTestCase
@@ -23,38 +21,15 @@ final class HomeControllerTest extends WebTestCase
 
         $container = static::getContainer();
 
-        $em = $container->get(EntityManagerInterface::class);
+        $user = $container->get('doctrine')
+            ->getRepository(\App\Entity\Compte::class)
+            ->findOneBy(['email' => 'test@test.com']);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Création utilisateur de test
-        |--------------------------------------------------------------------------
-        */
-
-        $user = new Compte();
-
-        $user->setEmail('test@test.com');
-        $user->setPassword('password');
-        $user->setRole('ROLE_USER');
-
-        $em->persist($user);
-        $em->flush();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Connexion utilisateur
-        |--------------------------------------------------------------------------
-        */
+        self::assertNotNull($user);
 
         $client->loginUser($user);
 
         $client->request('GET', '/home');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Vérifications
-        |--------------------------------------------------------------------------
-        */
 
         self::assertResponseIsSuccessful();
 

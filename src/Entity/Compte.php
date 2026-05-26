@@ -173,6 +173,14 @@ class Compte implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+     * Retourne le rôle du compte.
+     */
+    public function getRole(): ?string
+    {
+        return $this->role;
+    }
+
+    /**
      * Retourne le mot de passe (hashé).
      */
     public function getPassword(): ?string

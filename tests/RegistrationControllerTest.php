@@ -2,8 +2,10 @@
 
 namespace App\Tests;
 
+use App\DataFixtures\TestFixtures;
 use App\Repository\CompteRepository;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -21,19 +23,15 @@ class RegistrationControllerTest extends WebTestCase
         /** @var EntityManager $em */
         $em = $container->get('doctrine')->getManager();
 
+        $schemaTool = new SchemaTool($em);
+        $metadata = $em->getMetadataFactory()->getAllMetadata();
+        $schemaTool->dropDatabase();
+        $schemaTool->createSchema($metadata);
+
+        $fixture = new TestFixtures($container->get('security.password_hasher'));
+        $fixture->load($em);
+
         $this->userRepository = $container->get(CompteRepository::class);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Nettoyage de la base de test
-        |--------------------------------------------------------------------------
-        */
-
-        foreach ($this->userRepository->findAll() as $user) {
-            $em->remove($user);
-        }
-
-        $em->flush();
     }
 
     public function testRegister(): void
@@ -55,7 +53,7 @@ class RegistrationControllerTest extends WebTestCase
         */
 
         $this->client->submitForm('Register', [
-            'registration_form[email]' => 'me@example.com',
+            'registration_form[email]' => 'newuser@example.com',
             'registration_form[plainPassword]' => 'password',
             'registration_form[agreeTerms]' => 1,
         ]);
@@ -66,7 +64,8 @@ class RegistrationControllerTest extends WebTestCase
         |--------------------------------------------------------------------------
         */
 
-        self::assertCount(1, $this->userRepository->findAll());
+
+        self::assertCount(4, $this->userRepository->findAll());
 
         /*
         |--------------------------------------------------------------------------
@@ -75,7 +74,7 @@ class RegistrationControllerTest extends WebTestCase
         */
 
         $user = $this->userRepository->findOneBy([
-            'email' => 'me@example.com'
+            'email' => 'newuser@example.com'
         ]);
 
         self::assertNotNull($user);

@@ -18,8 +18,20 @@
         {# Content #}
         <main class="container mt-4 flex-grow-1">
             {% block body %}{% endblock %}
-        </main>
 
+            {% if is_granted('ROLE_ADMIN') %}
+
+            <li class="nav-item mt-4 flex-grow-1 p-5 bg-light rounded alert alert-success badge">
+
+                <a class="nav-link" href="{{ path('app_admin') }}">
+                    Boutton de gestion de l'administration
+                </a>
+
+            </li>
+
+            {% endif %}
+        </main>
+        
         {# Footer #}
         {% include 'partials/footer.html.twig' %}
 
@@ -31,4 +43,6 @@
         {% endblock %}
     </body>
 
+
+    
 </html>

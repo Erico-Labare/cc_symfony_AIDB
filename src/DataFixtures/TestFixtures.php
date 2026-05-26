@@ -56,6 +56,24 @@ class TestFixtures extends Fixture implements FixtureGroupInterface
 
         $manager->persist($user2);
 
+        /*
+        --------------------------
+         USER 3 - ADMIN TEST
+        --------------------------
+        */
+
+        $admin = new Compte();
+
+        $admin->setEmail('admin@test.com');
+        $admin->setRole('ROLE_ADMIN');
+
+        $admin->setPassword(
+            $this->passwordHasher->hashPassword($admin, 'password')
+        );
+
+        $manager->persist($admin);
+
         $manager->flush();
+
     }
 }

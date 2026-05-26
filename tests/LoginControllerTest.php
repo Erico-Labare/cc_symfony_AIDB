@@ -22,41 +22,6 @@ class LoginControllerTest extends WebTestCase
         /** @var EntityManagerInterface $em */
         $em = $container->get('doctrine')->getManager();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Nettoyage des utilisateurs
-        |--------------------------------------------------------------------------
-        */
-
-        $users = $em->getRepository(Compte::class)->findAll();
-
-        foreach ($users as $user) {
-            $em->remove($user);
-        }
-
-        $em->flush();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Création utilisateur de test
-        |--------------------------------------------------------------------------
-        */
-
-        /** @var UserPasswordHasherInterface $passwordHasher */
-        $passwordHasher = $container->get(UserPasswordHasherInterface::class);
-
-        $user = new Compte();
-
-        $user->setEmail('test@test.com');
-
-        $user->setRole('ROLE_USER');
-
-        $user->setPassword(
-            $passwordHasher->hashPassword($user, 'password')
-        );
-
-        $em->persist($user);
-
         $em->flush();
     }
 
