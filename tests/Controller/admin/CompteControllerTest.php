@@ -7,10 +7,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+// Test du contrôleur de gestion des comptes
 final class CompteControllerTest extends WebTestCase
 {
     private ?Compte $admin = null;
 
+    // Initialiser les données de test
     private function setupData(): void
     {
         if ($this->admin === null) {
@@ -20,6 +22,7 @@ final class CompteControllerTest extends WebTestCase
         }
     }
 
+    // Tester l'accès à l'index sans authentification
     public function testIndexWithoutAuthentication(): void
     {
         $client = static::createClient();
@@ -27,6 +30,7 @@ final class CompteControllerTest extends WebTestCase
         self::assertResponseRedirects();
     }
 
+    // Tester l'accès à l'index avec un utilisateur non-admin
     public function testIndexWithNonAdmin(): void
     {
         $client = static::createClient();
@@ -39,6 +43,7 @@ final class CompteControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    // Tester l'accès à l'index avec un admin
     public function testIndexWithAdmin(): void
     {
         $client = static::createClient();
@@ -48,6 +53,7 @@ final class CompteControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester l'affichage du formulaire de création
     public function testNewFormGet(): void
     {
         $client = static::createClient();
@@ -57,12 +63,15 @@ final class CompteControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester la soumission du formulaire de création
     public function testNewFormSubmit(): void
     {
         $client = static::createClient();
         $this->setupData();
         $client->loginUser($this->admin);
 
+
+        // Soumission du formulaire
         $crawler = $client->request('GET', '/admin/compte/new');
         $form = $crawler->selectButton('Save')->form();
         $form['compte[email]'] = 'testcreate' . time() . '@test.com';
@@ -72,12 +81,15 @@ final class CompteControllerTest extends WebTestCase
         $client->submit($form);
         self::assertResponseRedirects();
 
+
+        // Vérifier que le compte a été créé
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $comptes = $entityManager->getRepository(Compte::class)
             ->findAll();
         self::assertGreaterThanOrEqual(2, count($comptes));
     }
 
+    // Tester l'affichage d'un compte existant
     public function testShowExistingCompte(): void
     {
         $client = static::createClient();
@@ -91,6 +103,7 @@ final class CompteControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester l'affichage d'un compte inexistant
     public function testShowNonExistentCompte(): void
     {
         $client = static::createClient();
@@ -100,6 +113,7 @@ final class CompteControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
+    // Tester l'affichage du formulaire de modification
     public function testEditFormGet(): void
     {
         $client = static::createClient();
@@ -113,11 +127,13 @@ final class CompteControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester la suppression d'un compte avec un jeton CSRF valide
     public function testDeleteWithValidCsrfToken(): void
     {
         $client = static::createClient();
         $this->setupData();
 
+        // Créer un compte de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $passwordHasher = self::getContainer()->get(UserPasswordHasherInterface::class);
 
@@ -129,6 +145,8 @@ final class CompteControllerTest extends WebTestCase
         $entityManager->flush();
         $id = $user->getId();
 
+
+        // Supprimer le compte
         $client->loginUser($this->admin);
         $client->request('GET', '/admin/compte/' . $id);
         $form = $client->getCrawler()->selectButton('Delete')->form();
@@ -136,6 +154,8 @@ final class CompteControllerTest extends WebTestCase
         $client->submit($form);
         self::assertResponseRedirects();
 
+
+        // Vérifier que le compte a été supprimé
         $entityManager->clear();
         $deletedUser = $entityManager->getRepository(Compte::class)->find($id);
         self::assertNull($deletedUser);

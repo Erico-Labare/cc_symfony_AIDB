@@ -255,11 +255,17 @@ class Compte implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * Valide si le comtpe a fait férifier son adresse email.
+     */
     public function isVerified(): bool
     {
         return $this->isVerified;
     }
 
+    /**
+     * Définit si le compte a vérifié son adresse email.
+     */
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;

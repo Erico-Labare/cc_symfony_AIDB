@@ -11,6 +11,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class AdminController extends AbstractController
 {
+    // Afficher le tableau de bord d'administration
     #[Route('', name: 'app_admin')]
     public function index(): Response
     {

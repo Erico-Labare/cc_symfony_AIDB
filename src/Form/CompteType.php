@@ -9,8 +9,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
+// Formulaire pour la gestion des comptes
 class CompteType extends AbstractType
 {
+    // Construire le formulaire avec les champs du compte
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -29,6 +31,7 @@ class CompteType extends AbstractType
         ;
     }
 
+    // Configurer les options du formulaire
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

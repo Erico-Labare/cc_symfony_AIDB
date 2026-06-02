@@ -9,10 +9,12 @@ use App\Entity\Compte;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+// Test du contrôleur de connexion
 class LoginControllerTest extends WebTestCase
 {
     private KernelBrowser $client;
 
+    // Initialiser le client de test
     protected function setUp(): void
     {
         $this->client = static::createClient();
@@ -25,6 +27,7 @@ class LoginControllerTest extends WebTestCase
         $em->flush();
     }
 
+    // Tester le processus de connexion
     public function testLogin(): void
     {
         /*

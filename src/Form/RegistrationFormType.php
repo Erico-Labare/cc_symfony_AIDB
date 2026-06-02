@@ -12,8 +12,10 @@ use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+// Formulaire d'enregistrement utilisateur
 class RegistrationFormType extends AbstractType
 {
+    // Construire le formulaire avec les champs d'enregistrement
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -27,8 +29,8 @@ class RegistrationFormType extends AbstractType
                 ],
             ])
             ->add('plainPassword', PasswordType::class, [
-                // instead of being set onto the object directly,
-                // this is read and encoded in the controller
+                // le mot de passe n'est pas mappé directement sur l'objet,
+                // il est encodé dans le contrôleur
                 'mapped' => false,
                 'attr' => ['autocomplete' => 'new-password'],
                 'constraints' => [
@@ -38,7 +40,7 @@ class RegistrationFormType extends AbstractType
                     new Length(
                         min: 6,
                         minMessage: 'Your password should be at least {{ limit }} characters',
-                        // max length allowed by Symfony for security reasons
+                        // longueur maximale autorisée par Symfony pour des raisons de sécurité
                         max: 4096,
                     ),
                 ],
@@ -46,6 +48,7 @@ class RegistrationFormType extends AbstractType
         ;
     }
 
+    // Configurer les options du formulaire
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

@@ -17,6 +17,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 #[IsGranted('ROLE_ADMIN')]
 final class CompteController extends AbstractController
 {
+    // Lister tous les comptes
     #[Route(name: 'app_compte_index', methods: ['GET'])]
     public function index(CompteRepository $compteRepository): Response
     {
@@ -25,6 +26,7 @@ final class CompteController extends AbstractController
         ]);
     }
 
+    // Créer un nouveau compte
     #[Route('/new', name: 'app_compte_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
@@ -33,6 +35,7 @@ final class CompteController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // hacher le mot de passe en clair
             $plainPassword = $form->get('plainPassword')->getData();
             if ($plainPassword) {
                 $hashedPassword = $passwordHasher->hashPassword($compte, $plainPassword);
@@ -51,6 +54,7 @@ final class CompteController extends AbstractController
         ]);
     }
 
+    // Afficher un compte spécifique
     #[Route('/{id}', name: 'app_compte_show', methods: ['GET'])]
     public function show(Compte $compte): Response
     {
@@ -59,6 +63,7 @@ final class CompteController extends AbstractController
         ]);
     }
 
+    // Modifier un compte existant
     #[Route('/{id}/edit', name: 'app_compte_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Compte $compte, EntityManagerInterface $entityManager): Response
     {
@@ -77,6 +82,7 @@ final class CompteController extends AbstractController
         ]);
     }
 
+    // Supprimer un compte
     #[Route('/{id}', name: 'app_compte_delete', methods: ['POST'])]
     public function delete(Request $request, Compte $compte, EntityManagerInterface $entityManager): Response
     {

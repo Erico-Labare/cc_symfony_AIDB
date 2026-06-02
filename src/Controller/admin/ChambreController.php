@@ -16,6 +16,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class ChambreController extends AbstractController
 {
+    // Lister toutes les chambres
     #[Route(name: 'app_chambre_index', methods: ['GET'])]
     public function index(ChambreRepository $chambreRepository): Response
     {
@@ -24,6 +25,7 @@ final class ChambreController extends AbstractController
         ]);
     }
 
+    // Créer une nouvelle chambre
     #[Route('/new', name: 'app_chambre_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -44,6 +46,7 @@ final class ChambreController extends AbstractController
         ]);
     }
 
+    // Afficher une chambre spécifique
     #[Route('/{id}', name: 'app_chambre_show', methods: ['GET'])]
     public function show(Chambre $chambre): Response
     {
@@ -52,6 +55,7 @@ final class ChambreController extends AbstractController
         ]);
     }
 
+    // Modifier une chambre existante
     #[Route('/{id}/edit', name: 'app_chambre_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Chambre $chambre, EntityManagerInterface $entityManager): Response
     {
@@ -70,6 +74,7 @@ final class ChambreController extends AbstractController
         ]);
     }
 
+    // Supprimer une chambre
     #[Route('/{id}', name: 'app_chambre_delete', methods: ['POST'])]
     public function delete(Request $request, Chambre $chambre, EntityManagerInterface $entityManager): Response
     {

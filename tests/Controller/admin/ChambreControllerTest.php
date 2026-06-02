@@ -7,11 +7,13 @@ use App\Entity\Hotel;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+// Test du contrôleur de gestion des chambres
 final class ChambreControllerTest extends WebTestCase
 {
     private ?\App\Entity\Compte $admin = null;
     private ?Hotel $hotel = null;
 
+    // Initialiser les données de test
     private function setupData(): void
     {
         if ($this->admin === null) {
@@ -19,6 +21,7 @@ final class ChambreControllerTest extends WebTestCase
             $this->admin = $entityManager->getRepository(\App\Entity\Compte::class)
                 ->findOneBy(['email' => 'admin@test.com']);
 
+            // Créer un hôtel de test
             $this->hotel = new Hotel();
             $this->hotel->setNom('Hotel Test Chambre');
             $this->hotel->setAdresse('123 Rue Test');
@@ -28,6 +31,7 @@ final class ChambreControllerTest extends WebTestCase
         }
     }
 
+    // Tester l'accès à l'index sans authentification
     public function testIndexWithoutAuthentication(): void
     {
         $client = static::createClient();
@@ -35,6 +39,7 @@ final class ChambreControllerTest extends WebTestCase
         self::assertResponseRedirects();
     }
 
+    // Tester l'accès à l'index avec un utilisateur non-admin
     public function testIndexWithNonAdmin(): void
     {
         $client = static::createClient();
@@ -47,6 +52,7 @@ final class ChambreControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    // Tester l'accès à l'index avec un admin
     public function testIndexWithAdmin(): void
     {
         $client = static::createClient();
@@ -56,6 +62,7 @@ final class ChambreControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester l'affichage du formulaire de création
     public function testNewFormGet(): void
     {
         $client = static::createClient();
@@ -65,12 +72,15 @@ final class ChambreControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester la soumission du formulaire de création
     public function testNewFormSubmit(): void
     {
         $client = static::createClient();
         $this->setupData();
         $client->loginUser($this->admin);
 
+
+        // Soumission du formulaire
         $crawler = $client->request('GET', '/admin/chambre/new');
         $form = $crawler->selectButton('Save')->form([
             'chambre[etage]' => '3',
@@ -81,16 +91,20 @@ final class ChambreControllerTest extends WebTestCase
         $client->submit($form);
         self::assertResponseRedirects();
 
+
+        // Vérifier que la chambre a été créée
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $chambres = $entityManager->getRepository(Chambre::class)->findBy(['etage' => 3]);
         self::assertGreaterThanOrEqual(1, count($chambres));
     }
 
+    // Tester l'affichage d'une chambre existante
     public function testShowExistingChambre(): void
     {
         $client = static::createClient();
         $this->setupData();
 
+        // Créer une chambre de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $chambre = new Chambre();
         $chambre->setEtage(2);
@@ -105,6 +119,7 @@ final class ChambreControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester l'affichage d'une chambre inexistante
     public function testShowNonExistentChambre(): void
     {
         $client = static::createClient();
@@ -114,11 +129,13 @@ final class ChambreControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
+    // Tester l'affichage du formulaire de modification
     public function testEditFormGet(): void
     {
         $client = static::createClient();
         $this->setupData();
 
+        // Créer une chambre de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $chambre = new Chambre();
         $chambre->setEtage(1);
@@ -133,11 +150,13 @@ final class ChambreControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester la soumission du formulaire de modification
     public function testEditFormSubmit(): void
     {
         $client = static::createClient();
         $this->setupData();
 
+        // Créer une chambre de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $chambre = new Chambre();
         $chambre->setEtage(1);
@@ -148,6 +167,8 @@ final class ChambreControllerTest extends WebTestCase
         $entityManager->flush();
         $id = $chambre->getId();
 
+
+        // Soumission du formulaire de modification
         $client->loginUser($this->admin);
         $crawler = $client->request('GET', '/admin/chambre/' . $id . '/edit');
         $form = $crawler->selectButton('Update')->form([
@@ -159,16 +180,19 @@ final class ChambreControllerTest extends WebTestCase
         $client->submit($form);
         self::assertResponseRedirects();
 
+        // Vérifier que la chambre a été modifiée
         $entityManager->clear();
         $updatedChambre = $entityManager->getRepository(Chambre::class)->find($id);
         self::assertSame(5, $updatedChambre->getEtage());
     }
 
+    // Tester la suppression d'une chambre avec un jeton CSRF valide
     public function testDeleteWithValidCsrfToken(): void
     {
         $client = static::createClient();
         $this->setupData();
 
+        // Créer une chambre de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $chambre = new Chambre();
         $chambre->setEtage(1);
@@ -179,6 +203,8 @@ final class ChambreControllerTest extends WebTestCase
         $entityManager->flush();
         $id = $chambre->getId();
 
+
+        // Supprimer la chambre
         $client->loginUser($this->admin);
         $client->request('GET', '/admin/chambre/' . $id);
         $form = $client->getCrawler()->selectButton('Delete')->form();
@@ -186,6 +212,8 @@ final class ChambreControllerTest extends WebTestCase
         $client->submit($form);
         self::assertResponseRedirects();
 
+
+        // Vérifier que la chambre a été supprimée
         $entityManager->clear();
         $deletedChambre = $entityManager->getRepository(Chambre::class)->find($id);
         self::assertNull($deletedChambre);

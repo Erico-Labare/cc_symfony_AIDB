@@ -6,10 +6,12 @@ use App\Entity\Hotel;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+// Test du contrôleur de gestion des hôtels
 final class HotelControllerTest extends WebTestCase
 {
     private ?\App\Entity\Compte $admin = null;
 
+    // Initialiser les données de test
     private function setupData(): void
     {
         if ($this->admin === null) {
@@ -19,6 +21,7 @@ final class HotelControllerTest extends WebTestCase
         }
     }
 
+    // Tester l'accès à l'index sans authentification
     public function testIndexWithoutAuthentication(): void
     {
         $client = static::createClient();
@@ -26,6 +29,7 @@ final class HotelControllerTest extends WebTestCase
         self::assertResponseRedirects();
     }
 
+    // Tester l'accès à l'index avec un utilisateur non-admin
     public function testIndexWithNonAdmin(): void
     {
         $client = static::createClient();
@@ -38,6 +42,7 @@ final class HotelControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    // Tester l'accès à l'index avec un admin
     public function testIndexWithAdmin(): void
     {
         $client = static::createClient();
@@ -47,6 +52,7 @@ final class HotelControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester l'affichage du formulaire de création
     public function testNewFormGet(): void
     {
         $client = static::createClient();
@@ -56,11 +62,15 @@ final class HotelControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester la soumission du formulaire de création
     public function testNewFormSubmit(): void
     {
         $client = static::createClient();
         $this->setupData();
         $client->loginUser($this->admin);
+
+
+        // Soumission du formulaire
 
         $crawler = $client->request('GET', '/admin/hotel/new');
         $form = $crawler->selectButton('Save')->form([
@@ -71,17 +81,23 @@ final class HotelControllerTest extends WebTestCase
         $client->submit($form);
         self::assertResponseRedirects();
 
+
+        // Vérifier que l'hôtel a été créé
+
+
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $hotels = $entityManager->getRepository(Hotel::class)
             ->findAll();
         self::assertGreaterThanOrEqual(1, count($hotels));
     }
 
+    // Tester l'affichage d'un hôtel existant
     public function testShowExistingHotel(): void
     {
         $client = static::createClient();
         $this->setupData();
 
+        // Créer un hôtel de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $hotel = new Hotel();
         $hotel->setNom('Hotel Test ' . time());
@@ -95,6 +111,7 @@ final class HotelControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester l'affichage d'un hôtel inexistant
     public function testShowNonExistentHotel(): void
     {
         $client = static::createClient();
@@ -104,11 +121,13 @@ final class HotelControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
+    // Tester l'affichage du formulaire de modification
     public function testEditFormGet(): void
     {
         $client = static::createClient();
         $this->setupData();
 
+        // Créer un hôtel de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $hotel = new Hotel();
         $hotel->setNom('Hotel Original');
@@ -122,11 +141,13 @@ final class HotelControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(200);
     }
 
+    // Tester la soumission du formulaire de modification
     public function testEditFormSubmit(): void
     {
         $client = static::createClient();
         $this->setupData();
 
+        // Créer un hôtel de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $hotel = new Hotel();
         $hotel->setNom('Hotel Original');
@@ -136,6 +157,7 @@ final class HotelControllerTest extends WebTestCase
         $entityManager->flush();
         $id = $hotel->getId();
 
+        // Soumission du formulaire de modification
         $client->loginUser($this->admin);
         $crawler = $client->request('GET', '/admin/hotel/' . $id . '/edit');
         $form = $crawler->selectButton('Update')->form([
@@ -146,16 +168,19 @@ final class HotelControllerTest extends WebTestCase
         $client->submit($form);
         self::assertResponseRedirects();
 
+        // Vérifier que l'hôtel a été modifié
         $entityManager->clear();
         $updatedHotel = $entityManager->getRepository(Hotel::class)->find($id);
         self::assertSame('Hotel Updated', $updatedHotel->getNom());
     }
 
+    // Tester la suppression d'un hôtel avec un jeton CSRF valide
     public function testDeleteWithValidCsrfToken(): void
     {
         $client = static::createClient();
         $this->setupData();
 
+        // Créer un hôtel de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $hotel = new Hotel();
         $hotel->setNom('Hotel to Delete');
@@ -165,6 +190,7 @@ final class HotelControllerTest extends WebTestCase
         $entityManager->flush();
         $id = $hotel->getId();
 
+        // Supprimer l'hôtel
         $client->loginUser($this->admin);
         $client->request('GET', '/admin/hotel/' . $id);
         $form = $client->getCrawler()->selectButton('Delete')->form();
@@ -172,6 +198,7 @@ final class HotelControllerTest extends WebTestCase
         $client->submit($form);
         self::assertResponseRedirects();
 
+        // Vérifier que l'hôtel a été supprimé
         $entityManager->clear();
         $deletedHotel = $entityManager->getRepository(Hotel::class)->find($id);
         self::assertNull($deletedHotel);

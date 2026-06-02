@@ -9,11 +9,13 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+// Test du contrôleur d'enregistrement
 class RegistrationControllerTest extends WebTestCase
 {
     private KernelBrowser $client;
     private CompteRepository $userRepository;
 
+    // Initialiser le client de test et la base de données
     protected function setUp(): void
     {
         $this->client = static::createClient();
@@ -23,17 +25,20 @@ class RegistrationControllerTest extends WebTestCase
         /** @var EntityManager $em */
         $em = $container->get('doctrine')->getManager();
 
+        // Recreer le schéma de la base de données
         $schemaTool = new SchemaTool($em);
         $metadata = $em->getMetadataFactory()->getAllMetadata();
         $schemaTool->dropDatabase();
         $schemaTool->createSchema($metadata);
 
+        // Charger les données de test
         $fixture = new TestFixtures($container->get('security.password_hasher'));
         $fixture->load($em);
 
         $this->userRepository = $container->get(CompteRepository::class);
     }
 
+    // Tester le processus d'enregistrement
     public function testRegister(): void
     {
         /*

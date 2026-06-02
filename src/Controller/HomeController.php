@@ -8,12 +8,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class HomeController extends AbstractController
 {
+    // Rediriger le chemin racine vers l'accueil
     #[Route('/', name: 'app_root')]
     public function root(): Response
     {
         return $this->redirectToRoute('app_home');
     }
 
+    // Afficher la page d'accueil
     #[Route('/home', name: 'app_home')]
     public function index(): Response
     {

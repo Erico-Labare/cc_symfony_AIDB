@@ -9,13 +9,14 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
+    // Afficher le formulaire de connexion
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // get the login error if there is one
+        // obtenir l'erreur de connexion s'il y en a une
         $error = $authenticationUtils->getLastAuthenticationError();
 
-        // last username entered by the user
+        // dernier nom d'utilisateur entré par l'utilisateur
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', [
@@ -24,6 +25,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
+    // Gérer la déconnexion de l'utilisateur
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {

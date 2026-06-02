@@ -16,6 +16,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class HotelController extends AbstractController
 {
+    // Lister tous les hôtels
     #[Route(name: 'app_hotel_index', methods: ['GET'])]
     public function index(HotelRepository $hotelRepository): Response
     {
@@ -24,6 +25,7 @@ final class HotelController extends AbstractController
         ]);
     }
 
+    // Créer un nouvel hôtel
     #[Route('/new', name: 'app_hotel_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -44,6 +46,7 @@ final class HotelController extends AbstractController
         ]);
     }
 
+    // Afficher un hôtel spécifique
     #[Route('/{id}', name: 'app_hotel_show', methods: ['GET'])]
     public function show(Hotel $hotel): Response
     {
@@ -52,6 +55,7 @@ final class HotelController extends AbstractController
         ]);
     }
 
+    // Modifier un hôtel existant
     #[Route('/{id}/edit', name: 'app_hotel_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Hotel $hotel, EntityManagerInterface $entityManager): Response
     {
@@ -70,6 +74,7 @@ final class HotelController extends AbstractController
         ]);
     }
 
+    // Supprimer un hôtel
     #[Route('/{id}', name: 'app_hotel_delete', methods: ['POST'])]
     public function delete(Request $request, Hotel $hotel, EntityManagerInterface $entityManager): Response
     {
