@@ -31,15 +31,15 @@ class ReservationRepository extends ServiceEntityRepository
     /**
      * Retourne les réservations comprises entre deux dates
      */
-    // public function findBetweenDates(\DateTimeInterface $dateDebut, \DateTimeInterface $dateFin): array
-    // {
-    //     return $this->createQueryBuilder('r')
-    //         ->andWhere('r.dateDebut <= :dateFin')
-    //         ->andWhere('r.dateFin >= :dateDebut')
-    //         ->setParameter('dateDebut', $dateDebut)
-    //         ->setParameter('dateFin', $dateFin)
-    //         ->orderBy('r.dateDebut', 'ASC')
-    //         ->getQuery()
-    //         ->getResult();
-    // }
+    public function findBetweenDates(\DateTimeInterface $dateDebut, \DateTimeInterface $dateFin): array
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.dateDebut <= :dateFin')
+            ->andWhere('r.dateFin >= :dateDebut')
+            ->setParameter('dateDebut', $dateDebut)
+            ->setParameter('dateFin', $dateFin)
+            ->orderBy('r.dateDebut', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

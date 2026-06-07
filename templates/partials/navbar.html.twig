@@ -17,6 +17,16 @@
 					<a class="nav-link" href="{{ path('app_home') }}">Accueil</a>
 				</li>
 
+				<li class="nav-item">
+					<a class="nav-link" href="{{ path('app_reservation_search') }}">Rechercher</a>
+				</li>
+
+				{% if app.user %}
+					<li class="nav-item">
+						<a class="nav-link" href="{{ path('app_reservation_my_reservations') }}">Mes réservations</a>
+					</li>
+				{% endif %}
+
 			</ul>
 
 			<ul class="navbar-nav">

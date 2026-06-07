@@ -17,18 +17,23 @@
 
         {# Content #}
         <main class="container mt-4 flex-grow-1">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
             {% block body %}{% endblock %}
 
             {% if is_granted('ROLE_ADMIN') %}
-
-            <li class="nav-item mt-4 flex-grow-1 p-5 bg-light rounded alert alert-success badge">
-
-                <a class="nav-link" href="{{ path('app_admin') }}">
-                    Boutton de gestion de l'administration
-                </a>
-
-            </li>
-
+                <div class="mt-4">
+                    <a class="btn btn-warning btn-lg" href="{{ path('app_admin') }}">
+                        Gestion de l'administration
+                    </a>
+                </div>
             {% endif %}
         </main>
         

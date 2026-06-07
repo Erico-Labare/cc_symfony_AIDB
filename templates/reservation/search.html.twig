@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rechercher une chambre{% endblock %}
+
+{% block body %}
+    <h1>Rechercher une chambre disponible</h1>
+
+    {{ form_start(form) }}
+        <div class="form-group mb-3">
+            {{ form_label(form.hotel) }}
+            {{ form_widget(form.hotel, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.hotel) }}
+        </div>
+
+        <div class="form-group mb-3">
+            {{ form_label(form.dateDebut, 'Date de début') }}
+            {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control', 'type': 'datetime-local'}}) }}
+            {{ form_errors(form.dateDebut) }}
+        </div>
+
+        <div class="form-group mb-3">
+            {{ form_label(form.dateFin, 'Date de fin') }}
+            {{ form_widget(form.dateFin, {'attr': {'class': 'form-control', 'type': 'datetime-local'}}) }}
+            {{ form_errors(form.dateFin) }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+    {{ form_end(form) }}
+
+    {% if availableRooms is not empty %}
+        <h2 class="mt-5">Chambres disponibles</h2>
+
+        {% if is_granted('ROLE_USER') %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Numéro</th>
+                        <th>Type</th>
+                        <th>Nombre de lits</th>
+                        <th>Étage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chambre in availableRooms %}
+                        <tr>
+                            <td>{{ chambre.id }}</td>
+                            <td>{{ chambre.type }}</td>
+                            <td>{{ chambre.nombreLit }}</td>
+                            <td>{{ chambre.etage }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#reservationModal{{ chambre.id }}">
+                                    Réserver
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Modal de réservation -->
+                        <div class="modal fade" id="reservationModal{{ chambre.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Réserver la chambre {{ chambre.id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="post" action="{{ path('app_reservation_create') }}">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="chambre_id" value="{{ chambre.id }}">
+                                            <input type="hidden" name="dateDebut" value="{{ form.dateDebut.vars.value|date('Y-m-d\TH:i') }}">
+                                            <input type="hidden" name="dateFin" value="{{ form.dateFin.vars.value|date('Y-m-d\TH:i') }}">
+
+                                            <div class="mb-3">
+                                                <label for="commentaire{{ chambre.id }}" class="form-label">Commentaires (optionnel)</label>
+                                                <textarea class="form-control" id="commentaire{{ chambre.id }}" name="commentaire" rows="3"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            <button type="submit" class="btn btn-primary">Confirmer la réservation</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-info">
+                <p>Vous devez être connecté pour réserver une chambre.</p>
+                <a href="{{ path('app_login') }}" class="btn btn-primary">Se connecter</a>
+                <a href="{{ path('app_register') }}" class="btn btn-secondary">S'inscrire</a>
+            </div>
+        {% endif %}
+    {% elseif app.request.method == 'POST' %}
+        <div class="alert alert-warning mt-5">
+            Aucune chambre disponible pour cette période.
+        </div>
+    {% endif %}
+{% endblock %}

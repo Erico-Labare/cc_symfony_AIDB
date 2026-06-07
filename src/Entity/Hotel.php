@@ -85,7 +85,7 @@ class Hotel
      */
     public function __construct()
     {
-        // $this->chambres = new ArrayCollection();
+        $this->chambres = new ArrayCollection();
     }
 
     /*
