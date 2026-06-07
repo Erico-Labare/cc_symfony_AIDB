@@ -40,13 +40,13 @@
  │         ├── CompteAdminController.php
  │         │    - function - rechercher des comptes
  │         │    - function - filtrer les comptes par rôle
- │    ├── Entity/
- |    │    ├── Compte.php
- |    │    ├── Client.php
- |    │    ├── Chambre.php
- |    │    ├── Hotel.php
- |    │    ├── Reservation.php
- |    │    ├── ResetPasswordRequest.php
+ ├── Entity/
+ │    ├── Compte.php
+ │    ├── Client.php
+ │    ├── Chambre.php
+ │    ├── Hotel.php
+ │    ├── Reservation.php
+ │    ├── ResetPasswordRequest.php
  ├── Repository/
  │    ├── ClientRepository.php
  │    ├── ChambreRepository.php
