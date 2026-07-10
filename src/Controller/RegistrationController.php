@@ -16,6 +16,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface; // Import UrlGeneratorInterface
 
 class RegistrationController extends AbstractController
 {
@@ -25,8 +26,13 @@ class RegistrationController extends AbstractController
 
     // Enregistrer un nouveau compte utilisateur
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
-    {
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        Security $security,
+        EntityManagerInterface $entityManager,
+        UrlGeneratorInterface $urlGenerator // Inject UrlGeneratorInterface
+    ): Response {
         $user = new Compte();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
@@ -58,7 +64,13 @@ class RegistrationController extends AbstractController
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
-            return $security->login($user, 'form_login', 'main');
+            // Get the target path from the request, or default to app_reservation_search
+            $targetPath = $request->query->get('_target_path', $urlGenerator->generate('app_reservation_search'));
+
+            // Log the user in and redirect to the target path
+            $security->login($user, 'form_login', 'main');
+
+            return $this->redirect($targetPath);
         }
 
         return $this->render('registration/register.html.twig', [

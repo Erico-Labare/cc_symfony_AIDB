@@ -14,6 +14,9 @@
                     <th>Hôtel</th>
                     <th>Date de début</th>
                     <th>Date de fin</th>
+                    <th>Client (Nom)</th>
+                    <th>Client (Email)</th>
+                    <th>Client (Téléphone)</th>
                     <th>Commentaire</th>
                 </tr>
             </thead>
@@ -23,8 +26,11 @@
                         <td>#{{ reservation.id }}</td>
                         <td>{{ reservation.chambre.id }} ({{ reservation.chambre.type }})</td>
                         <td>{{ reservation.chambre.hotel.nom }}</td>
-                        <td>{{ reservation.dateDebut|date('d/m/Y H:i') }}</td>
-                        <td>{{ reservation.dateFin|date('d/m/Y H:i') }}</td>
+                        <td>{{ reservation.dateDebut|date('d/m/Y') }}</td>
+                        <td>{{ reservation.dateFin|date('d/m/Y') }}</td>
+                        <td>{{ reservation.client.nom }}</td>
+                        <td>{{ reservation.client.email }}</td>
+                        <td>{{ reservation.client.telephone|default('-') }}</td>
                         <td>{{ reservation.commentaire|default('-') }}</td>
                     </tr>
                 {% endfor %}
