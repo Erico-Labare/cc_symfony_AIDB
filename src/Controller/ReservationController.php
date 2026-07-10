@@ -17,6 +17,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\ORM\Exception\ORMException;
 
 #[Route('/reservation')]
 final class ReservationController extends AbstractController
@@ -85,7 +88,7 @@ final class ReservationController extends AbstractController
         try {
             $chambre = $chambreRepository->find($chambreId);
             if (!$chambre) {
-                throw new \Exception('Chambre non trouvée.');
+                throw $this->createNotFoundException('Chambre non trouvée.');
             }
 
             $client = $clientRepository->findOneBy(['email' => $compte->getEmail()]);
@@ -114,9 +117,20 @@ final class ReservationController extends AbstractController
             $this->addFlash('success', 'Réservation créée avec succès !');
 
             return $this->redirectToRoute('app_reservation_my_reservations');
+        } catch (NotFoundHttpException $e) {
+            $this->addFlash('error', 'Erreur : ' . $e->getMessage());
+            return $this->redirectToRoute('app_reservation_search');
+        } catch (UniqueConstraintViolationException $e) {
+            $this->addFlash('error', 'Une erreur est survenue : ' . $e->getMessage());
+            return $this->redirectToRoute('app_reservation_search');
+        } catch (ORMException $e) {
+            $this->addFlash('error', 'Une erreur est survenue lors de la création de la réservation : ' . $e->getMessage());
+            return $this->redirectToRoute('app_reservation_search');
+        } catch (\InvalidArgumentException $e) {
+            $this->addFlash('error', 'Erreur de données : ' . $e->getMessage());
+            return $this->redirectToRoute('app_reservation_search');
         } catch (\Exception $e) {
-            $this->addFlash('error', 'Erreur lors de la création de la réservation : ' . $e->getMessage());
-
+            $this->addFlash('error', 'Une erreur inattendue est survenue lors de la création de la réservation : ' . $e->getMessage());
             return $this->redirectToRoute('app_reservation_search');
         }
     }
