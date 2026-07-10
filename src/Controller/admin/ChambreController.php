@@ -16,12 +16,22 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class ChambreController extends AbstractController
 {
-    // Lister toutes les chambres
+    // Lister toutes les chambres avec pagination et recherche
     #[Route(name: 'app_admin_chambre_index', methods: ['GET'])]
-    public function index(ChambreRepository $chambreRepository): Response
+    public function index(Request $request, ChambreRepository $chambreRepository): Response
     {
+        $page = $request->query->getInt('page', 1);
+        $limit = 10; // Nombre d'éléments par page
+        $search = $request->query->getString('search');
+
+        $chambres = $chambreRepository->paginateChambres($page, $limit, $search);
+        $maxPages = ceil(count($chambres) / $limit);
+
         return $this->render('admin/chambre/index.html.twig', [
-            'chambres' => $chambreRepository->findAll(),
+            'chambres' => $chambres,
+            'page' => $page,
+            'maxPages' => $maxPages,
+            'search' => $search,
         ]);
     }
 

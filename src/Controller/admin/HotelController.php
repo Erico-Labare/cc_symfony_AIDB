@@ -16,12 +16,22 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class HotelController extends AbstractController
 {
-    // Lister tous les hôtels
+    // Lister tous les hôtels avec pagination et recherche
     #[Route(name: 'app_admin_hotel_index', methods: ['GET'])]
-    public function index(HotelRepository $hotelRepository): Response
+    public function index(Request $request, HotelRepository $hotelRepository): Response
     {
+        $page = $request->query->getInt('page', 1);
+        $limit = 10; // Nombre d'éléments par page
+        $search = $request->query->getString('search');
+
+        $hotels = $hotelRepository->paginateHotels($page, $limit, $search);
+        $maxPages = ceil(count($hotels) / $limit);
+
         return $this->render('admin/hotel/index.html.twig', [
-            'hotels' => $hotelRepository->findAll(),
+            'hotels' => $hotels,
+            'page' => $page,
+            'maxPages' => $maxPages,
+            'search' => $search,
         ]);
     }
 

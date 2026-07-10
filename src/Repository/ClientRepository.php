@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Client;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * Repository de gestion des clients
@@ -17,27 +18,27 @@ class ClientRepository extends ServiceEntityRepository
     }
 
     /**
-     * Recherche des clients par nom
+     * Récupère une liste paginée de clients avec option de recherche.
+     *
+     * @param int $page La page actuelle
+     * @param int $limit Le nombre d'éléments par page
+     * @param string|null $search Le terme de recherche (nom ou email)
+     * @return Paginator
      */
-    // public function findByNom(string $nom): array
-    // {
-    //     return $this->createQueryBuilder('c')
-    //         ->andWhere('c.nom LIKE :nom')
-    //         ->setParameter('nom', '%' . $nom . '%')
-    //         ->orderBy('c.nom', 'ASC')
-    //         ->getQuery()
-    //         ->getResult();
-    // }
+    public function paginateClients(int $page, int $limit, ?string $search = null): Paginator
+    {
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->orderBy('c.nom', 'ASC');
 
-    /**
-     * Recherche un client par email
-     */
-    // public function findByEmail(string $email): ?Client
-    // {
-    //     return $this->createQueryBuilder('c')
-    //         ->andWhere('c.email = :email')
-    //         ->setParameter('email', $email)
-    //         ->getQuery()
-    //         ->getOneOrNullResult();
-    // }
+        if ($search) {
+            $queryBuilder->andWhere('c.nom LIKE :search OR c.email LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        $query = $queryBuilder->getQuery();
+        $query->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        return new Paginator($query);
+    }
 }

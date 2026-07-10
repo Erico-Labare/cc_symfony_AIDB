@@ -17,10 +17,20 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ReservationController extends AbstractController
 {
     #[Route('/', name: 'app_admin_reservation_index', methods: ['GET'])]
-    public function index(ReservationRepository $reservationRepository): Response
+    public function index(Request $request, ReservationRepository $reservationRepository): Response
     {
+        $page = $request->query->getInt('page', 1);
+        $limit = 10; // Nombre d'éléments par page
+        $search = $request->query->getString('search');
+
+        $reservations = $reservationRepository->paginateReservations($page, $limit, $search);
+        $maxPages = ceil(count($reservations) / $limit);
+
         return $this->render('admin/reservation/index.html.twig', [
-            'reservations' => $reservationRepository->findAll(),
+            'reservations' => $reservations,
+            'page' => $page,
+            'maxPages' => $maxPages,
+            'search' => $search,
         ]);
     }
 

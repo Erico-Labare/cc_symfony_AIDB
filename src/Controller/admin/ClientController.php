@@ -16,11 +16,22 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class ClientController extends AbstractController
 {
+    // Lister tous les clients avec pagination et recherche
     #[Route('/', name: 'app_admin_client_index', methods: ['GET'])]
-    public function index(ClientRepository $clientRepository): Response
+    public function index(Request $request, ClientRepository $clientRepository): Response
     {
+        $page = $request->query->getInt('page', 1);
+        $limit = 10; // Nombre d'éléments par page
+        $search = $request->query->getString('search');
+
+        $clients = $clientRepository->paginateClients($page, $limit, $search);
+        $maxPages = ceil(count($clients) / $limit);
+
         return $this->render('admin/client/index.html.twig', [
-            'clients' => $clientRepository->findAll(),
+            'clients' => $clients,
+            'page' => $page,
+            'maxPages' => $maxPages,
+            'search' => $search,
         ]);
     }
 

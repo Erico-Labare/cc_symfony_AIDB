@@ -17,12 +17,22 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 #[IsGranted('ROLE_ADMIN')]
 final class CompteController extends AbstractController
 {
-    // Lister tous les comptes
+    // Lister tous les comptes avec pagination et recherche
     #[Route(name: 'app_admin_compte_index', methods: ['GET'])]
-    public function index(CompteRepository $compteRepository): Response
+    public function index(Request $request, CompteRepository $compteRepository): Response
     {
+        $page = $request->query->getInt('page', 1);
+        $limit = 10; // Nombre d'éléments par page
+        $search = $request->query->getString('search');
+
+        $comptes = $compteRepository->paginateComptes($page, $limit, $search);
+        $maxPages = ceil(count($comptes) / $limit);
+
         return $this->render('admin/compte/index.html.twig', [
-            'comptes' => $compteRepository->findAll(),
+            'comptes' => $comptes,
+            'page' => $page,
+            'maxPages' => $maxPages,
+            'search' => $search,
         ]);
     }
 

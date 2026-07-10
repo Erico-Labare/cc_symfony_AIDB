@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Compte;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * Repository de gestion des comptes utilisateurs
@@ -17,27 +18,27 @@ class CompteRepository extends ServiceEntityRepository
     }
 
     /**
-     * Recherche un compte par email
+     * Récupère une liste paginée de comptes avec option de recherche.
+     *
+     * @param int $page La page actuelle
+     * @param int $limit Le nombre d'éléments par page
+     * @param string|null $search Le terme de recherche (email ou rôle)
+     * @return Paginator
      */
-    // public function findByEmail(string $email): ?Compte
-    // {
-    //     return $this->createQueryBuilder('c')
-    //         ->andWhere('c.email = :email')
-    //         ->setParameter('email', $email)
-    //         ->getQuery()
-    //         ->getOneOrNullResult();
-    // }
+    public function paginateComptes(int $page, int $limit, ?string $search = null): Paginator
+    {
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->orderBy('c.email', 'ASC');
 
-    /**
-     * Recherche des comptes par rôle
-     */
-    // public function findByRole(string $role): array
-    // {
-    //     return $this->createQueryBuilder('c')
-    //         ->andWhere('c.role = :role')
-    //         ->setParameter('role', $role)
-    //         ->orderBy('c.id', 'DESC')
-    //         ->getQuery()
-    //         ->getResult();
-    // }
+        if ($search) {
+            $queryBuilder->andWhere('c.email LIKE :search OR c.role LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        $query = $queryBuilder->getQuery();
+        $query->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        return new Paginator($query);
+    }
 }
