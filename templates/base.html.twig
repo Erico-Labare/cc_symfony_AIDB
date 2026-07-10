@@ -9,8 +9,8 @@
         {% block stylesheets %}
         {% endblock %}
     </head>
-    
-    
+
+
     <body class="d-flex flex-column min-vh-100">
         {# Navbar #}
         {% include 'partials/navbar.html.twig' %}
@@ -27,16 +27,8 @@
             {% endfor %}
 
             {% block body %}{% endblock %}
-
-            {% if is_granted('ROLE_ADMIN') %}
-                <div class="mt-4">
-                    <a class="btn btn-warning btn-lg" href="{{ path('app_admin') }}">
-                        Gestion de l'administration
-                    </a>
-                </div>
-            {% endif %}
         </main>
-        
+
         {# Footer #}
         {% include 'partials/footer.html.twig' %}
 
@@ -49,5 +41,5 @@
     </body>
 
 
-    
+
 </html>

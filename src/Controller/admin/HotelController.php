@@ -17,7 +17,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class HotelController extends AbstractController
 {
     // Lister tous les hôtels
-    #[Route(name: 'app_hotel_index', methods: ['GET'])]
+    #[Route(name: 'app_admin_hotel_index', methods: ['GET'])]
     public function index(HotelRepository $hotelRepository): Response
     {
         return $this->render('admin/hotel/index.html.twig', [
@@ -26,7 +26,7 @@ final class HotelController extends AbstractController
     }
 
     // Créer un nouvel hôtel
-    #[Route('/new', name: 'app_hotel_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_hotel_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $hotel = new Hotel();
@@ -37,7 +37,7 @@ final class HotelController extends AbstractController
             $entityManager->persist($hotel);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_hotel_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('admin/hotel/new.html.twig', [
@@ -47,7 +47,7 @@ final class HotelController extends AbstractController
     }
 
     // Afficher un hôtel spécifique
-    #[Route('/{id}', name: 'app_hotel_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_admin_hotel_show', methods: ['GET'])]
     public function show(Hotel $hotel): Response
     {
         return $this->render('admin/hotel/show.html.twig', [
@@ -56,7 +56,7 @@ final class HotelController extends AbstractController
     }
 
     // Modifier un hôtel existant
-    #[Route('/{id}/edit', name: 'app_hotel_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_hotel_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Hotel $hotel, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(HotelType::class, $hotel);
@@ -65,7 +65,7 @@ final class HotelController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_hotel_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('admin/hotel/edit.html.twig', [
@@ -75,7 +75,7 @@ final class HotelController extends AbstractController
     }
 
     // Supprimer un hôtel
-    #[Route('/{id}', name: 'app_hotel_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_admin_hotel_delete', methods: ['POST'])]
     public function delete(Request $request, Hotel $hotel, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $hotel->getId(), $request->getPayload()->getString('_token'))) {
@@ -83,6 +83,6 @@ final class HotelController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_hotel_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);
     }
 }

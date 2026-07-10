@@ -18,7 +18,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 final class CompteController extends AbstractController
 {
     // Lister tous les comptes
-    #[Route(name: 'app_compte_index', methods: ['GET'])]
+    #[Route(name: 'app_admin_compte_index', methods: ['GET'])]
     public function index(CompteRepository $compteRepository): Response
     {
         return $this->render('admin/compte/index.html.twig', [
@@ -27,7 +27,7 @@ final class CompteController extends AbstractController
     }
 
     // Créer un nouveau compte
-    #[Route('/new', name: 'app_compte_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_compte_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $compte = new Compte();
@@ -45,7 +45,7 @@ final class CompteController extends AbstractController
             $entityManager->persist($compte);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('admin/compte/new.html.twig', [
@@ -55,7 +55,7 @@ final class CompteController extends AbstractController
     }
 
     // Afficher un compte spécifique
-    #[Route('/{id}', name: 'app_compte_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_admin_compte_show', methods: ['GET'])]
     public function show(Compte $compte): Response
     {
         return $this->render('admin/compte/show.html.twig', [
@@ -64,7 +64,7 @@ final class CompteController extends AbstractController
     }
 
     // Modifier un compte existant
-    #[Route('/{id}/edit', name: 'app_compte_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_compte_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Compte $compte, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(CompteType::class, $compte);
@@ -73,7 +73,7 @@ final class CompteController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('admin/compte/edit.html.twig', [
@@ -83,7 +83,7 @@ final class CompteController extends AbstractController
     }
 
     // Supprimer un compte
-    #[Route('/{id}', name: 'app_compte_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_admin_compte_delete', methods: ['POST'])]
     public function delete(Request $request, Compte $compte, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $compte->getId(), $request->getPayload()->getString('_token'))) {
@@ -91,6 +91,6 @@ final class CompteController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
     }
 }

@@ -3,37 +3,43 @@
 {% block title %}Hotel index{% endblock %}
 
 {% block body %}
-    <h1>Hotel index</h1>
+    <div class="container mt-4">
+        <h1 class="mb-4">Gestion des Hôtels</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nom</th>
-                <th>Adresse</th>
-                <th>Categorie</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for hotel in hotels %}
-            <tr>
-                <td>{{ hotel.id }}</td>
-                <td>{{ hotel.nom }}</td>
-                <td>{{ hotel.adresse }}</td>
-                <td>{{ hotel.categorie }}</td>
-                <td>
-                    <a href="{{ path('app_hotel_show', {'id': hotel.id}) }}">show</a>
-                    <a href="{{ path('app_hotel_edit', {'id': hotel.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        <a href="{{ path('app_admin_hotel_new') }}" class="btn btn-primary mb-3">Créer un nouvel hôtel</a>
 
-    <a href="{{ path('app_hotel_new') }}">Create new</a>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nom</th>
+                    <th>Adresse</th>
+                    <th>Categorie</th>
+                    <th>actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for hotel in hotels %}
+                <tr>
+                    <td>{{ hotel.id }}</td>
+                    <td>{{ hotel.nom }}</td>
+                    <td>{{ hotel.adresse }}</td>
+                    <td>{{ hotel.categorie }}</td>
+                    <td>
+                        <a href="{{ path('app_admin_hotel_show', {'id': hotel.id}) }}" class="btn btn-info btn-sm">Voir</a>
+                        <a href="{{ path('app_admin_hotel_edit', {'id': hotel.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="mt-4">
+            <a href="{{ path('app_admin') }}" class="btn btn-secondary">Retour à la page Admin</a>
+        </div>
+    </div>
 {% endblock %}

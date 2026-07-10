@@ -3,9 +3,14 @@
 {% block title %}New Hotel{% endblock %}
 
 {% block body %}
-    <h1>Create new Hotel</h1>
+    <div class="container mt-4">
+        <h1 class="mb-4">Créer un nouvel Hôtel</h1>
 
-    {{ include('admin/hotel/_form.html.twig') }}
+        {{ include('admin/hotel/_form.html.twig') }}
 
-    <a href="{{ path('app_hotel_index') }}">back to list</a>
+        <div class="mt-3">
+            <a href="{{ path('app_admin_hotel_index') }}" class="btn btn-secondary">Retour à la liste</a>
+            <a href="{{ path('app_admin') }}" class="btn btn-secondary">Retour à la page Admin</a>
+        </div>
+    </div>
 {% endblock %}

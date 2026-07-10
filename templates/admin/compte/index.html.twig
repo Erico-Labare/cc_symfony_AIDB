@@ -3,37 +3,43 @@
 {% block title %}Compte index{% endblock %}
 
 {% block body %}
-    <h1>Compte index</h1>
+    <div class="container mt-4">
+        <h1 class="mb-4">Gestion des Comptes</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Role</th>
-                <th>Email</th>
-                <th>IsVerified</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for compte in comptes %}
-            <tr>
-                <td>{{ compte.id }}</td>
-                <td>{{ compte.roles|join(', ') }}</td>
-                <td>{{ compte.email }}</td>
-                <td>{{ compte.isVerified ? 'Oui' : 'Non' }}</td>
-                <td>
-                    <a href="{{ path('app_compte_show', {'id': compte.id}) }}">show</a>
-                    <a href="{{ path('app_compte_edit', {'id': compte.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        <a href="{{ path('app_admin_compte_new') }}" class="btn btn-primary mb-3">Créer un nouveau compte</a>
 
-    <a href="{{ path('app_compte_new') }}">Create new</a>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>IsVerified</th>
+                    <th>actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for compte in comptes %}
+                <tr>
+                    <td>{{ compte.id }}</td>
+                    <td>{{ compte.roles|join(', ') }}</td>
+                    <td>{{ compte.email }}</td>
+                    <td>{{ compte.isVerified ? 'Oui' : 'Non' }}</td>
+                    <td>
+                        <a href="{{ path('app_admin_compte_show', {'id': compte.id}) }}" class="btn btn-info btn-sm">Voir</a>
+                        <a href="{{ path('app_admin_compte_edit', {'id': compte.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">Aucun compte trouvé</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="mt-4">
+            <a href="{{ path('app_admin') }}" class="btn btn-secondary">Retour à la page Admin</a>
+        </div>
+    </div>
 {% endblock %}

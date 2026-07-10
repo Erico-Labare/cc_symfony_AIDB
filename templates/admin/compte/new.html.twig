@@ -3,9 +3,14 @@
 {% block title %}New Compte{% endblock %}
 
 {% block body %}
-    <h1>Create new Compte</h1>
+    <div class="container mt-4">
+        <h1 class="mb-4">Créer un nouveau Compte</h1>
 
-    {{ include('admin/compte/_form.html.twig') }}
+        {{ include('admin/compte/_form.html.twig') }}
 
-    <a href="{{ path('app_compte_index') }}">back to list</a>
+        <div class="mt-3">
+            <a href="{{ path('app_admin_compte_index') }}" class="btn btn-secondary">Retour à la liste</a>
+            <a href="{{ path('app_admin') }}" class="btn btn-secondary">Retour à la page Admin</a>
+        </div>
+    </div>
 {% endblock %}

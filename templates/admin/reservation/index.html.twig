@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réservations{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Gestion des Réservations</h1>
+
+        <a href="{{ path('app_admin_reservation_new') }}" class="btn btn-primary mb-3">Créer une nouvelle réservation</a>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Date de début</th>
+                    <th>Date de fin</th>
+                    <th>Commentaire</th>
+                    <th>Compte (Email)</th>
+                    <th>Client (Email)</th>
+                    <th>Chambre (ID)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reservation in reservations %}
+                    <tr>
+                        <td>{{ reservation.id }}</td>
+                        <td>{{ reservation.dateDebut ? reservation.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ reservation.dateFin ? reservation.dateFin|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ reservation.commentaire }}</td>
+                        <td>{{ reservation.compte ? reservation.compte.email : 'N/A' }}</td>
+                        <td>{{ reservation.client ? reservation.client.email : 'N/A' }}</td>
+                        <td>{{ reservation.chambre ? reservation.chambre.id : 'N/A' }}</td>
+                        <td>
+                            <a href="{{ path('app_admin_reservation_show', { 'id': reservation.id }) }}" class="btn btn-info btn-sm">Voir</a>
+                            <a href="{{ path('app_admin_reservation_edit', { 'id': reservation.id }) }}" class="btn btn-warning btn-sm">Modifier</a>
+                            <form method="post" action="{{ path('app_admin_reservation_delete', { 'id': reservation.id }) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?');" style="display: inline-block;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
+                                <button class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8">Aucune réservation trouvée</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

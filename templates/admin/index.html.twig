@@ -25,7 +25,7 @@
                     </p>
 
                     <a
-                        href="{{ path('app_hotel_index') }}"
+                        href="{{ path('app_admin_hotel_index') }}"
                         class="btn btn-primary"
                     >
                         Accéder
@@ -52,7 +52,7 @@
                     </p>
 
                     <a
-                        href="{{ path('app_chambre_index') }}"
+                        href="{{ path('app_admin_chambre_index') }}"
                         class="btn btn-primary"
                     >
                         Accéder
@@ -75,11 +75,11 @@
                     </h5>
 
                     <p class="card-text">
-                        Gérer les utilisateurs.
+                        Gérer les utilisateurs (comptes de connexion).
                     </p>
 
                     <a
-                        href="{{ path('app_compte_index') }}"
+                        href="{{ path('app_admin_compte_index') }}"
                         class="btn btn-primary"
                     >
                         Accéder
@@ -91,6 +91,64 @@
 
         </div>
 
+        <div class="col-md-4 mb-3">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body">
+
+                    <h5 class="card-title">
+                        Clients
+                    </h5>
+
+                    <p class="card-text">
+                        Gérer les informations des clients.
+                    </p>
+
+                    <a
+                        href="{{ path('app_admin_client_index') }}"
+                        class="btn btn-primary"
+                    >
+                        Accéder
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4 mb-3">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body">
+
+                    <h5 class="card-title">
+                        Réservations
+                    </h5>
+
+                    <p class="card-text">
+                        Gérer les réservations des clients.
+                    </p>
+
+                    <a
+                        href="{{ path('app_admin_reservation_index') }}"
+                        class="btn btn-primary"
+                    >
+                        Accéder
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ path('app_home') }}" class="btn btn-secondary">Retour à l'accueil</a>
     </div>
 
 </div>
