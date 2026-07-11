@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException; // Import added
+use Doctrine\ORM\Exception\ORMException; // Import added
 
 #[Route('/admin/client')]
 #[IsGranted('ROLE_ADMIN')]
@@ -43,23 +45,23 @@ final class ClientController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($client);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_admin_client_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $entityManager->persist($client);
+                $entityManager->flush();
+                $this->addFlash('success', 'Le client a été créé avec succès.');
+                return $this->redirectToRoute('app_admin_client_index', [], Response::HTTP_SEE_OTHER);
+            } catch (UniqueConstraintViolationException $e) {
+                $this->addFlash('error', 'Une erreur est survenue : Un client avec cet e-mail existe déjà ou une autre contrainte unique a été violée.');
+            } catch (ORMException $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la création du client : ' . $e->getMessage());
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+            }
         }
 
         return $this->render('admin/client/new.html.twig', [
             'client' => $client,
             'form' => $form,
-        ]);
-    }
-
-    #[Route('/{id}', name: 'app_admin_client_show', methods: ['GET'])]
-    public function show(Client $client): Response
-    {
-        return $this->render('admin/client/show.html.twig', [
-            'client' => $client,
         ]);
     }
 
@@ -70,9 +72,17 @@ final class ClientController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_admin_client_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $entityManager->flush();
+                $this->addFlash('success', 'Le client a été modifié avec succès.');
+                return $this->redirectToRoute('app_admin_client_index', [], Response::HTTP_SEE_OTHER);
+            } catch (UniqueConstraintViolationException $e) {
+                $this->addFlash('error', 'Une erreur est survenue : Un client avec cet e-mail existe déjà ou une autre contrainte unique a été violée.');
+            } catch (ORMException $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la modification du client : ' . $e->getMessage());
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+            }
         }
 
         return $this->render('admin/client/edit.html.twig', [
@@ -85,8 +95,17 @@ final class ClientController extends AbstractController
     public function delete(Request $request, Client $client, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$client->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($client);
-            $entityManager->flush();
+            try {
+                $entityManager->remove($client);
+                $entityManager->flush();
+                $this->addFlash('success', 'Le client a été supprimé avec succès.');
+            } catch (ORMException $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la suppression du client : ' . $e->getMessage());
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
         }
 
         return $this->redirectToRoute('app_admin_client_index', [], Response::HTTP_SEE_OTHER);

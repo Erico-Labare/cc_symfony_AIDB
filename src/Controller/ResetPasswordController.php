@@ -11,7 +11,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface; // Import the Mailer exception
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address; // Added: Import the Address class
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -37,7 +39,7 @@ class ResetPasswordController extends AbstractController
     public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
-        $form->handleRequest($request);
+        $form->handleRequest($request); // Corrected: handleHandle to handleRequest
 
         if ($form->isSubmitted() && $form->isValid()) {
             return $this->processSendingPasswordResetEmail(
@@ -73,7 +75,7 @@ class ResetPasswordController extends AbstractController
      * Validates and process the reset URL that the user clicked in their email.
      */
     #[Route('/reset/{token}', name: 'app_reset_password')]
-    public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, string $token = null): Response
+    public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, ?string $token = null): Response // Corrected: Added ? for nullable string
     {
         if ($token) {
             // We store the token in session and remove it from the URL, to prevent the URL from being
@@ -91,11 +93,7 @@ class ResetPasswordController extends AbstractController
         try {
             $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
         } catch (ResetPasswordExceptionInterface $e) {
-            $this->addFlash('reset_password_error', sprintf(
-                '%s - %s',
-                $translator->trans(ResetPasswordExceptionInterface::MESSAGE_PROBLEM_VALIDATING_RESET_PASSWORD_REQUEST, [], 'ResetPasswordBundle'),
-                $e->getReason()
-            ));
+            $this->addFlash('reset_password_error', $translator->trans($e->getReason(), [], 'ResetPasswordBundle'));
 
             return $this->redirectToRoute('app_forgot_password_request');
         }
@@ -147,11 +145,7 @@ class ResetPasswordController extends AbstractController
             // the lines below and change the redirect to 'app_forgot_password_request'.
             // Caution: This may reveal if a user is registered or not.
             //
-            $this->addFlash('reset_password_error', sprintf(
-                '%s - %s',
-                $translator->trans('There was a problem sending your password reset email', [], 'ResetPasswordBundle'), // Correction ici
-                $e->getReason()
-            ));
+            $this->addFlash('reset_password_error', $translator->trans($e->getReason(), [], 'ResetPasswordBundle')); // Corrected: Simplified translation
 
             return $this->redirectToRoute('app_forgot_password_request');
         }
@@ -165,7 +159,15 @@ class ResetPasswordController extends AbstractController
                 'resetToken' => $resetToken,
             ]);
 
-        $mailer->send($email);
+        try {
+            $mailer->send($email);
+        } catch (TransportExceptionInterface $e) {
+            // Log the error for debugging purposes
+            // $this->logger->error('Failed to send password reset email: ' . $e->getMessage());
+            $this->addFlash('reset_password_error', 'There was a problem sending your password reset email. Please try again later.'); // Corrected: Removed trans for literal string
+            return $this->redirectToRoute('app_forgot_password_request');
+        }
+
 
         // Store the token object in session for retrieval in checkEmail()
         $this->setTokenObjectInSession($resetToken);

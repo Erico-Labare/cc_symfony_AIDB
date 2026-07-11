@@ -58,7 +58,7 @@ final class CompteController extends AbstractController
                 $entityManager->persist($compte);
                 $entityManager->flush();
                 $this->addFlash('success', 'Le compte a été créé avec succès.');
-                return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
                 $this->addFlash('error', 'Une erreur est survenue : Un compte avec le même email existe déjà.');
             } catch (ORMException $e) {
@@ -94,7 +94,7 @@ final class CompteController extends AbstractController
             try {
                 $entityManager->flush();
                 $this->addFlash('success', 'Le compte a été modifié avec succès.');
-                return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
                 $this->addFlash('error', 'Une erreur est survenue : Un compte avec le même email existe déjà.');
             } catch (ORMException $e) {

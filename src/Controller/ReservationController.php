@@ -23,6 +23,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface; // Import SessionInterface
+use App\Exception\InvalidReservationDatesException; // Import added
+use App\Exception\RoomUnavailableException; // Import added
 
 #[Route('/reservation')]
 final class ReservationController extends AbstractController
@@ -201,7 +203,13 @@ final class ReservationController extends AbstractController
         } catch (ORMException $e) {
             $this->addFlash('error', 'Une erreur est survenue lors de la création de la réservation : ' . $e->getMessage());
             return $this->redirectToRoute('app_reservation_search');
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidReservationDatesException $e) { // Catch custom exception
+            $this->addFlash('error', 'Erreur de réservation : ' . $e->getMessage());
+            return $this->redirectToRoute('app_reservation_search');
+        } catch (RoomUnavailableException $e) { // Catch custom exception
+            $this->addFlash('error', 'Erreur de réservation : ' . $e->getMessage());
+            return $this->redirectToRoute('app_reservation_search');
+        } catch (\InvalidArgumentException $e) { // Keep for other potential InvalidArgumentExceptions
             $this->addFlash('error', 'Erreur de données : ' . $e->getMessage());
             return $this->redirectToRoute('app_reservation_search');
         } catch (\Exception $e) {
