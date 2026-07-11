@@ -15,6 +15,7 @@
                     <th>Date de début</th>
                     <th>Date de fin</th>
                     <th>Commentaire</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,6 +27,11 @@
                         <td>{{ reservation.dateDebut|date('d/m/Y H:i') }}</td>
                         <td>{{ reservation.dateFin|date('d/m/Y H:i') }}</td>
                         <td>{{ reservation.commentaire|default('-') }}</td>
+                        <td>
+                            <a href="{{ path('app_reservation_comment_edit', {'id': reservation.id}) }}" class="btn btn-sm btn-primary">
+                                Modifier le commentaire
+                            </a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
