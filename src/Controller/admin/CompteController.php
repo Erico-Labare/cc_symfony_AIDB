@@ -19,17 +19,27 @@ use Doctrine\ORM\Exception\ORMException;
 #[IsGranted('ROLE_ADMIN')]
 final class CompteController extends AbstractController
 {
-    // Lister tous les comptes
-    #[Route(name: 'app_compte_index', methods: ['GET'])]
-    public function index(CompteRepository $compteRepository): Response
+    // Lister tous les comptes avec pagination et recherche
+    #[Route(name: 'app_admin_compte_index', methods: ['GET'])]
+    public function index(Request $request, CompteRepository $compteRepository): Response
     {
+        $page = $request->query->getInt('page', 1);
+        $limit = 10; // Nombre d'éléments par page
+        $search = $request->query->getString('search');
+
+        $comptes = $compteRepository->paginateComptes($page, $limit, $search);
+        $maxPages = ceil(count($comptes) / $limit);
+
         return $this->render('admin/compte/index.html.twig', [
-            'comptes' => $compteRepository->findAll(),
+            'comptes' => $comptes,
+            'page' => $page,
+            'maxPages' => $maxPages,
+            'search' => $search,
         ]);
     }
 
     // Créer un nouveau compte
-    #[Route('/new', name: 'app_compte_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_compte_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $compte = new Compte();
@@ -65,7 +75,7 @@ final class CompteController extends AbstractController
     }
 
     // Afficher un compte spécifique
-    #[Route('/{id}', name: 'app_compte_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_admin_compte_show', methods: ['GET'])]
     public function show(Compte $compte): Response
     {
         return $this->render('admin/compte/show.html.twig', [
@@ -74,7 +84,7 @@ final class CompteController extends AbstractController
     }
 
     // Modifier un compte existant
-    #[Route('/{id}/edit', name: 'app_compte_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_compte_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Compte $compte, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(CompteType::class, $compte);
@@ -101,7 +111,7 @@ final class CompteController extends AbstractController
     }
 
     // Supprimer un compte
-    #[Route('/{id}', name: 'app_compte_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_admin_compte_delete', methods: ['POST'])]
     public function delete(Request $request, Compte $compte, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $compte->getId(), $request->getPayload()->getString('_token'))) {
@@ -118,6 +128,6 @@ final class CompteController extends AbstractController
             $this->addFlash('error', 'Token CSRF invalide.');
         }
 
-        return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
     }
 }

@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réservation{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Détails de la Réservation</h1>
+
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <th>Id</th>
+                    <td>{{ reservation.id }}</td>
+                </tr>
+                <tr>
+                    <th>Date de début</th>
+                    <td>{{ reservation.dateDebut ? reservation.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                </tr>
+                <tr>
+                    <th>Date de fin</th>
+                    <td>{{ reservation.dateFin ? reservation.dateFin|date('Y-m-d H:i:s') : '' }}</td>
+                </tr>
+                <tr>
+                    <th>Commentaire</th>
+                    <td>{{ reservation.commentaire }}</td>
+                </tr>
+                <tr>
+                    <th>Compte</th>
+                    <td>{{ reservation.compte ? reservation.compte.email : 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <th>Client</th>
+                    <td>{{ reservation.client ? reservation.client.email : 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <th>Chambre</th>
+                    <td>{{ reservation.chambre ? reservation.chambre.id : 'N/A' }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a href="{{ path('app_admin_reservation_index') }}" class="btn btn-secondary">Retour à la liste</a>
+        <a href="{{ path('app_admin_reservation_edit', { 'id': reservation.id }) }}" class="btn btn-warning">Modifier</a>
+
+        {{ include('admin/reservation/_delete_form.html.twig') }}
+    </div>
+{% endblock %}

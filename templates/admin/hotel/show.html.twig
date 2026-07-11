@@ -3,32 +3,39 @@
 {% block title %}Hotel{% endblock %}
 
 {% block body %}
-    <h1>Hotel</h1>
+    <div class="container mt-4">
+        <h1 class="mb-4">Détails de l'Hôtel</h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ hotel.id }}</td>
-            </tr>
-            <tr>
-                <th>Nom</th>
-                <td>{{ hotel.nom }}</td>
-            </tr>
-            <tr>
-                <th>Adresse</th>
-                <td>{{ hotel.adresse }}</td>
-            </tr>
-            <tr>
-                <th>Categorie</th>
-                <td>{{ hotel.categorie }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <th>Id</th>
+                    <td>{{ hotel.id }}</td>
+                </tr>
+                <tr>
+                    <th>Nom</th>
+                    <td>{{ hotel.nom }}</td>
+                </tr>
+                <tr>
+                    <th>Adresse</th>
+                    <td>{{ hotel.adresse }}</td>
+                </tr>
+                <tr>
+                    <th>Categorie</th>
+                    <td>{{ hotel.categorie }}</td>
+                </tr>
+            </tbody>
+        </table>
 
-    <a href="{{ path('app_hotel_index') }}">back to list</a>
-
-    <a href="{{ path('app_hotel_edit', {'id': hotel.id}) }}">edit</a>
-
-    {{ include('admin/hotel/_delete_form.html.twig') }}
+        <div class="d-flex justify-content-between mt-3">
+            <div>
+                <a href="{{ path('app_admin_hotel_index') }}" class="btn btn-secondary">Retour à la liste</a>
+                <a href="{{ path('app_admin_hotel_edit', {'id': hotel.id}) }}" class="btn btn-warning">Modifier</a>
+            </div>
+            {{ include('admin/hotel/_delete_form.html.twig') }}
+        </div>
+        <div class="mt-3">
+            <a href="{{ path('app_admin') }}" class="btn btn-secondary">Retour à la page Admin</a>
+        </div>
+    </div>
 {% endblock %}

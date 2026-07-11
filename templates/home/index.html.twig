@@ -13,11 +13,16 @@
     </p>
 
 
-    
-    <div class="mt-4">
-        <a href="{{ path('app_reservation_search') }}" class="btn btn-success btn-lg">
+
+    <div class="mt-4 d-flex align-items-center"> {# Added d-flex and align-items-center for horizontal alignment #}
+        <a href="{{ path('app_reservation_search') }}" class="btn btn-success btn-lg me-2"> {# Added me-2 for margin-end #}
             Chercher une chambre
         </a>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a class="btn btn-warning btn-lg" href="{{ path('app_admin') }}">
+                Gestion de l'administration
+            </a>
+        {% endif %}
     </div>
 
     {% if app.user %}

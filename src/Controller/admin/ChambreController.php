@@ -18,17 +18,27 @@ use Doctrine\ORM\Exception\ORMException;
 #[IsGranted('ROLE_ADMIN')]
 final class ChambreController extends AbstractController
 {
-    // Lister toutes les chambres
-    #[Route(name: 'app_chambre_index', methods: ['GET'])]
-    public function index(ChambreRepository $chambreRepository): Response
+    // Lister toutes les chambres avec pagination et recherche
+    #[Route(name: 'app_admin_chambre_index', methods: ['GET'])]
+    public function index(Request $request, ChambreRepository $chambreRepository): Response
     {
+        $page = $request->query->getInt('page', 1);
+        $limit = 10; // Nombre d'éléments par page
+        $search = $request->query->getString('search');
+
+        $chambres = $chambreRepository->paginateChambres($page, $limit, $search);
+        $maxPages = ceil(count($chambres) / $limit);
+
         return $this->render('admin/chambre/index.html.twig', [
-            'chambres' => $chambreRepository->findAll(),
+            'chambres' => $chambres,
+            'page' => $page,
+            'maxPages' => $maxPages,
+            'search' => $search,
         ]);
     }
 
     // Créer une nouvelle chambre
-    #[Route('/new', name: 'app_chambre_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_chambre_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $chambre = new Chambre();
@@ -57,7 +67,7 @@ final class ChambreController extends AbstractController
     }
 
     // Afficher une chambre spécifique
-    #[Route('/{id}', name: 'app_chambre_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_admin_chambre_show', methods: ['GET'])]
     public function show(Chambre $chambre): Response
     {
         return $this->render('admin/chambre/show.html.twig', [
@@ -66,7 +76,7 @@ final class ChambreController extends AbstractController
     }
 
     // Modifier une chambre existante
-    #[Route('/{id}/edit', name: 'app_chambre_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_chambre_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Chambre $chambre, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(ChambreType::class, $chambre);
@@ -93,7 +103,7 @@ final class ChambreController extends AbstractController
     }
 
     // Supprimer une chambre
-    #[Route('/{id}', name: 'app_chambre_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_admin_chambre_delete', methods: ['POST'])]
     public function delete(Request $request, Chambre $chambre, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $chambre->getId(), $request->getPayload()->getString('_token'))) {
@@ -110,6 +120,6 @@ final class ChambreController extends AbstractController
             $this->addFlash('error', 'Token CSRF invalide.');
         }
 
-        return $this->redirectToRoute('app_chambre_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER);
     }
 }

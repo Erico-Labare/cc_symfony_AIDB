@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Hotel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * Repository de gestion des hôtels
@@ -17,28 +18,27 @@ class HotelRepository extends ServiceEntityRepository
     }
 
     /**
-     * Recherche des hôtels par nom
+     * Récupère une liste paginée d'hôtels avec option de recherche.
+     *
+     * @param int $page La page actuelle
+     * @param int $limit Le nombre d'éléments par page
+     * @param string|null $search Le terme de recherche (nom ou catégorie)
+     * @return Paginator
      */
-    // public function findByNom(string $nom): array
-    // {
-    //     return $this->createQueryBuilder('h')
-    //         ->andWhere('h.nom LIKE :nom')
-    //         ->setParameter('nom', '%' . $nom . '%')
-    //         ->orderBy('h.nom', 'ASC')
-    //         ->getQuery()
-    //         ->getResult();
-    // }
+    public function paginateHotels(int $page, int $limit, ?string $search = null): Paginator
+    {
+        $queryBuilder = $this->createQueryBuilder('h')
+            ->orderBy('h.nom', 'ASC');
 
-    /**
-     * Recherche des hôtels par catégorie
-     */
-    // public function findByCategorie(string $categorie): array
-    // {
-    //     return $this->createQueryBuilder('h')
-    //         ->andWhere('h.categorie = :categorie')
-    //         ->setParameter('categorie', $categorie)
-    //         ->orderBy('h.nom', 'ASC')
-    //         ->getQuery()
-    //         ->getResult();
-    // }
+        if ($search) {
+            $queryBuilder->andWhere('h.nom LIKE :search OR h.categorie LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        $query = $queryBuilder->getQuery();
+        $query->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        return new Paginator($query);
+    }
 }
