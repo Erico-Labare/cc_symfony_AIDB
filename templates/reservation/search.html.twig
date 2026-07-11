@@ -14,13 +14,13 @@
 
         <div class="form-group mb-3">
             {{ form_label(form.dateDebut, 'Date de début') }}
-            {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control', 'type': 'datetime-local'}}) }}
+            {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control'}}) }}
             {{ form_errors(form.dateDebut) }}
         </div>
 
         <div class="form-group mb-3">
             {{ form_label(form.dateFin, 'Date de fin') }}
-            {{ form_widget(form.dateFin, {'attr': {'class': 'form-control', 'type': 'datetime-local'}}) }}
+            {{ form_widget(form.dateFin, {'attr': {'class': 'form-control'}}) }}
             {{ form_errors(form.dateFin) }}
         </div>
 
@@ -66,8 +66,26 @@
                                     <form method="post" action="{{ path('app_reservation_create') }}">
                                         <div class="modal-body">
                                             <input type="hidden" name="chambre_id" value="{{ chambre.id }}">
-                                            <input type="hidden" name="dateDebut" value="{{ form.dateDebut.vars.value|date('Y-m-d\TH:i') }}">
-                                            <input type="hidden" name="dateFin" value="{{ form.dateFin.vars.value|date('Y-m-d\TH:i') }}">
+                                            <input type="hidden" name="dateDebut" value="{{ form.dateDebut.vars.value|date('Y-m-d') }}">
+                                            <input type="hidden" name="dateFin" value="{{ form.dateFin.vars.value|date('Y-m-d') }}">
+
+                                            <h6 class="mt-3">Informations du client pour cette réservation</h6>
+                                            <div class="mb-3">
+                                                <label for="client_nom_{{ chambre.id }}" class="form-label">Nom</label>
+                                                <input type="text" class="form-control" id="client_nom_{{ chambre.id }}" name="client_nom" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="client_email_{{ chambre.id }}" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="client_email_{{ chambre.id }}" name="client_email" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="client_telephone_{{ chambre.id }}" class="form-label">Téléphone</label>
+                                                <input type="text" class="form-control" id="client_telephone_{{ chambre.id }}" name="client_telephone">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="client_adresse_{{ chambre.id }}" class="form-label">Adresse</label>
+                                                <textarea class="form-control" id="client_adresse_{{ chambre.id }}" name="client_adresse" rows="2"></textarea>
+                                            </div>
 
                                             <div class="mb-3">
                                                 <label for="commentaire{{ chambre.id }}" class="form-label">Commentaires (optionnel)</label>
@@ -88,8 +106,8 @@
         {% else %}
             <div class="alert alert-info">
                 <p>Vous devez être connecté pour réserver une chambre.</p>
-                <a href="{{ path('app_login') }}" class="btn btn-primary">Se connecter</a>
-                <a href="{{ path('app_register') }}" class="btn btn-secondary">S'inscrire</a>
+                <a href="{{ path('app_login', {'_target_path': path('app_reservation_search')}) }}" class="btn btn-primary">Se connecter</a>
+                <a href="{{ path('app_register', {'_target_path': path('app_reservation_search')}) }}" class="btn btn-secondary">S'inscrire</a>
             </div>
         {% endif %}
     {% elseif app.request.method == 'POST' %}

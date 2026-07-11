@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\ORM\Exception\ORMException;
 
 #[Route('/admin/hotel')]
 #[IsGranted('ROLE_ADMIN')]
@@ -44,10 +46,18 @@ final class HotelController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($hotel);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $entityManager->persist($hotel);
+                $entityManager->flush();
+                $this->addFlash('success', 'L\'hôtel a été créé avec succès.');
+                return $this->redirectToRoute('app_hotel_index', [], Response::HTTP_SEE_OTHER);
+            } catch (UniqueConstraintViolationException $e) {
+                $this->addFlash('error', 'Une erreur est survenue : Un hôtel avec le même nom existe déjà.');
+            } catch (ORMException $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la création de l\'hôtel : ' . $e->getMessage());
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+            }
         }
 
         return $this->render('admin/hotel/new.html.twig', [
@@ -73,9 +83,17 @@ final class HotelController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $entityManager->flush();
+                $this->addFlash('success', 'L\'hôtel a été modifié avec succès.');
+                return $this->redirectToRoute('app_hotel_index', [], Response::HTTP_SEE_OTHER);
+            } catch (UniqueConstraintViolationException $e) {
+                $this->addFlash('error', 'Une erreur est survenue : Un hôtel avec le même nom existe déjà.');
+            } catch (ORMException $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la modification de l\'hôtel : ' . $e->getMessage());
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+            }
         }
 
         return $this->render('admin/hotel/edit.html.twig', [
@@ -89,8 +107,17 @@ final class HotelController extends AbstractController
     public function delete(Request $request, Hotel $hotel, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $hotel->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($hotel);
-            $entityManager->flush();
+            try {
+                $entityManager->remove($hotel);
+                $entityManager->flush();
+                $this->addFlash('success', 'L\'hôtel a été supprimé avec succès.');
+            } catch (ORMException $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la suppression de l\'hôtel : ' . $e->getMessage());
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
         }
 
         return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);

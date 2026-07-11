@@ -2,12 +2,10 @@
 
 namespace App\Form;
 
-use App\Entity\Chambre;
 use App\Entity\Hotel;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\DateType; // Changed from DateTimeType
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -22,28 +20,17 @@ class ReservationFormType extends AbstractType
                 'placeholder' => 'Choisir un hôtel',
                 'required' => true,
             ])
-            ->add('chambre', EntityType::class, [
-                'class' => Chambre::class,
-                'choice_label' => function (Chambre $chambre) {
-                    return sprintf('Chambre %d - Type: %s - %d lit(s)', $chambre->getId(), $chambre->getType(), $chambre->getNombreLit());
-                },
-                'placeholder' => 'Choisir une chambre',
-                'required' => true,
-                'mapped' => false,
-            ])
-            ->add('dateDebut', DateTimeType::class, [
+            ->add('dateDebut', DateType::class, [ // Changed to DateType
                 'widget' => 'single_text',
+                'html5' => true,
                 'required' => true,
-                'mapped' => false,
+                // 'mapped' => false, // Not needed for DateType when handling form data directly
             ])
-            ->add('dateFin', DateTimeType::class, [
+            ->add('dateFin', DateType::class, [ // Changed to DateType
                 'widget' => 'single_text',
+                'html5' => true,
                 'required' => true,
-                'mapped' => false,
-            ])
-            ->add('commentaire', TextareaType::class, [
-                'required' => false,
-                'attr' => ['rows' => 4],
+                // 'mapped' => false, // Not needed for DateType when handling form data directly
             ])
         ;
     }

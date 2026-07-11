@@ -14,7 +14,11 @@
                     <th>Hôtel</th>
                     <th>Date de début</th>
                     <th>Date de fin</th>
+                    <th>Client (Nom)</th>
+                    <th>Client (Email)</th>
+                    <th>Client (Téléphone)</th>
                     <th>Commentaire</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,9 +27,21 @@
                         <td>#{{ reservation.id }}</td>
                         <td>{{ reservation.chambre.id }} ({{ reservation.chambre.type }})</td>
                         <td>{{ reservation.chambre.hotel.nom }}</td>
-                        <td>{{ reservation.dateDebut|date('d/m/Y H:i') }}</td>
-                        <td>{{ reservation.dateFin|date('d/m/Y H:i') }}</td>
+                        <td>{{ reservation.dateDebut|date('d/m/Y') }}</td>
+                        <td>{{ reservation.dateFin|date('d/m/Y') }}</td>
+                        <td>{{ reservation.client.nom }}</td>
+                        <td>{{ reservation.client.email }}</td>
+                        <td>{{ reservation.client.telephone|default('-') }}</td>
                         <td>{{ reservation.commentaire|default('-') }}</td>
+                        <td>
+                            <a href="{{ path('app_reservation_comment_edit', {'id': reservation.id}) }}" class="btn btn-sm btn-primary">
+                                Modifier le commentaire
+                            </a>
+                            <form method="post" action="{{ path('app_reservation_cancel', {'id': reservation.id}) }}" class="d-inline" onsubmit="return confirm('Voulez-vous vraiment annuler cette réservation ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
+                                <button type="submit" class="btn btn-sm btn-danger">Annuler</button>
+                            </form>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
