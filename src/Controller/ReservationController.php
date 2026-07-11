@@ -179,4 +179,34 @@ final class ReservationController extends AbstractController
             'form' => $form,
         ]);
     }
+
+    /**
+     * Annule une réservation.
+     * POST /reservation/{id}/cancel
+     */
+    #[Route('/{id}/cancel', name: 'app_reservation_cancel', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function cancel(
+        Request $request,
+        Reservation $reservation,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $compte = $this->getUser();
+        if (!$compte instanceof Compte) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+
+        if ($reservation->getCompte() !== $compte) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à annuler cette réservation.');
+        }
+
+        if ($this->isCsrfTokenValid('cancel' . $reservation->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($reservation);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Réservation annulée avec succès !');
+        }
+
+        return $this->redirectToRoute('app_reservation_my_reservations');
+    }
 }
