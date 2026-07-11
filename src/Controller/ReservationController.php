@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Chambre;
 use App\Entity\Client;
 use App\Entity\Compte;
+use App\Entity\Reservation;
+use App\Form\ReservationCommentType;
 use App\Form\ReservationFormType;
 use App\Repository\ClientRepository;
 use App\Repository\ChambreRepository;
@@ -139,5 +141,72 @@ final class ReservationController extends AbstractController
         return $this->render('reservation/my-reservations.html.twig', [
             'reservations' => $reservations,
         ]);
+    }
+
+    /**
+     * Modifie le commentaire d'une réservation.
+     * GET|POST /reservation/{id}/comment/edit
+     */
+    #[Route('/{id}/comment/edit', name: 'app_reservation_comment_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function editComment(
+        Request $request,
+        Reservation $reservation,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $compte = $this->getUser();
+        if (!$compte instanceof Compte) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+
+        if ($reservation->getCompte() !== $compte) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à modifier cette réservation.');
+        }
+
+        $form = $this->createForm(ReservationCommentType::class, $reservation);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Commentaire modifié avec succès !');
+
+            return $this->redirectToRoute('app_reservation_my_reservations');
+        }
+
+        return $this->render('reservation/edit-comment.html.twig', [
+            'reservation' => $reservation,
+            'form' => $form,
+        ]);
+    }
+
+    /**
+     * Annule une réservation.
+     * POST /reservation/{id}/cancel
+     */
+    #[Route('/{id}/cancel', name: 'app_reservation_cancel', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function cancel(
+        Request $request,
+        Reservation $reservation,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $compte = $this->getUser();
+        if (!$compte instanceof Compte) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+
+        if ($reservation->getCompte() !== $compte) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à annuler cette réservation.');
+        }
+
+        if ($this->isCsrfTokenValid('cancel' . $reservation->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($reservation);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Réservation annulée avec succès !');
+        }
+
+        return $this->redirectToRoute('app_reservation_my_reservations');
     }
 }
