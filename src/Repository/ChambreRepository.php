@@ -33,7 +33,8 @@ class ChambreRepository extends ServiceEntityRepository
             ->orderBy('c.id', 'ASC');
 
         if ($search) {
-            $queryBuilder->andWhere('c.type LIKE :search OR c.etage LIKE :search')
+            // Convertir 'etage' en string pour la recherche LIKE
+            $queryBuilder->andWhere('c.type LIKE :search OR CONCAT(c.etage, \'\') LIKE :search')
                 ->setParameter('search', '%' . $search . '%');
         }
 
