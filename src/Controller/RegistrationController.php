@@ -16,6 +16,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\ORM\Exception\ORMException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface; // Import UrlGeneratorInterface
 
 class RegistrationController extends AbstractController
@@ -38,6 +40,43 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                /** @var Compte $compte */
+                $compte = $form->getData();
+
+                /** @var string $plainPassword */
+                $plainPassword = $form->get('plainPassword')->getData();
+
+                // hacher le mot de passe en clair
+                $compte->setPassword($userPasswordHasher->hashPassword($compte, $plainPassword));
+
+                // définir le rôle utilisateur par défaut
+                $compte->setRole('ROLE_USER');
+
+                $entityManager->persist($compte);
+                $entityManager->flush();
+
+                // générer une URL signée et l'envoyer à l'utilisateur
+                $this->emailVerifier->sendEmailConfirmation(
+                    'app_verify_email',
+                    $user,
+                    (new TemplatedEmail())
+                        ->from(new Address('no-reply@hotel-reservation.com', 'Hotel-Reservation'))
+                        ->to((string) $user->getEmail())
+                        ->subject('Please Confirm your Email')
+                        ->htmlTemplate('registration/confirmation_email.html.twig')
+                );
+
+                $this->addFlash('success', 'Votre compte a été créé avec succès. Veuillez vérifier votre e-mail pour confirmer votre adresse.');
+
+                return $security->login($user, 'form_login', 'main');
+            } catch (UniqueConstraintViolationException $e) {
+                $this->addFlash('error', 'Une erreur est survenue : Un compte avec cet e-mail existe déjà.');
+            } catch (ORMException $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la création du compte : ' . $e->getMessage());
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+            }
             /** @var Compte $compte */
             $compte = $form->getData();
 
