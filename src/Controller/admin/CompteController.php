@@ -43,7 +43,7 @@ final class CompteController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $compte = new Compte();
-        $form = $this->createForm(CompteType::class, $compte);
+        $form = $this->createForm(CompteType::class, $compte, ['is_new' => true]); // Pass is_new option
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -58,7 +58,7 @@ final class CompteController extends AbstractController
                 $entityManager->persist($compte);
                 $entityManager->flush();
                 $this->addFlash('success', 'Le compte a été créé avec succès.');
-                return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
                 $this->addFlash('error', 'Une erreur est survenue : Un compte avec le même email existe déjà.');
             } catch (ORMException $e) {
@@ -85,16 +85,23 @@ final class CompteController extends AbstractController
 
     // Modifier un compte existant
     #[Route('/{id}/edit', name: 'app_admin_compte_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Compte $compte, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Compte $compte, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
-        $form = $this->createForm(CompteType::class, $compte);
+        $form = $this->createForm(CompteType::class, $compte, ['is_new' => false]); // Pass is_new option
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
+                // hacher le mot de passe en clair si fourni
+                $plainPassword = $form->get('plainPassword')->getData();
+                if ($plainPassword) {
+                    $hashedPassword = $passwordHasher->hashPassword($compte, $plainPassword);
+                    $compte->setPassword($hashedPassword);
+                }
+
                 $entityManager->flush();
                 $this->addFlash('success', 'Le compte a été modifié avec succès.');
-                return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
                 $this->addFlash('error', 'Une erreur est survenue : Un compte avec le même email existe déjà.');
             } catch (ORMException $e) {

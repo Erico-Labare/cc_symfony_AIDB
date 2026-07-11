@@ -4,158 +4,256 @@ namespace App\Tests\Controller\admin;
 
 use App\Entity\Compte;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\BaseWebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-// Test du contrôleur de gestion des comptes
-final class CompteControllerTest extends WebTestCase
+/**
+ * Test du contrôleur d'administration des comptes.
+ *
+ * Cette classe contient les tests fonctionnels pour la gestion des comptes utilisateur
+ * par un administrateur.
+ */
+final class CompteControllerTest extends BaseWebTestCase
 {
     private ?Compte $admin = null;
+    private ?Compte $nonAdminUser = null;
+    private ?KernelBrowser $client = null;
 
-    // Initialiser les données de test
+    /**
+     * Configure l'environnement de test avant chaque test.
+     *
+     * Initialise le client de test et prépare les données utilisateur (admin et non-admin).
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->client = static::createClient(); // Crée le client en premier, ce qui démarre le kernel
+        $this->setupData(); // Appelle setupData après la création du client
+    }
+
+    /**
+     * Initialise les données de test, s'assurant qu'un utilisateur admin et un utilisateur non-admin existent.
+     */
     private function setupData(): void
     {
-        if ($this->admin === null) {
-            $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-            $this->admin = $entityManager->getRepository(Compte::class)
-                ->findOneBy(['email' => 'admin@test.com']);
-        }
-    }
-
-    // Tester l'accès à l'index sans authentification
-    public function testIndexWithoutAuthentication(): void
-    {
-        $client = static::createClient();
-        $client->request('GET', '/admin/compte');
-        self::assertResponseRedirects();
-    }
-
-    // Tester l'accès à l'index avec un utilisateur non-admin
-    public function testIndexWithNonAdmin(): void
-    {
-        $client = static::createClient();
-        $this->setupData();
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $user = $entityManager->getRepository(Compte::class)
-            ->findOneBy(['email' => 'test@test.com']);
-        $client->loginUser($user);
-        $client->request('GET', '/admin/compte');
-        self::assertResponseStatusCodeSame(403);
-    }
-
-    // Tester l'accès à l'index avec un admin
-    public function testIndexWithAdmin(): void
-    {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/compte');
-        self::assertResponseStatusCodeSame(200);
-    }
-
-    // Tester l'affichage du formulaire de création
-    public function testNewFormGet(): void
-    {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/compte/new');
-        self::assertResponseStatusCodeSame(200);
-    }
-
-    // Tester la soumission du formulaire de création
-    public function testNewFormSubmit(): void
-    {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
-
-
-        // Soumission du formulaire
-        $crawler = $client->request('GET', '/admin/compte/new');
-        $form = $crawler->selectButton('Save')->form();
-        $form['compte[email]'] = 'testcreate' . time() . '@test.com';
-        $form['compte[plainPassword]'] = 'SecurePassword123!';
-        $form['compte[role]'] = 'ROLE_USER';
-
-        $client->submit($form);
-        self::assertResponseRedirects();
-
-
-        // Vérifier que le compte a été créé
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $comptes = $entityManager->getRepository(Compte::class)
-            ->findAll();
-        self::assertGreaterThanOrEqual(2, count($comptes));
-    }
-
-    // Tester l'affichage d'un compte existant
-    public function testShowExistingCompte(): void
-    {
-        $client = static::createClient();
-        $this->setupData();
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $user = $entityManager->getRepository(Compte::class)
-            ->findOneBy(['email' => 'test@test.com']);
-
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/compte/' . $user->getId());
-        self::assertResponseStatusCodeSame(200);
-    }
-
-    // Tester l'affichage d'un compte inexistant
-    public function testShowNonExistentCompte(): void
-    {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/compte/99999');
-        self::assertResponseStatusCodeSame(404);
-    }
-
-    // Tester l'affichage du formulaire de modification
-    public function testEditFormGet(): void
-    {
-        $client = static::createClient();
-        $this->setupData();
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $user = $entityManager->getRepository(Compte::class)
-            ->findOneBy(['email' => 'test@test.com']);
-
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/compte/' . $user->getId() . '/edit');
-        self::assertResponseStatusCodeSame(200);
-    }
-
-    // Tester la suppression d'un compte avec un jeton CSRF valide
-    public function testDeleteWithValidCsrfToken(): void
-    {
-        $client = static::createClient();
-        $this->setupData();
-
-        // Créer un compte de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $passwordHasher = self::getContainer()->get(UserPasswordHasherInterface::class);
 
-        $user = new Compte();
-        $user->setEmail('todelete' . time() . '@test.com');
-        $user->setRole('ROLE_USER');
-        $user->setPassword($passwordHasher->hashPassword($user, 'password'));
-        $entityManager->persist($user);
+        // Assure qu'un utilisateur admin existe ou le crée
+        $this->admin = $entityManager->getRepository(Compte::class)
+            ->findOneBy(['email' => 'admin@test.com']);
+
+        if ($this->admin === null) {
+            $this->admin = new Compte();
+            $this->admin->setEmail('admin@test.com');
+            $this->admin->setPassword($passwordHasher->hashPassword($this->admin, 'password'));
+            $this->admin->setRole('ROLE_ADMIN');
+            $this->admin->setIsVerified(true);
+            $entityManager->persist($this->admin);
+        }
+
+        // Assure qu'un utilisateur non-admin existe ou le crée
+        $this->nonAdminUser = $entityManager->getRepository(Compte::class)
+            ->findOneBy(['email' => 'test@test.com']);
+
+        if ($this->nonAdminUser === null) {
+            $this->nonAdminUser = new Compte();
+            $this->nonAdminUser->setEmail('test@test.com');
+            $this->nonAdminUser->setPassword($passwordHasher->hashPassword($this->nonAdminUser, 'password'));
+            $this->nonAdminUser->setRole('ROLE_USER');
+            $this->nonAdminUser->setIsVerified(true);
+            $entityManager->persist($this->nonAdminUser);
+        }
+
         $entityManager->flush();
-        $id = $user->getId();
+        $entityManager->clear(); // Efface l'EntityManager pour détacher les entités
+    }
 
-
-        // Supprimer le compte
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/compte/' . $id);
-        $form = $client->getCrawler()->selectButton('Delete')->form();
-
-        $client->submit($form);
+    /**
+     * Teste l'accès à la liste des comptes sans authentification.
+     *
+     * Doit rediriger vers la page de connexion.
+     */
+    public function testIndexWithoutAuthentication(): void
+    {
+        $this->client->request('GET', '/admin/compte');
         self::assertResponseRedirects();
+    }
 
+    /**
+     * Teste l'accès à la liste des comptes avec un utilisateur non-admin.
+     *
+     * Doit retourner un statut 403 (Accès interdit).
+     */
+    public function testIndexWithNonAdmin(): void
+    {
+        $this->client->loginUser($this->nonAdminUser);
+        $this->client->request('GET', '/admin/compte');
+        self::assertResponseStatusCodeSame(403);
+    }
 
-        // Vérifier que le compte a été supprimé
+    /**
+     * Teste l'accès à la liste des comptes avec un admin.
+     *
+     * Doit retourner un statut 200 (Succès).
+     */
+    public function testIndexWithAdmin(): void
+    {
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/compte');
+        self::assertResponseStatusCodeSame(200);
+    }
+
+    /**
+     * Teste l'affichage du formulaire de création d'un nouveau compte.
+     *
+     * Doit retourner un statut 200 (Succès) pour un admin.
+     */
+    public function testNewFormGet(): void
+    {
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/compte/new');
+        self::assertResponseStatusCodeSame(200);
+    }
+
+    /**
+     * Teste la soumission du formulaire de création d'un nouveau compte.
+     *
+     * Vérifie la redirection après soumission et la persistance du compte en base de données.
+     */
+    public function testNewFormSubmit(): void
+    {
+        $this->client->loginUser($this->admin);
+
+        // Accède au formulaire de création
+        $crawler = $this->client->request('GET', '/admin/compte/new');
+        // Soumet le formulaire avec des données valides
+        $form = $crawler->selectButton('Enregistrer')->form();
+        $form['compte[email]'] = 'testcreate' . uniqid() . '@test.com';
+        $form['compte[plainPassword]'] = 'SecurePassword123!';
+        $form['compte[role]'] = 'ROLE_USER';
+
+        $this->client->submit($form);
+        self::assertResponseRedirects('/admin/compte');
+
+        // Vérifie que le compte a été créé en consultant la base de données
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $comptes = $entityManager->getRepository(Compte::class)
+            ->findAll();
+        // On s'attend à au moins 2 comptes (admin et le nouveau créé)
+        self::assertGreaterThanOrEqual(2, count($comptes));
+    }
+
+    /**
+     * Teste l'affichage des détails d'un compte existant.
+     *
+     * Doit retourner un statut 200 (Succès) pour un admin.
+     */
+    public function testShowExistingCompte(): void
+    {
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/compte/' . $this->nonAdminUser->getId());
+        self::assertResponseStatusCodeSame(200);
+    }
+
+    /**
+     * Teste l'affichage des détails d'un compte inexistant.
+     *
+     * Doit retourner un statut 404 (Non trouvé).
+     */
+    public function testShowNonExistentCompte(): void
+    {
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/compte/99999'); // ID qui n'existe probablement pas
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * Teste l'affichage du formulaire de modification d'un compte existant.
+     *
+     * Doit retourner un statut 200 (Succès) pour un admin.
+     */
+    public function testEditFormGet(): void
+    {
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/compte/' . $this->nonAdminUser->getId() . '/edit');
+        self::assertResponseStatusCodeSame(200);
+    }
+
+    /**
+     * Teste la soumission du formulaire de modification d'un compte.
+     *
+     * Vérifie la redirection après soumission et que les données du compte ont été mises à jour.
+     */
+    public function testEditFormSubmit(): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $passwordHasher = self::getContainer()->get(UserPasswordHasherInterface::class);
+
+        // Crée un nouvel utilisateur à modifier
+        $userToEdit = new Compte();
+        $uniqueId = uniqid();
+        $userToEdit->setEmail('edit_user' . $uniqueId . '@test.com');
+        $userToEdit->setRole('ROLE_USER');
+        $userToEdit->setPassword($passwordHasher->hashPassword($userToEdit, 'oldpassword'));
+        $userToEdit->setIsVerified(true);
+        $entityManager->persist($userToEdit);
+        $entityManager->flush();
+        $id = $userToEdit->getId();
+        $entityManager->clear();
+
+        // Soumission du formulaire de modification
+        $this->client->loginUser($this->admin);
+        $crawler = $this->client->request('GET', '/admin/compte/' . $id . '/edit');
+        $form = $crawler->selectButton('Mettre à jour')->form();
+        $form['compte[email]'] = 'updated_user' . uniqid() . '@test.com';
+        $form['compte[plainPassword]'] = 'NewSecurePassword123!';
+        $form['compte[role]'] = 'ROLE_ADMIN';
+
+        $this->client->submit($form);
+        self::assertResponseRedirects('/admin/compte');
+
+        // Vérifie que le compte a été modifié en le récupérant de la base de données
+        $entityManager->clear(); // Efface l'EntityManager pour s'assurer de récupérer les dernières données
+        $updatedUser = $entityManager->getRepository(Compte::class)->find($id);
+        self::assertNotNull($updatedUser);
+        self::assertStringContainsString('updated_user', $updatedUser->getEmail());
+        self::assertTrue($passwordHasher->isPasswordValid($updatedUser, 'NewSecurePassword123!'));
+        self::assertSame('ROLE_ADMIN', $updatedUser->getRole());
+    }
+
+    /**
+     * Teste la suppression d'un compte avec un jeton CSRF valide.
+     *
+     * Crée un compte, le supprime via le formulaire et vérifie qu'il n'existe plus en base de données.
+     */
+    public function testDeleteWithValidCsrfToken(): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $passwordHasher = self::getContainer()->get(UserPasswordHasherInterface::class);
+
+        // Crée un utilisateur à supprimer
+        $userToDelete = new Compte();
+        $uniqueId = uniqid();
+        $userToDelete->setEmail('todelete' . $uniqueId . '@test.com');
+        $userToDelete->setRole('ROLE_USER');
+        $userToDelete->setPassword($passwordHasher->hashPassword($userToDelete, 'password'));
+        $userToDelete->setIsVerified(true);
+        $entityManager->persist($userToDelete);
+        $entityManager->flush();
+        $id = $userToDelete->getId();
+        $entityManager->clear();
+
+        // Supprime le compte via le formulaire
+        $this->client->loginUser($this->admin);
+        $crawler = $this->client->request('GET', '/admin/compte/' . $id); // Accède à la page du compte pour obtenir le formulaire de suppression
+        $form = $crawler->selectButton('Supprimer')->form();
+
+        $this->client->submit($form);
+        self::assertResponseRedirects('/admin/compte');
+
+        // Vérifie que le compte a été supprimé
         $entityManager->clear();
         $deletedUser = $entityManager->getRepository(Compte::class)->find($id);
         self::assertNull($deletedUser);

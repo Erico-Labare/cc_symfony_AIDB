@@ -31,7 +31,8 @@ when@test:
     doctrine:
         dbal:
             # "TEST_TOKEN" is typically set by ParaTest
-            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+            # dbname_suffix: '_test%env(default::TEST_TOKEN)%' # Removed this line
+            # The database name will now be taken directly from DATABASE_URL in .env.test
 
 when@prod:
     doctrine:

@@ -8,247 +8,354 @@ use App\Entity\Client;
 use App\Entity\Chambre;
 use App\Entity\Hotel;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\BaseWebTestCase;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-// Test du contrôleur de gestion des réservations
-final class ReservationControllerTest extends WebTestCase
+/**
+ * Test du contrôleur d'administration des réservations.
+ *
+ * Cette classe contient les tests fonctionnels pour la gestion des réservations
+ * par un administrateur.
+ */
+final class ReservationControllerTest extends BaseWebTestCase
 {
+    private KernelBrowser $client;
     private ?Compte $admin = null;
+    private ?Compte $nonAdminUser = null;
     private ?Client $testClient = null;
     private ?Chambre $testChambre = null;
     private ?Compte $testCompte = null;
 
-    // Initialiser les données de test
-    private function setupData(): void
+    /**
+     * Configure l'environnement de test avant chaque test.
+     *
+     * Initialise le client de test et prépare les données utilisateur (admin et non-admin),
+     * ainsi que les entités nécessaires pour les réservations (client, chambre, compte).
+     */
+    protected function setUp(): void
     {
-        if ($this->admin === null) {
-            $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-            $this->admin = $entityManager->getRepository(Compte::class)
-                ->findOneBy(['email' => 'admin@test.com']);
-
-            // Créer un client de test
-            $this->testClient = new Client();
-            $this->testClient->setNom('Test Client Resa');
-            $this->testClient->setAdresse('123 Rue Resa');
-            $this->testClient->setEmail('resa_client' . time() . '@test.com');
-            $this->testClient->setTelephone('0102030405');
-            $entityManager->persist($this->testClient);
-
-            // Créer un compte de test
-            $this->testCompte = new Compte();
-            $this->testCompte->setEmail('resa_compte' . time() . '@test.com');
-            $this->testCompte->setPassword('password');
-            $this->testCompte->setRole('ROLE_USER');
-            $this->testCompte->setIsVerified(true);
-            $entityManager->persist($this->testCompte);
-
-            // Créer un hôtel de test
-            $testHotel = new Hotel();
-            $testHotel->setNom('Hotel Resa');
-            $testHotel->setAdresse('Adresse Resa');
-            $testHotel->setCategorie('***');
-            $entityManager->persist($testHotel);
-
-            // Créer une chambre de test
-            $this->testChambre = new Chambre();
-            $this->testChambre->setEtage(1);
-            $this->testChambre->setType('double');
-            $this->testChambre->setNombreLit(2);
-            $this->testChambre->setHotel($testHotel);
-            $entityManager->persist($this->testChambre);
-
-            $entityManager->flush();
-        }
+        parent::setUp(); // Appelle le setUp parent pour gérer la réinitialisation de la base de données et le démarrage du kernel
+        $this->client = static::createClient(); // Crée le client
+        $this->setupData(); // Appelle setupData après que la base de données soit prête et le client créé
     }
 
-    // Tester l'accès à l'index sans authentification
+    /**
+     * Initialise les données de test, s'assurant qu'un utilisateur admin, un utilisateur non-admin,
+     * un client, un compte et une chambre de test existent.
+     */
+    private function setupData(): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $passwordHasher = self::getContainer()->get(UserPasswordHasherInterface::class);
+
+        // Assure qu'un utilisateur admin existe ou le crée
+        $this->admin = $entityManager->getRepository(Compte::class)
+            ->findOneBy(['email' => 'admin@test.com']);
+
+        if ($this->admin === null) {
+            $this->admin = new Compte();
+            $this->admin->setEmail('admin@test.com');
+            $this->admin->setPassword($passwordHasher->hashPassword($this->admin, 'password'));
+            $this->admin->setRole('ROLE_ADMIN');
+            $this->admin->setIsVerified(true);
+            $entityManager->persist($this->admin);
+        }
+
+        // Assure qu'un utilisateur non-admin existe ou le crée
+        $this->nonAdminUser = $entityManager->getRepository(Compte::class)
+            ->findOneBy(['email' => 'test@test.com']);
+
+        if ($this->nonAdminUser === null) {
+            $this->nonAdminUser = new Compte();
+            $this->nonAdminUser->setEmail('test@test.com');
+            $this->nonAdminUser->setPassword($passwordHasher->hashPassword($this->nonAdminUser, 'password'));
+            $this->nonAdminUser->setRole('ROLE_USER');
+            $this->nonAdminUser->setIsVerified(true);
+            $entityManager->persist($this->nonAdminUser);
+        }
+
+        // Crée des données de test uniques pour éviter les conflits entre les méthodes de test
+        $uniqueId = uniqid();
+
+        // Créer un client de test
+        $this->testClient = new Client();
+        $this->testClient->setNom('Test Client Resa ' . $uniqueId);
+        $this->testClient->setAdresse('123 Rue Resa ' . $uniqueId);
+        $this->testClient->setEmail('resa_client' . $uniqueId . '@test.com');
+        $this->testClient->setTelephone('0102030405');
+        $entityManager->persist($this->testClient);
+
+        // Créer un compte de test
+        $this->testCompte = new Compte();
+        $this->testCompte->setEmail('resa_compte' . $uniqueId . '@test.com');
+        $this->testCompte->setPassword($passwordHasher->hashPassword($this->testCompte, 'password'));
+        $this->testCompte->setRole('ROLE_USER');
+        $this->testCompte->setIsVerified(true);
+        $entityManager->persist($this->testCompte);
+
+        // Créer un hôtel de test
+        $testHotel = new Hotel();
+        $testHotel->setNom('Hotel Resa ' . $uniqueId);
+        $testHotel->setAdresse('Adresse Resa ' . $uniqueId);
+        $testHotel->setCategorie('***');
+        $entityManager->persist($testHotel);
+
+        // Créer une chambre de test
+        $this->testChambre = new Chambre();
+        $this->testChambre->setEtage(1);
+        $this->testChambre->setType('double');
+        $this->testChambre->setNombreLit(2);
+        $this->testChambre->setHotel($testHotel);
+        $entityManager->persist($this->testChambre);
+
+        $entityManager->flush();
+        $entityManager->clear(); // Efface l'EntityManager pour détacher les entités
+    }
+
+    /**
+     * Teste l'accès à la liste des réservations sans authentification.
+     *
+     * Doit rediriger vers la page de connexion.
+     */
     public function testIndexWithoutAuthentication(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/admin/reservation');
+        $this->client->request('GET', '/admin/reservation');
         self::assertResponseRedirects();
     }
 
-    // Tester l'accès à l'index avec un utilisateur non-admin
+    /**
+     * Teste l'accès à la liste des réservations avec un utilisateur non-admin.
+     *
+     * Doit retourner un statut 403 (Accès interdit).
+     */
     public function testIndexWithNonAdmin(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $user = $entityManager->getRepository(Compte::class)
-            ->findOneBy(['email' => 'test@test.com']);
-        $client->loginUser($user);
-        $client->request('GET', '/admin/reservation');
+        $this->client->loginUser($this->nonAdminUser);
+        $this->client->request('GET', '/admin/reservation');
         self::assertResponseStatusCodeSame(403);
     }
 
-    // Tester l'accès à l'index avec un admin
+    /**
+     * Teste l'accès à la liste des réservations avec un admin.
+     *
+     * Doit retourner un statut 200 (Succès).
+     */
     public function testIndexWithAdmin(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/reservation');
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/reservation');
+        $this->client->followRedirect(); // Suit la redirection 301
         self::assertResponseStatusCodeSame(200);
     }
 
-    // Tester l'affichage du formulaire de création
+    /**
+     * Teste l'affichage du formulaire de création d'une nouvelle réservation.
+     *
+     * Doit retourner un statut 200 (Succès) pour un admin.
+     */
     public function testNewFormGet(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/reservation/new');
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/reservation/new');
         self::assertResponseStatusCodeSame(200);
     }
 
-    // Tester la soumission du formulaire de création
+    /**
+     * Teste la soumission du formulaire de création d'une nouvelle réservation.
+     *
+     * Vérifie la redirection après soumission et la persistance de la réservation en base de données.
+     */
     public function testNewFormSubmit(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
+        $this->client->loginUser($this->admin);
 
         $dateDebut = (new \DateTime())->modify('+1 day');
         $dateFin = (new \DateTime())->modify('+3 days');
 
-        $crawler = $client->request('GET', '/admin/reservation/new');
+        // Accède au formulaire de création
+        $crawler = $this->client->request('GET', '/admin/reservation/new');
+        // Soumet le formulaire avec des données valides
         $form = $crawler->selectButton('Enregistrer')->form([
             'reservation[dateDebut]' => $dateDebut->format('Y-m-d H:i:s'),
             'reservation[dateFin]' => $dateFin->format('Y-m-d H:i:s'),
-            'reservation[commentaire]' => 'Commentaire test ' . time(),
+            'reservation[commentaire]' => 'Commentaire test ' . uniqid(),
             'reservation[compte]' => $this->testCompte->getId(),
             'reservation[client]' => $this->testClient->getId(),
             'reservation[chambre]' => $this->testChambre->getId(),
         ]);
-        $client->submit($form);
+        $this->client->submit($form);
         self::assertResponseRedirects('/admin/reservation/');
 
+        // Vérifie que la réservation a été créée en consultant la base de données
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $reservations = $entityManager->getRepository(Reservation::class)
             ->findAll();
         self::assertGreaterThanOrEqual(1, count($reservations));
     }
 
-    // Tester l'affichage d'une réservation existante
+    /**
+     * Teste l'affichage des détails d'une réservation existante.
+     *
+     * Doit retourner un statut 200 (Succès) pour un admin.
+     */
     public function testShowExistingReservation(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+
+        // Re-fetch des entités gérées après clear() pour s'assurer qu'elles sont attachées à l'EntityManager
+        $managedTestCompte = $entityManager->getRepository(Compte::class)->find($this->testCompte->getId());
+        $managedTestClient = $entityManager->getRepository(Client::class)->find($this->testClient->getId());
+        $managedTestChambre = $entityManager->getRepository(Chambre::class)->find($this->testChambre->getId());
+
+        // Crée une réservation de test
         $testReservation = new Reservation();
         $testReservation->setDateDebut((new \DateTime())->modify('+5 days'));
         $testReservation->setDateFin((new \DateTime())->modify('+7 days'));
-        $testReservation->setCommentaire('Show Resa');
-        $testReservation->setCompte($this->testCompte);
-        $testReservation->setClient($this->testClient);
-        $testReservation->setChambre($this->testChambre);
+        $testReservation->setCommentaire('Show Resa ' . uniqid());
+        $testReservation->setCompte($managedTestCompte);
+        $testReservation->setClient($managedTestClient);
+        $testReservation->setChambre($managedTestChambre);
         $entityManager->persist($testReservation);
         $entityManager->flush();
+        $entityManager->clear();
 
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/reservation/' . $testReservation->getId());
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/reservation/' . $testReservation->getId());
         self::assertResponseStatusCodeSame(200);
     }
 
-    // Tester l'affichage d'une réservation inexistante
+    /**
+     * Teste l'affichage des détails d'une réservation inexistante.
+     *
+     * Doit retourner un statut 404 (Non trouvé).
+     */
     public function testShowNonExistentReservation(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/reservation/99999');
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/reservation/99999'); // ID qui n'existe probablement pas
         self::assertResponseStatusCodeSame(404);
     }
 
-    // Tester l'affichage du formulaire de modification
+    /**
+     * Teste l'affichage du formulaire de modification d'une réservation existante.
+     *
+     * Doit retourner un statut 200 (Succès) pour un admin.
+     */
     public function testEditFormGet(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+
+        // Re-fetch des entités gérées après clear()
+        $managedTestCompte = $entityManager->getRepository(Compte::class)->find($this->testCompte->getId());
+        $managedTestClient = $entityManager->getRepository(Client::class)->find($this->testClient->getId());
+        $managedTestChambre = $entityManager->getRepository(Chambre::class)->find($this->testChambre->getId());
+
+        // Crée une réservation de test
         $testReservation = new Reservation();
         $testReservation->setDateDebut((new \DateTime())->modify('+10 days'));
         $testReservation->setDateFin((new \DateTime())->modify('+12 days'));
-        $testReservation->setCommentaire('Edit Resa Original');
-        $testReservation->setCompte($this->testCompte);
-        $testReservation->setClient($this->testClient);
-        $testReservation->setChambre($this->testChambre);
+        $testReservation->setCommentaire('Edit Resa Original ' . uniqid());
+        $testReservation->setCompte($managedTestCompte);
+        $testReservation->setClient($managedTestClient);
+        $testReservation->setChambre($managedTestChambre);
         $entityManager->persist($testReservation);
         $entityManager->flush();
+        $entityManager->clear();
 
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/reservation/' . $testReservation->getId() . '/edit');
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/reservation/' . $testReservation->getId() . '/edit');
         self::assertResponseStatusCodeSame(200);
     }
 
-    // Tester la soumission du formulaire de modification
+    /**
+     * Teste la soumission du formulaire de modification d'une réservation.
+     *
+     * Vérifie la redirection après soumission et que les données de la réservation ont été mises à jour.
+     */
     public function testEditFormSubmit(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+
+        // Re-fetch des entités gérées après clear()
+        $managedTestCompte = $entityManager->getRepository(Compte::class)->find($this->testCompte->getId());
+        $managedTestClient = $entityManager->getRepository(Client::class)->find($this->testClient->getId());
+        $managedTestChambre = $entityManager->getRepository(Chambre::class)->find($this->testChambre->getId());
+
+        // Crée une réservation de test
         $testReservation = new Reservation();
         $testReservation->setDateDebut((new \DateTime())->modify('+15 days'));
         $testReservation->setDateFin((new \DateTime())->modify('+17 days'));
-        $testReservation->setCommentaire('Edit Resa Original');
-        $testReservation->setCompte($this->testCompte);
-        $testReservation->setClient($this->testClient);
-        $testReservation->setChambre($this->testChambre);
+        $testReservation->setCommentaire('Edit Resa Original ' . uniqid());
+        $testReservation->setCompte($managedTestCompte);
+        $testReservation->setClient($managedTestClient);
+        $testReservation->setChambre($managedTestChambre);
         $entityManager->persist($testReservation);
         $entityManager->flush();
         $id = $testReservation->getId();
+        $entityManager->clear();
 
         $newDateDebut = (new \DateTime())->modify('+20 days');
         $newDateFin = (new \DateTime())->modify('+22 days');
 
-        $client->loginUser($this->admin);
-        $crawler = $client->request('GET', '/admin/reservation/' . $id . '/edit');
+        // Soumission du formulaire de modification
+        $this->client->loginUser($this->admin);
+        $crawler = $this->client->request('GET', '/admin/reservation/' . $id . '/edit');
         $form = $crawler->selectButton('Mettre à jour')->form([
             'reservation[dateDebut]' => $newDateDebut->format('Y-m-d H:i:s'),
             'reservation[dateFin]' => $newDateFin->format('Y-m-d H:i:s'),
-            'reservation[commentaire]' => 'Reservation Updated',
-            'reservation[compte]' => $this->testCompte->getId(),
-            'reservation[client]' => $this->testClient->getId(),
-            'reservation[chambre]' => $this->testChambre->getId(),
+            'reservation[commentaire]' => 'Reservation Updated ' . uniqid(),
+            'reservation[compte]' => $managedTestCompte->getId(),
+            'reservation[client]' => $managedTestClient->getId(),
+            'reservation[chambre]' => $managedTestChambre->getId(),
         ]);
-        $client->submit($form);
+        $this->client->submit($form);
         self::assertResponseRedirects('/admin/reservation/');
 
+        // Vérifie que la réservation a été modifiée en la récupérant de la base de données
         $entityManager->clear();
         $updatedReservation = $entityManager->getRepository(Reservation::class)->find($id);
-        self::assertSame('Reservation Updated', $updatedReservation->getCommentaire());
+        self::assertNotNull($updatedReservation);
+        self::assertStringContainsString('Reservation Updated', $updatedReservation->getCommentaire());
         self::assertEquals($newDateDebut->format('Y-m-d H:i:s'), $updatedReservation->getDateDebut()->format('Y-m-d H:i:s'));
     }
 
-    // Tester la suppression d'une réservation avec un jeton CSRF valide
+    /**
+     * Teste la suppression d'une réservation avec un jeton CSRF valide.
+     *
+     * Crée une réservation, la supprime via le formulaire et vérifie qu'elle n'existe plus en base de données.
+     */
     public function testDeleteWithValidCsrfToken(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+
+        // Re-fetch des entités gérées après clear()
+        $managedTestCompte = $entityManager->getRepository(Compte::class)->find($this->testCompte->getId());
+        $managedTestClient = $entityManager->getRepository(Client::class)->find($this->testClient->getId());
+        $managedTestChambre = $entityManager->getRepository(Chambre::class)->find($this->testChambre->getId());
+
+        // Crée une réservation de test
         $testReservation = new Reservation();
         $testReservation->setDateDebut((new \DateTime())->modify('+25 days'));
         $testReservation->setDateFin((new \DateTime())->modify('+27 days'));
-        $testReservation->setCommentaire('Reservation to Delete');
-        $testReservation->setCompte($this->testCompte);
-        $testReservation->setClient($this->testClient);
-        $testReservation->setChambre($this->testChambre);
+        $testReservation->setCommentaire('Reservation to Delete ' . uniqid());
+        $testReservation->setCompte($managedTestCompte);
+        $testReservation->setClient($managedTestClient);
+        $testReservation->setChambre($managedTestChambre);
         $entityManager->persist($testReservation);
         $entityManager->flush();
         $id = $testReservation->getId();
+        $entityManager->clear();
 
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/reservation/' . $id); // Naviguer vers la page show pour obtenir le formulaire de suppression
-        $form = $client->getCrawler()->selectButton('Supprimer')->form();
+        // Supprime la réservation via le formulaire
+        $this->client->loginUser($this->admin);
+        $crawler = $this->client->request('GET', '/admin/reservation/' . $id); // Navigue vers la page show pour obtenir le formulaire de suppression
+        $form = $crawler->selectButton('Supprimer')->form();
 
-        $client->submit($form);
+        $this->client->submit($form);
         self::assertResponseRedirects('/admin/reservation/');
 
+        // Vérifie que la réservation a été supprimée
         $entityManager->clear();
         $deletedReservation = $entityManager->getRepository(Reservation::class)->find($id);
         self::assertNull($deletedReservation);

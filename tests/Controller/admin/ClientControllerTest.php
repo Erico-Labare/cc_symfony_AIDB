@@ -5,193 +5,277 @@ namespace App\Tests\Controller\admin;
 use App\Entity\Client;
 use App\Entity\Compte;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\BaseWebTestCase;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-// Test du contrôleur de gestion des clients
-final class ClientControllerTest extends WebTestCase
+/**
+ * Test du contrôleur d'administration des clients.
+ *
+ * Cette classe contient les tests fonctionnels pour la gestion des clients
+ * par un administrateur.
+ */
+final class ClientControllerTest extends BaseWebTestCase
 {
     private ?Compte $admin = null;
+    private ?Compte $nonAdminUser = null;
+    private ?KernelBrowser $client = null;
 
-    // Initialiser les données de test
-    private function setupData(): void
+    /**
+     * Configure l'environnement de test avant chaque test.
+     *
+     * Initialise le client de test et prépare les données utilisateur (admin et non-admin).
+     */
+    protected function setUp(): void
     {
-        if ($this->admin === null) {
-            $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-            $this->admin = $entityManager->getRepository(Compte::class)
-                ->findOneBy(['email' => 'admin@test.com']);
-        }
+        parent::setUp();
+        $this->client = static::createClient(); // Crée le client en premier, ce qui démarre le kernel
+        $this->setupData();
     }
 
-    // Tester l'accès à l'index sans authentification
+    /**
+     * Initialise les données de test, s'assurant qu'un utilisateur admin et un utilisateur non-admin existent.
+     */
+    private function setupData(): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $passwordHasher = self::getContainer()->get(UserPasswordHasherInterface::class);
+
+        // Assure qu'un utilisateur admin existe ou le crée
+        $this->admin = $entityManager->getRepository(Compte::class)
+            ->findOneBy(['email' => 'admin@test.com']);
+
+        if ($this->admin === null) {
+            $this->admin = new Compte();
+            $this->admin->setEmail('admin@test.com');
+            $this->admin->setPassword($passwordHasher->hashPassword($this->admin, 'password'));
+            $this->admin->setRole('ROLE_ADMIN');
+            $this->admin->setIsVerified(true);
+            $entityManager->persist($this->admin);
+        }
+
+        // Assure qu'un utilisateur non-admin existe ou le crée
+        $this->nonAdminUser = $entityManager->getRepository(Compte::class)
+            ->findOneBy(['email' => 'test@test.com']);
+
+        if ($this->nonAdminUser === null) {
+            $this->nonAdminUser = new Compte();
+            $this->nonAdminUser->setEmail('test@test.com');
+            $this->nonAdminUser->setPassword($passwordHasher->hashPassword($this->nonAdminUser, 'password'));
+            $this->nonAdminUser->setRole('ROLE_USER');
+            $this->nonAdminUser->setIsVerified(true);
+            $entityManager->persist($this->nonAdminUser);
+        }
+
+        $entityManager->flush();
+        $entityManager->clear();
+    }
+
+    /**
+     * Teste l'accès à la liste des clients sans authentification.
+     *
+     * Doit rediriger vers la page de connexion.
+     */
     public function testIndexWithoutAuthentication(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/admin/client');
+        $this->client->request('GET', '/admin/client');
         self::assertResponseRedirects();
     }
 
-    // Tester l'accès à l'index avec un utilisateur non-admin
+    /**
+     * Teste l'accès à la liste des clients avec un utilisateur non-admin.
+     *
+     * Doit retourner un statut 403 (Accès interdit).
+     */
     public function testIndexWithNonAdmin(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $user = $entityManager->getRepository(Compte::class)
-            ->findOneBy(['email' => 'test@test.com']);
-        $client->loginUser($user);
-        $client->request('GET', '/admin/client');
+        $this->client->loginUser($this->nonAdminUser);
+        $this->client->request('GET', '/admin/client');
         self::assertResponseStatusCodeSame(403);
     }
 
-    // Tester l'accès à l'index avec un admin
+    /**
+     * Teste l'accès à la liste des clients avec un admin.
+     *
+     * Doit retourner un statut 200 (Succès).
+     */
     public function testIndexWithAdmin(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/client');
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/client');
+        $this->client->followRedirect(); // Suit la redirection
         self::assertResponseStatusCodeSame(200);
     }
 
-    // Tester l'affichage du formulaire de création
+    /**
+     * Teste l'affichage du formulaire de création d'un nouveau client.
+     *
+     * Doit retourner un statut 200 (Succès) pour un admin.
+     */
     public function testNewFormGet(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/client/new');
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/client/new');
         self::assertResponseStatusCodeSame(200);
     }
 
-    // Tester la soumission du formulaire de création
+    /**
+     * Teste la soumission du formulaire de création d'un nouveau client.
+     *
+     * Vérifie la redirection après soumission et la persistance du client en base de données.
+     */
     public function testNewFormSubmit(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
+        $this->client->loginUser($this->admin);
 
-        $crawler = $client->request('GET', '/admin/client/new');
+        $uniqueId = uniqid();
+        // Accède au formulaire de création
+        $crawler = $this->client->request('GET', '/admin/client/new');
+        // Soumet le formulaire avec des données valides
         $form = $crawler->selectButton('Enregistrer')->form([
-            'client[nom]' => 'Client Test ' . time(),
-            'client[adresse]' => '123 Rue du Client',
-            'client[email]' => 'client' . time() . '@test.com',
+            'client[nom]' => 'Client Test ' . $uniqueId,
+            'client[adresse]' => '123 Rue du Client ' . $uniqueId,
+            'client[email]' => 'client' . $uniqueId . '@test.com',
             'client[telephone]' => '0123456789',
         ]);
-        $client->submit($form);
+        $this->client->submit($form);
         self::assertResponseRedirects('/admin/client/');
 
+        // Vérifie que le client a été créé en consultant la base de données
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $clients = $entityManager->getRepository(Client::class)
             ->findAll();
         self::assertGreaterThanOrEqual(1, count($clients));
     }
 
-    // Tester l'affichage d'un client existant
+    /**
+     * Teste l'affichage des détails d'un client existant.
+     *
+     * Doit retourner un statut 200 (Succès) pour un admin.
+     */
     public function testShowExistingClient(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-
+        // Créer un client de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $testClient = new Client();
-        $testClient->setNom('Show Client');
-        $testClient->setAdresse('Adresse Show');
-        $testClient->setEmail('show' . time() . '@test.com');
+        $uniqueId = uniqid();
+        $testClient->setNom('Show Client ' . $uniqueId);
+        $testClient->setAdresse('Adresse Show ' . $uniqueId);
+        $testClient->setEmail('show' . $uniqueId . '@test.com');
         $testClient->setTelephone('0987654321');
         $entityManager->persist($testClient);
         $entityManager->flush();
+        $entityManager->clear();
 
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/client/' . $testClient->getId());
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/client/' . $testClient->getId());
         self::assertResponseStatusCodeSame(200);
     }
 
-    // Tester l'affichage d'un client inexistant
+    /**
+     * Teste l'affichage des détails d'un client inexistant.
+     *
+     * Doit retourner un statut 404 (Non trouvé).
+     */
     public function testShowNonExistentClient(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/client/99999');
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/client/99999'); // ID qui n'existe probablement pas
         self::assertResponseStatusCodeSame(404);
     }
 
-    // Tester l'affichage du formulaire de modification
+    /**
+     * Teste l'affichage du formulaire de modification d'un client existant.
+     *
+     * Doit retourner un statut 200 (Succès) pour un admin.
+     */
     public function testEditFormGet(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-
+        // Créer un client de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $testClient = new Client();
-        $testClient->setNom('Edit Client Original');
-        $testClient->setAdresse('Edit Adresse Original');
-        $testClient->setEmail('edit_original' . time() . '@test.com');
+        $uniqueId = uniqid();
+        $testClient->setNom('Edit Client Original ' . $uniqueId);
+        $testClient->setAdresse('Edit Adresse Original ' . $uniqueId);
+        $testClient->setEmail('edit_original' . $uniqueId . '@test.com');
         $testClient->setTelephone('0101010101');
         $entityManager->persist($testClient);
         $entityManager->flush();
+        $entityManager->clear();
 
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/client/' . $testClient->getId() . '/edit');
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/client/' . $testClient->getId() . '/edit');
         self::assertResponseStatusCodeSame(200);
     }
 
-    // Tester la soumission du formulaire de modification
+    /**
+     * Teste la soumission du formulaire de modification d'un client.
+     *
+     * Vérifie la redirection après soumission et que les données du client ont été mises à jour.
+     */
     public function testEditFormSubmit(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-
+        // Créer un client de test
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $testClient = new Client();
-        $testClient->setNom('Edit Client Original');
-        $testClient->setAdresse('Edit Adresse Original');
-        $testClient->setEmail('edit_submit' . time() . '@test.com');
+        $uniqueId = uniqid();
+        $testClient->setNom('Edit Client Original ' . $uniqueId);
+        $testClient->setAdresse('Edit Adresse Original ' . $uniqueId);
+        $testClient->setEmail('edit_submit' . $uniqueId . '@test.com');
         $testClient->setTelephone('0101010101');
         $entityManager->persist($testClient);
         $entityManager->flush();
         $id = $testClient->getId();
+        $entityManager->clear();
 
-        $client->loginUser($this->admin);
-        $crawler = $client->request('GET', '/admin/client/' . $id . '/edit');
+        // Soumission du formulaire de modification
+        $this->client->loginUser($this->admin);
+        $crawler = $this->client->request('GET', '/admin/client/' . $id . '/edit');
         $form = $crawler->selectButton('Mettre à jour')->form([
-            'client[nom]' => 'Client Updated',
-            'client[adresse]' => 'New Updated Address',
-            'client[email]' => 'updated' . time() . '@test.com',
+            'client[nom]' => 'Client Updated ' . uniqid(),
+            'client[adresse]' => 'New Updated Address ' . uniqid(),
+            'client[email]' => 'updated' . uniqid() . '@test.com',
             'client[telephone]' => '0606060606',
         ]);
-        $client->submit($form);
+        $this->client->submit($form);
         self::assertResponseRedirects('/admin/client/');
 
-        $entityManager->clear();
+        // Vérifie que le client a été modifié en le récupérant de la base de données
+        $entityManager->clear(); // Efface l'EntityManager pour s'assurer de récupérer les dernières données
         $updatedClient = $entityManager->getRepository(Client::class)->find($id);
-        self::assertSame('Client Updated', $updatedClient->getNom());
-        self::assertSame('New Updated Address', $updatedClient->getAdresse());
+        self::assertNotNull($updatedClient);
+        self::assertStringContainsString('Client Updated', $updatedClient->getNom());
+        self::assertStringContainsString('New Updated Address', $updatedClient->getAdresse());
     }
 
-    // Tester la suppression d'un client avec un jeton CSRF valide
+    /**
+     * Teste la suppression d'un client avec un jeton CSRF valide.
+     *
+     * Crée un client, le supprime via le formulaire et vérifie qu'il n'existe plus en base de données.
+     */
     public function testDeleteWithValidCsrfToken(): void
     {
-        $client = static::createClient();
-        $this->setupData();
-
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $testClient = new Client();
-        $testClient->setNom('Client to Delete');
-        $testClient->setAdresse('Delete Client Address');
-        $testClient->setEmail('delete' . time() . '@test.com');
+        $uniqueId = uniqid();
+        $testClient->setNom('Client to Delete ' . $uniqueId);
+        $testClient->setAdresse('Delete Client Address ' . $uniqueId);
+        $testClient->setEmail('delete' . $uniqueId . '@test.com');
         $testClient->setTelephone('0707070707');
         $entityManager->persist($testClient);
         $entityManager->flush();
         $id = $testClient->getId();
+        $entityManager->clear();
 
-        $client->loginUser($this->admin);
-        $client->request('GET', '/admin/client/' . $id); // Naviguer vers la page show pour obtenir le formulaire de suppression
-        $form = $client->getCrawler()->selectButton('Supprimer')->form();
+        // Supprime le client via le formulaire
+        $this->client->loginUser($this->admin);
+        $crawler = $this->client->request('GET', '/admin/client/' . $id); // Accède à la page du client pour obtenir le formulaire de suppression
+        $form = $crawler->selectButton('Supprimer')->form();
 
-        $client->submit($form);
+        $this->client->submit($form);
         self::assertResponseRedirects('/admin/client/');
 
+        // Vérifie que le client a été supprimé
         $entityManager->clear();
         $deletedClient = $entityManager->getRepository(Client::class)->find($id);
         self::assertNull($deletedClient);

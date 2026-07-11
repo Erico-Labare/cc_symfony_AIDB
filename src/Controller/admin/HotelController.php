@@ -50,7 +50,7 @@ final class HotelController extends AbstractController
                 $entityManager->persist($hotel);
                 $entityManager->flush();
                 $this->addFlash('success', 'L\'hôtel a été créé avec succès.');
-                return $this->redirectToRoute('app_hotel_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
                 $this->addFlash('error', 'Une erreur est survenue : Un hôtel avec le même nom existe déjà.');
             } catch (ORMException $e) {
@@ -86,7 +86,7 @@ final class HotelController extends AbstractController
             try {
                 $entityManager->flush();
                 $this->addFlash('success', 'L\'hôtel a été modifié avec succès.');
-                return $this->redirectToRoute('app_hotel_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
                 $this->addFlash('error', 'Une erreur est survenue : Un hôtel avec le même nom existe déjà.');
             } catch (ORMException $e) {

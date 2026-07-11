@@ -50,7 +50,7 @@ final class ChambreController extends AbstractController
                 $entityManager->persist($chambre);
                 $entityManager->flush();
                 $this->addFlash('success', 'La chambre a été créée avec succès.');
-                return $this->redirectToRoute('app_chambre_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER); // Corrected route name
             } catch (UniqueConstraintViolationException $e) {
                 $this->addFlash('error', 'Une erreur est survenue : Une chambre avec le même numéro existe déjà pour cet hôtel.');
             } catch (ORMException $e) {
@@ -86,7 +86,7 @@ final class ChambreController extends AbstractController
             try {
                 $entityManager->flush();
                 $this->addFlash('success', 'La chambre a été modifiée avec succès.');
-                return $this->redirectToRoute('app_chambre_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER); // Corrected route name
             } catch (UniqueConstraintViolationException $e) {
                 $this->addFlash('error', 'Une erreur est survenue : Une chambre avec le même numéro existe déjà pour cet hôtel.');
             } catch (ORMException $e) {

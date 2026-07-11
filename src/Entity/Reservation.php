@@ -58,7 +58,7 @@ class Reservation
      * Reservation N <> 1 Compte
      */
 
-    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\ManyToOne(inversedBy: 'reservations', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Compte $compte = null;
 
@@ -70,7 +70,7 @@ class Reservation
      */
 
 
-    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\ManyToOne(inversedBy: 'reservations', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Client $client = null;
 
@@ -81,7 +81,7 @@ class Reservation
      * Reservation N <> 1 Chambre
      */
 
-    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\ManyToOne(inversedBy: 'reservations', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Chambre $chambre = null;
 
