@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\ORM\Exception\ORMException;
 
 #[Route('/admin/compte')]
 #[IsGranted('ROLE_ADMIN')]
@@ -35,17 +37,25 @@ final class CompteController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // hacher le mot de passe en clair
-            $plainPassword = $form->get('plainPassword')->getData();
-            if ($plainPassword) {
-                $hashedPassword = $passwordHasher->hashPassword($compte, $plainPassword);
-                $compte->setPassword($hashedPassword);
+            try {
+                // hacher le mot de passe en clair
+                $plainPassword = $form->get('plainPassword')->getData();
+                if ($plainPassword) {
+                    $hashedPassword = $passwordHasher->hashPassword($compte, $plainPassword);
+                    $compte->setPassword($hashedPassword);
+                }
+
+                $entityManager->persist($compte);
+                $entityManager->flush();
+                $this->addFlash('success', 'Le compte a été créé avec succès.');
+                return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+            } catch (UniqueConstraintViolationException $e) {
+                $this->addFlash('error', 'Une erreur est survenue : Un compte avec le même email existe déjà.');
+            } catch (ORMException $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la création du compte : ' . $e->getMessage());
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
             }
-
-            $entityManager->persist($compte);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('admin/compte/new.html.twig', [
@@ -71,9 +81,17 @@ final class CompteController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $entityManager->flush();
+                $this->addFlash('success', 'Le compte a été modifié avec succès.');
+                return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+            } catch (UniqueConstraintViolationException $e) {
+                $this->addFlash('error', 'Une erreur est survenue : Un compte avec le même email existe déjà.');
+            } catch (ORMException $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la modification du compte : ' . $e->getMessage());
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+            }
         }
 
         return $this->render('admin/compte/edit.html.twig', [
@@ -87,8 +105,17 @@ final class CompteController extends AbstractController
     public function delete(Request $request, Compte $compte, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $compte->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($compte);
-            $entityManager->flush();
+            try {
+                $entityManager->remove($compte);
+                $entityManager->flush();
+                $this->addFlash('success', 'Le compte a été supprimé avec succès.');
+            } catch (ORMException $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la suppression du compte : ' . $e->getMessage());
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
         }
 
         return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
