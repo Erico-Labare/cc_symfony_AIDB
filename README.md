@@ -38,6 +38,38 @@ Un fichier .env est versionné ici. Il est versionné dans le cadre du contexte 
 Il est possible de configurer le .env ainsi :
 - TODO config .env.local
 
+### Configuration du service d'e-mail
+
+Pour que les fonctionnalités d'envoi d'e-mails (comme la réinitialisation de mot de passe et la vérification d'e-mail) fonctionnent correctement, vous devez configurer un service d'envoi d'e-mails. Symfony utilise la variable d'environnement `MAILER_DSN` pour cela.
+
+1.  **Choisissez un service d'e-mail** : Vous pouvez utiliser un service SMTP standard (comme Gmail, Outlook), un service de développement/test (comme Mailtrap), ou un service d'e-mail transactionnel (comme SendGrid, Mailgun).
+2.  **Obtenez vos identifiants** : Récupérez les informations nécessaires pour le service choisi (par exemple, nom d'utilisateur, mot de passe, clé API, hôte SMTP, port).
+3.  **Modifiez votre fichier `.env`** : Ouvrez le fichier `.env` à la racine de votre projet.
+4.  **Configurez `MAILER_DSN`** : Remplacez la ligne `MAILER_DSN=null://null` par la configuration appropriée pour votre service.
+
+    **Exemples de configuration `MAILER_DSN` :**
+
+    *   **Pour Mailtrap (développement/test) :**
+        ```
+        MAILER_DSN=smtp://VOTRE_USERNAME_MAILTRAP:VOTRE_PASSWORD_MAILTRAP@smtp.mailtrap.io:2525
+        ```
+        (Remplacez par vos identifiants Mailtrap, disponibles sur votre compte Mailtrap.)
+
+    *   **Pour un serveur SMTP générique (ex: Gmail avec mot de passe d'application si 2FA activé) :**
+        ```
+        MAILER_DSN=smtp://VOTRE_EMAIL:VOTRE_MOT_DE_PASSE@smtp.VOTRE_SERVEUR_SMTP:PORT
+        ```
+        (Exemple Gmail: `smtp://monemail@gmail.com:monmotdepasseapp@smtp.gmail.com:587`)
+
+    *   **Pour SendGrid :**
+        ```
+        MAILER_DSN=smtp://apikey:VOTRE_CLE_API_SENDGRID@smtp.sendgrid.net:587
+        ```
+
+5.  **Redémarrez votre serveur Symfony** : Après avoir modifié le fichier `.env`, redémarrez votre serveur web Symfony pour que les changements soient pris en compte.
+
+Assurez-vous également que l'adresse e-mail de l'expéditeur configurée dans votre application (par exemple, `no-reply@hotel-reservation.com`) est autorisée à envoyer des e-mails via le service que vous avez choisi.
+
 ## BDD
 
 

@@ -18,6 +18,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface; // Import UrlGeneratorInterface
 
 class RegistrationController extends AbstractController
 {
@@ -27,8 +28,13 @@ class RegistrationController extends AbstractController
 
     // Enregistrer un nouveau compte utilisateur
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
-    {
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        Security $security,
+        EntityManagerInterface $entityManager,
+        UrlGeneratorInterface $urlGenerator // Inject UrlGeneratorInterface
+    ): Response {
         $user = new Compte();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
@@ -71,6 +77,39 @@ class RegistrationController extends AbstractController
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
             }
+            /** @var Compte $compte */
+            $compte = $form->getData();
+
+            /** @var string $plainPassword */
+            $plainPassword = $form->get('plainPassword')->getData();
+
+            // hacher le mot de passe en clair
+            $compte->setPassword($userPasswordHasher->hashPassword($compte, $plainPassword));
+
+            // définir le rôle utilisateur par défaut
+            $compte->setRole('ROLE_USER');
+
+            $entityManager->persist($compte);
+            $entityManager->flush();
+
+            // générer une URL signée et l'envoyer à l'utilisateur
+            $this->emailVerifier->sendEmailConfirmation(
+                'app_verify_email',
+                $user,
+                (new TemplatedEmail())
+                    ->from(new Address('no-reply@hotel-reservation.com', 'Hotel-Reservation'))
+                    ->to((string) $user->getEmail())
+                    ->subject('Please Confirm your Email')
+                    ->htmlTemplate('registration/confirmation_email.html.twig')
+            );
+
+            // Get the target path from the request, or default to app_reservation_search
+            $targetPath = $request->query->get('_target_path', $urlGenerator->generate('app_reservation_search'));
+
+            // Log the user in and redirect to the target path
+            $security->login($user, 'form_login', 'main');
+
+            return $this->redirect($targetPath);
         }
 
         return $this->render('registration/register.html.twig', [
