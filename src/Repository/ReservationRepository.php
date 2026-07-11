@@ -36,7 +36,8 @@ class ReservationRepository extends ServiceEntityRepository
 
         if ($search) {
             // Recherche par ID de réservation, email du client ou ID de chambre
-            $queryBuilder->andWhere('CAST(r.id AS string) LIKE :search OR cl.email LIKE :search OR CAST(ch.id AS string) LIKE :search')
+            // Utilisation de CONCAT pour convertir les IDs numériques en string pour la recherche LIKE
+            $queryBuilder->andWhere('CONCAT(r.id, \'\') LIKE :search OR cl.email LIKE :search OR CONCAT(ch.id, \'\') LIKE :search')
                 ->setParameter('search', '%' . $search . '%');
         }
 
