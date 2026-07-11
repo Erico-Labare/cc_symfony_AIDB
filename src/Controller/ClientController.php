@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Compte;
+use App\Repository\ClientRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,15 +18,18 @@ final class ClientController extends AbstractController
      */
     #[Route('/profile', name: 'app_client_profile', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function profile(): Response
+    public function profile(ClientRepository $clientRepository): Response
     {
         $compte = $this->getUser();
         if (!$compte instanceof Compte) {
             throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
 
+        $client = $clientRepository->findOneBy(['email' => $compte->getEmail()]);
+
         return $this->render('client/profile.html.twig', [
             'compte' => $compte,
+            'client' => $client,
         ]);
     }
 }
