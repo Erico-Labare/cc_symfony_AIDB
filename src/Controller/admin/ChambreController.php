@@ -13,6 +13,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
+use Symfony\Contracts\Translation\TranslatorInterface; // Import TranslatorInterface
+use Psr\Log\LoggerInterface; // Import LoggerInterface
 
 #[Route('/admin/chambre')]
 #[IsGranted('ROLE_ADMIN')]
@@ -39,7 +41,7 @@ final class ChambreController extends AbstractController
 
     // Créer une nouvelle chambre
     #[Route('/new', name: 'app_admin_chambre_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         $chambre = new Chambre();
         $form = $this->createForm(ChambreType::class, $chambre);
@@ -49,14 +51,17 @@ final class ChambreController extends AbstractController
             try {
                 $entityManager->persist($chambre);
                 $entityManager->flush();
-                $this->addFlash('success', 'La chambre a été créée avec succès.');
+                $this->addFlash('success', $translator->trans('admin.chambre.new.success', [], 'app'));
                 return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
-                $this->addFlash('error', 'Une erreur est survenue : Une chambre avec le même numéro existe déjà pour cet hôtel.');
+                $logger->error('Admin chambre creation failed due to unique constraint violation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.chambre.error.unique_constraint', [], 'app'));
             } catch (ORMException $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la création de la chambre : ' . $e->getMessage());
+                $logger->error('Admin chambre creation failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.chambre.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+                $logger->critical('Unexpected error during admin chambre creation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.chambre.error.unexpected', [], 'app'));
             }
         }
 
@@ -77,7 +82,7 @@ final class ChambreController extends AbstractController
 
     // Modifier une chambre existante
     #[Route('/{id}/edit', name: 'app_admin_chambre_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Chambre $chambre, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Chambre $chambre, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         $form = $this->createForm(ChambreType::class, $chambre);
         $form->handleRequest($request);
@@ -85,14 +90,17 @@ final class ChambreController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $entityManager->flush();
-                $this->addFlash('success', 'La chambre a été modifiée avec succès.');
+                $this->addFlash('success', $translator->trans('admin.chambre.edit.success', [], 'app'));
                 return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
-                $this->addFlash('error', 'Une erreur est survenue : Une chambre avec le même numéro existe déjà pour cet hôtel.');
+                $logger->error('Admin chambre edit failed due to unique constraint violation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.chambre.error.unique_constraint', [], 'app'));
             } catch (ORMException $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la modification de la chambre : ' . $e->getMessage());
+                $logger->error('Admin chambre edit failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.chambre.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+                $logger->critical('Unexpected error during admin chambre edit: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.chambre.error.unexpected', [], 'app'));
             }
         }
 
@@ -104,20 +112,22 @@ final class ChambreController extends AbstractController
 
     // Supprimer une chambre
     #[Route('/{id}', name: 'app_admin_chambre_delete', methods: ['POST'])]
-    public function delete(Request $request, Chambre $chambre, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Chambre $chambre, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         if ($this->isCsrfTokenValid('delete' . $chambre->getId(), $request->getPayload()->getString('_token'))) {
             try {
                 $entityManager->remove($chambre);
                 $entityManager->flush();
-                $this->addFlash('success', 'La chambre a été supprimée avec succès.');
+                $this->addFlash('success', $translator->trans('admin.chambre.delete.success', [], 'app'));
             } catch (ORMException $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la suppression de la chambre : ' . $e->getMessage());
+                $logger->error('Admin chambre deletion failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.chambre.delete.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+                $logger->critical('Unexpected error during admin chambre deletion: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.chambre.delete.error.unexpected', [], 'app'));
             }
         } else {
-            $this->addFlash('error', 'Token CSRF invalide.');
+            $this->addFlash('error', $translator->trans('csrf.invalid_token', [], 'app'));
         }
 
         return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER);

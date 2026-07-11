@@ -7,7 +7,7 @@ use App\Repository\ChambreRepository;
 use App\Repository\ReservationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use App\Exception\InvalidReservationDatesException; // Import added
+use App\Exception\InvalidReservationDatesException;
 
 class DisponibiliteService
 {
@@ -30,7 +30,10 @@ class DisponibiliteService
     public function findAvailableRooms(\DateTimeInterface $dateDebut, \DateTimeInterface $dateFin, int $hotelId): Collection
     {
         if ($dateFin <= $dateDebut) {
-            throw new InvalidReservationDatesException('La date de fin doit être après la date de début.');
+            throw new InvalidReservationDatesException(
+                'La date de fin doit être après la date de début.',
+                'reservation.error.invalid_dates_order'
+            );
         }
 
         $allRooms = $this->chambreRepository->findBy(['hotel' => $hotelId]);

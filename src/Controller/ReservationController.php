@@ -22,9 +22,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
-use Symfony\Component\HttpFoundation\Session\SessionInterface; // Import SessionInterface
-use App\Exception\InvalidReservationDatesException; // Import added
-use App\Exception\RoomUnavailableException; // Import added
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use App\Exception\InvalidReservationDatesException;
+use App\Exception\RoomUnavailableException;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Psr\Log\LoggerInterface;
 
 #[Route('/reservation')]
 final class ReservationController extends AbstractController
@@ -38,7 +40,9 @@ final class ReservationController extends AbstractController
         Request $request,
         HotelRepository $hotelRepository,
         DisponibiliteService $disponibiliteService,
-        SessionInterface $session // Inject SessionInterface
+        SessionInterface $session,
+        TranslatorInterface $translator,
+        LoggerInterface $logger
     ): Response {
         $formData = [];
         $availableRooms = [];
@@ -80,7 +84,8 @@ final class ReservationController extends AbstractController
                 try {
                     $formData['dateDebut'] = new \DateTime($submittedData['dateDebut']);
                 } catch (\Exception $e) {
-                    // Log or handle invalid date format if necessary
+                    $logger->warning('Invalid dateDebut format in search form: ' . $e->getMessage());
+                    // No flash message here, as it's a pre-fill attempt, not a user-submitted error
                 }
             }
 
@@ -89,7 +94,8 @@ final class ReservationController extends AbstractController
                 try {
                     $formData['dateFin'] = new \DateTime($submittedData['dateFin']);
                 } catch (\Exception $e) {
-                    // Log or handle invalid date format if necessary
+                    $logger->warning('Invalid dateFin format in search form: ' . $e->getMessage());
+                    // No flash message here
                 }
             }
         }
@@ -123,8 +129,14 @@ final class ReservationController extends AbstractController
                         ]);
                     }
 
+                } catch (InvalidReservationDatesException $e) { // Catch custom exception
+                    $logger->warning('Invalid reservation dates in search: ' . $e->getMessage());
+                    $translationKey = $e->getTranslationKey() ?? 'reservation.search.error.invalid_dates';
+                    $translationParams = $e->getTranslationParameters();
+                    $this->addFlash('error', $translator->trans($translationKey, $translationParams, 'app'));
                 } catch (\InvalidArgumentException $e) {
-                    $this->addFlash('error', $e->getMessage());
+                    $logger->warning('Invalid argument in search: ' . $e->getMessage());
+                    $this->addFlash('error', $translator->trans('reservation.search.error.generic_invalid_argument', [], 'app'));
                 }
             }
         }
@@ -144,13 +156,15 @@ final class ReservationController extends AbstractController
     public function create(
         Request $request,
         ReservationService $reservationService,
-        ClientRepository $clientRepository, // Keep for potential future use, but not directly used for client creation here
+        ClientRepository $clientRepository,
         ChambreRepository $chambreRepository,
         EntityManagerInterface $entityManager,
+        TranslatorInterface $translator,
+        LoggerInterface $logger
     ): Response {
         $compte = $this->getUser();
         if (!$compte instanceof Compte) {
-            throw $this->createAccessDeniedException('Vous devez être connecté.');
+            throw $this->createAccessDeniedException($translator->trans('access_denied.not_connected', [], 'app'));
         }
 
         $chambreId = $request->request->getInt('chambre_id');
@@ -167,7 +181,7 @@ final class ReservationController extends AbstractController
         try {
             $chambre = $chambreRepository->find($chambreId);
             if (!$chambre) {
-                throw $this->createNotFoundException('Chambre non trouvée.');
+                throw $this->createNotFoundException($translator->trans('reservation.create.error.room_not_found', [], 'app'));
             }
 
             // Create a new Client entity for this reservation
@@ -184,36 +198,47 @@ final class ReservationController extends AbstractController
 
             $reservation = $reservationService->createReservation(
                 $chambre,
-                $client, // Pass the newly created client
+                $client,
                 $compte,
                 $dateDebutObj,
                 $dateFinObj,
                 $commentaire,
             );
 
-            $this->addFlash('success', 'Réservation créée avec succès !');
+            $this->addFlash('success', $translator->trans('reservation.create.success', [], 'app'));
 
             return $this->redirectToRoute('app_reservation_my_reservations');
         } catch (NotFoundHttpException $e) {
-            $this->addFlash('error', 'Erreur : ' . $e->getMessage());
+            $logger->warning('Reservation creation failed: ' . $e->getMessage());
+            $this->addFlash('error', $translator->trans('reservation.create.error.room_not_found', [], 'app'));
             return $this->redirectToRoute('app_reservation_search');
         } catch (UniqueConstraintViolationException $e) {
-            $this->addFlash('error', 'Une erreur est survenue : ' . $e->getMessage());
+            $logger->error('Reservation creation failed due to unique constraint violation: ' . $e->getMessage());
+            $this->addFlash('error', $translator->trans('reservation.create.error.unique_constraint', [], 'app'));
             return $this->redirectToRoute('app_reservation_search');
         } catch (ORMException $e) {
-            $this->addFlash('error', 'Une erreur est survenue lors de la création de la réservation : ' . $e->getMessage());
+            $logger->error('Reservation creation failed due to ORM exception: ' . $e->getMessage());
+            $this->addFlash('error', $translator->trans('reservation.create.error.orm_exception', [], 'app'));
             return $this->redirectToRoute('app_reservation_search');
-        } catch (InvalidReservationDatesException $e) { // Catch custom exception
-            $this->addFlash('error', 'Erreur de réservation : ' . $e->getMessage());
+        } catch (InvalidReservationDatesException $e) {
+            $logger->warning('Reservation creation failed due to invalid dates: ' . $e->getMessage());
+            $translationKey = $e->getTranslationKey() ?? 'reservation.create.error.invalid_dates';
+            $translationParams = $e->getTranslationParameters();
+            $this->addFlash('error', $translator->trans($translationKey, $translationParams, 'app'));
             return $this->redirectToRoute('app_reservation_search');
-        } catch (RoomUnavailableException $e) { // Catch custom exception
-            $this->addFlash('error', 'Erreur de réservation : ' . $e->getMessage());
+        } catch (RoomUnavailableException $e) {
+            $logger->warning('Reservation creation failed because room is unavailable: ' . $e->getMessage());
+            $translationKey = $e->getTranslationKey() ?? 'reservation.create.error.room_unavailable';
+            $translationParams = $e->getTranslationParameters();
+            $this->addFlash('error', $translator->trans($translationKey, $translationParams, 'app'));
             return $this->redirectToRoute('app_reservation_search');
-        } catch (\InvalidArgumentException $e) { // Keep for other potential InvalidArgumentExceptions
-            $this->addFlash('error', 'Erreur de données : ' . $e->getMessage());
+        } catch (\InvalidArgumentException $e) {
+            $logger->warning('Reservation creation failed due to invalid argument: ' . $e->getMessage());
+            $this->addFlash('error', $translator->trans('reservation.create.error.invalid_data', [], 'app'));
             return $this->redirectToRoute('app_reservation_search');
         } catch (\Exception $e) {
-            $this->addFlash('error', 'Une erreur inattendue est survenue lors de la création de la réservation : ' . $e->getMessage());
+            $logger->critical('Unexpected error during reservation creation: ' . $e->getMessage());
+            $this->addFlash('error', $translator->trans('reservation.create.error.unexpected', [], 'app'));
             return $this->redirectToRoute('app_reservation_search');
         }
     }
@@ -224,11 +249,11 @@ final class ReservationController extends AbstractController
      */
     #[Route('/my-reservations', name: 'app_reservation_my_reservations', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function myReservations(): Response
+    public function myReservations(TranslatorInterface $translator): Response
     {
         $compte = $this->getUser();
         if (!$compte instanceof Compte) {
-            throw $this->createAccessDeniedException('Vous devez être connecté.');
+            throw $this->createAccessDeniedException($translator->trans('access_denied.not_connected', [], 'app'));
         }
 
         $reservations = $compte->getReservations();
@@ -248,14 +273,15 @@ final class ReservationController extends AbstractController
         Request $request,
         Reservation $reservation,
         EntityManagerInterface $entityManager,
+        TranslatorInterface $translator
     ): Response {
         $compte = $this->getUser();
         if (!$compte instanceof Compte) {
-            throw $this->createAccessDeniedException('Vous devez être connecté.');
+            throw $this->createAccessDeniedException($translator->trans('access_denied.not_connected', [], 'app'));
         }
 
         if ($reservation->getCompte() !== $compte) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à modifier cette réservation.');
+            throw $this->createAccessDeniedException($translator->trans('reservation.edit_comment.access_denied', [], 'app'));
         }
 
         $form = $this->createForm(ReservationCommentType::class, $reservation);
@@ -264,7 +290,7 @@ final class ReservationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            $this->addFlash('success', 'Commentaire modifié avec succès !');
+            $this->addFlash('success', $translator->trans('reservation.edit_comment.success', [], 'app'));
 
             return $this->redirectToRoute('app_reservation_my_reservations');
         }
@@ -285,21 +311,32 @@ final class ReservationController extends AbstractController
         Request $request,
         Reservation $reservation,
         EntityManagerInterface $entityManager,
+        TranslatorInterface $translator,
+        LoggerInterface $logger
     ): Response {
         $compte = $this->getUser();
         if (!$compte instanceof Compte) {
-            throw $this->createAccessDeniedException('Vous devez être connecté.');
+            throw $this->createAccessDeniedException($translator->trans('access_denied.not_connected', [], 'app'));
         }
 
         if ($reservation->getCompte() !== $compte) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à annuler cette réservation.');
+            throw $this->createAccessDeniedException($translator->trans('reservation.cancel.access_denied', [], 'app'));
         }
 
         if ($this->isCsrfTokenValid('cancel' . $reservation->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($reservation);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Réservation annulée avec succès !');
+            try {
+                $entityManager->remove($reservation);
+                $entityManager->flush();
+                $this->addFlash('success', $translator->trans('reservation.cancel.success', [], 'app'));
+            } catch (ORMException $e) {
+                $logger->error('Reservation cancellation failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('reservation.cancel.error.orm_exception', [], 'app'));
+            } catch (\Exception $e) {
+                $logger->critical('Unexpected error during reservation cancellation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('reservation.cancel.error.unexpected', [], 'app'));
+            }
+        } else {
+            $this->addFlash('error', $translator->trans('csrf.invalid_token', [], 'app'));
         }
 
         return $this->redirectToRoute('app_reservation_my_reservations');
