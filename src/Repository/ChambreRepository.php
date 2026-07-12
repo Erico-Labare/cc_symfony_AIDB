@@ -42,6 +42,6 @@ class ChambreRepository extends ServiceEntityRepository
         $query->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
-        return new Paginator($query);
+        return new Paginator($query, false); // Ajout de 'false' ici
     }
 }

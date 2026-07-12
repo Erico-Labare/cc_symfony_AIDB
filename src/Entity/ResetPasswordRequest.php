@@ -71,4 +71,15 @@ class ResetPasswordRequest implements ResetPasswordRequestInterface
     {
         return $this->user;
     }
+
+    // Explicitly add methods from the trait to make them discoverable by PHPUnit
+    public function getSelector(): string
+    {
+        return $this->selector;
+    }
+
+    public function getHashedToken(): string
+    {
+        return $this->hashedToken;
+    }
 }
