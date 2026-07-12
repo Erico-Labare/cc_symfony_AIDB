@@ -6,6 +6,8 @@ use App\Entity\Chambre;
 use App\Entity\Client;
 use App\Entity\Compte;
 use App\Entity\Reservation;
+use App\Exception\InvalidReservationDatesException;
+use App\Exception\RoomUnavailableException;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ReservationService
@@ -27,7 +29,8 @@ class ReservationService
      *
      * @return Reservation La réservation créée
      *
-     * @throws \InvalidArgumentException Si la chambre n'est pas disponible
+     * @throws InvalidReservationDatesException Si les dates de réservation sont invalides
+     * @throws RoomUnavailableException Si la chambre n'est pas disponible
      */
     public function createReservation(
         Chambre $chambre,
@@ -38,11 +41,17 @@ class ReservationService
         ?string $commentaire = null,
     ): Reservation {
         if ($dateFin <= $dateDebut) {
-            throw new \InvalidArgumentException('La date de fin doit être après la date de début.');
+            throw new InvalidReservationDatesException(
+                'La date de fin doit être après la date de début.',
+                'reservation.error.invalid_dates_order'
+            );
         }
 
         if (!$this->disponibiliteService->isRoomAvailable($chambre, $dateDebut, $dateFin)) {
-            throw new \InvalidArgumentException('La chambre n\'est pas disponible pour cette période.');
+            throw new RoomUnavailableException(
+                'La chambre n\'est pas disponible pour cette période.',
+                'reservation.error.room_unavailable'
+            );
         }
 
         $reservation = new Reservation();

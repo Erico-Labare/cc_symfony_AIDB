@@ -68,23 +68,53 @@
                                             <input type="hidden" name="chambre_id" value="{{ chambre.id }}">
                                             <input type="hidden" name="dateDebut" value="{{ form.dateDebut.vars.value|date('Y-m-d') }}">
                                             <input type="hidden" name="dateFin" value="{{ form.dateFin.vars.value|date('Y-m-d') }}">
+                                            <div class="mb-3">
+                                                <label for="client_select_{{ chambre.id }}" class="form-label">
+                                                    Client
+                                                </label>
+                                                <div class="alert alert-info py-2">
+                                                    Si le client existe déjà, sélectionnez-le dans la liste.
+                                                    Sinon laissez <strong>"Nouveau client"</strong> puis remplissez le formulaire.
+                                                </div>
+                                                <select
+                                                    class="form-select client-select"
+                                                    id="client_select_{{ chambre.id }}"
+                                                    name="client_id"
+                                                >
+                                                    <option value="">
+                                                        -- Nouveau client --
+                                                    </option>
 
+                                                    {% for client in clients %}
+                                                        <option
+                                                            value="{{ client.id }}"
+                                                            data-nom="{{ client.nom }}"
+                                                            data-email="{{ client.email }}"
+                                                            data-telephone="{{ client.telephone }}"
+                                                            data-adresse="{{ client.adresse }}"
+                                                        >
+                                                            {{ client.nom }} - ({{ client.email }})
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+            
                                             <h6 class="mt-3">Informations du client pour cette réservation</h6>
                                             <div class="mb-3">
                                                 <label for="client_nom_{{ chambre.id }}" class="form-label">Nom</label>
-                                                <input type="text" class="form-control" id="client_nom_{{ chambre.id }}" name="client_nom" required>
+                                                <input type="text" class="form-control client-nom" id="client_nom_{{ chambre.id }}" name="client_nom" required>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="client_email_{{ chambre.id }}" class="form-label">Email</label>
-                                                <input type="email" class="form-control" id="client_email_{{ chambre.id }}" name="client_email" required>
+                                                <input type="email" class="form-control client-email" id="client_email_{{ chambre.id }}" name="client_email" required>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="client_telephone_{{ chambre.id }}" class="form-label">Téléphone</label>
-                                                <input type="text" class="form-control" id="client_telephone_{{ chambre.id }}" name="client_telephone">
+                                                <input type="text" class="form-control client-telephone" id="client_telephone_{{ chambre.id }}" name="client_telephone">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="client_adresse_{{ chambre.id }}" class="form-label">Adresse</label>
-                                                <textarea class="form-control" id="client_adresse_{{ chambre.id }}" name="client_adresse" rows="2"></textarea>
+                                                <textarea class="form-control client-adresse" id="client_adresse_{{ chambre.id }}" name="client_adresse" rows="2"></textarea>
                                             </div>
 
                                             <div class="mb-3">
@@ -115,4 +145,39 @@
             Aucune chambre disponible pour cette période.
         </div>
     {% endif %}
+
+    {% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            document.querySelectorAll('.client-select').forEach(select => {
+
+                select.addEventListener('change', function () {
+
+                    const option = this.options[this.selectedIndex];
+
+                    const modal = this.closest('.modal');
+
+                    modal.querySelector('.client-nom').value =
+                        option.dataset.nom ?? '';
+
+                    modal.querySelector('.client-email').value =
+                        option.dataset.email ?? '';
+
+                    modal.querySelector('.client-telephone').value =
+                        option.dataset.telephone ?? '';
+
+                    modal.querySelector('.client-adresse').value =
+                        option.dataset.adresse ?? '';
+
+                });
+
+            });
+
+        });
+    </script>
+
+{% endblock %}
 {% endblock %}

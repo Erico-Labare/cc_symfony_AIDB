@@ -11,6 +11,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\ORM\Exception\ORMException;
+use Symfony\Contracts\Translation\TranslatorInterface; // Import TranslatorInterface
+use Psr\Log\LoggerInterface; // Import LoggerInterface
 
 #[Route('/admin/client')]
 #[IsGranted('ROLE_ADMIN')]
@@ -36,17 +40,28 @@ final class ClientController extends AbstractController
     }
 
     #[Route('/new', name: 'app_admin_client_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         $client = new Client();
         $form = $this->createForm(ClientType::class, $client);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($client);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_admin_client_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $entityManager->persist($client);
+                $entityManager->flush();
+                $this->addFlash('success', $translator->trans('admin.client.new.success', [], 'app'));
+                return $this->redirectToRoute('app_admin_client_index', [], Response::HTTP_SEE_OTHER);
+            } catch (UniqueConstraintViolationException $e) {
+                $logger->error('Admin client creation failed due to unique constraint violation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.client.error.unique_constraint', [], 'app'));
+            } catch (ORMException $e) {
+                $logger->error('Admin client creation failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.client.error.orm_exception', [], 'app'));
+            } catch (\Exception $e) {
+                $logger->critical('Unexpected error during admin client creation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.client.error.unexpected', [], 'app'));
+            }
         }
 
         return $this->render('admin/client/new.html.twig', [
@@ -55,24 +70,27 @@ final class ClientController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_admin_client_show', methods: ['GET'])]
-    public function show(Client $client): Response
-    {
-        return $this->render('admin/client/show.html.twig', [
-            'client' => $client,
-        ]);
-    }
-
     #[Route('/{id}/edit', name: 'app_admin_client_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Client $client, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Client $client, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         $form = $this->createForm(ClientType::class, $client);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_admin_client_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $entityManager->flush();
+                $this->addFlash('success', $translator->trans('admin.client.edit.success', [], 'app'));
+                return $this->redirectToRoute('app_admin_client_index', [], Response::HTTP_SEE_OTHER);
+            } catch (UniqueConstraintViolationException $e) {
+                $logger->error('Admin client edit failed due to unique constraint violation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.client.error.unique_constraint', [], 'app'));
+            } catch (ORMException $e) {
+                $logger->error('Admin client edit failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.client.error.orm_exception', [], 'app'));
+            } catch (\Exception $e) {
+                $logger->critical('Unexpected error during admin client edit: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.client.error.unexpected', [], 'app'));
+            }
         }
 
         return $this->render('admin/client/edit.html.twig', [
@@ -82,11 +100,22 @@ final class ClientController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_admin_client_delete', methods: ['POST'])]
-    public function delete(Request $request, Client $client, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Client $client, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         if ($this->isCsrfTokenValid('delete'.$client->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($client);
-            $entityManager->flush();
+            try {
+                $entityManager->remove($client);
+                $entityManager->flush();
+                $this->addFlash('success', $translator->trans('admin.client.delete.success', [], 'app'));
+            } catch (ORMException $e) {
+                $logger->error('Admin client deletion failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.client.delete.error.orm_exception', [], 'app'));
+            } catch (\Exception $e) {
+                $logger->critical('Unexpected error during admin client deletion: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.client.delete.error.unexpected', [], 'app'));
+            }
+        } else {
+            $this->addFlash('error', $translator->trans('csrf.invalid_token', [], 'app'));
         }
 
         return $this->redirectToRoute('app_admin_client_index', [], Response::HTTP_SEE_OTHER);
