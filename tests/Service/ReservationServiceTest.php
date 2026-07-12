@@ -33,7 +33,7 @@ class ReservationServiceTest extends BaseWebTestCase
         parent::setUp();
         static::bootKernel();
         $container = self::getContainer();
-        $this->service = $container->get(ReservationService::class);
+        $this->service = $container->get(ReservationService::class); // Reverted to original autowiring
         $this->entityManager = $container->get(EntityManagerInterface::class);
     }
 

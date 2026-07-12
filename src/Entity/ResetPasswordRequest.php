@@ -2,18 +2,14 @@
 
 namespace App\Entity;
 
-// A REACTIVER PLUS TARD
-// use App\Repository\ResetPasswordRequestRepository;
+use App\Repository\ResetPasswordRequestRepository;
 
 use Doctrine\ORM\Mapping as ORM;
 
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
 
-// A REACTIVER PLUS TARD
-// #[ORM\Entity(repositoryClass: ResetPasswordRequestRepository::class)]
-
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ResetPasswordRequestRepository::class)]
 class ResetPasswordRequest implements ResetPasswordRequestInterface
 {
     use ResetPasswordRequestTrait;
