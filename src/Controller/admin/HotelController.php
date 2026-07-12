@@ -51,8 +51,8 @@ final class HotelController extends AbstractController
             try {
                 $entityManager->persist($hotel);
                 $entityManager->flush();
-                $this->addFlash('success', $translator->trans('admin.hotel.new.success', [], 'app'));
-                return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER); // Corrected route
+                $this->addFlash('success', 'L\'hôtel a été créé avec succès.');
+                return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
                 $logger->error('Admin hotel creation failed due to unique constraint violation: ' . $e->getMessage());
                 $this->addFlash('error', $translator->trans('admin.hotel.error.unique_constraint', [], 'app'));
@@ -90,8 +90,8 @@ final class HotelController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $entityManager->flush();
-                $this->addFlash('success', $translator->trans('admin.hotel.edit.success', [], 'app'));
-                return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER); // Corrected route
+                $this->addFlash('success', 'L\'hôtel a été modifié avec succès.');
+                return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
                 $logger->error('Admin hotel edit failed due to unique constraint violation: ' . $e->getMessage());
                 $this->addFlash('error', $translator->trans('admin.hotel.error.unique_constraint', [], 'app'));

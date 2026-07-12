@@ -70,7 +70,7 @@ class Chambre
      */
 
 
-    #[ORM\ManyToOne(inversedBy: 'chambres')]
+    #[ORM\ManyToOne(inversedBy: 'chambres', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Hotel $hotel = null;
 

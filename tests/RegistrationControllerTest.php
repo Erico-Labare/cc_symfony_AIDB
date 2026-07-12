@@ -5,58 +5,54 @@ namespace App\Tests;
 use App\DataFixtures\TestFixtures;
 use App\Repository\CompteRepository;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\BaseWebTestCase;
 
-// Test du contrôleur d'enregistrement
-class RegistrationControllerTest extends WebTestCase
+/**
+ * Test du contrôleur d'enregistrement.
+ *
+ * Cette classe contient les tests fonctionnels pour le processus d'enregistrement des utilisateurs.
+ */
+class RegistrationControllerTest extends BaseWebTestCase
 {
     private KernelBrowser $client;
     private CompteRepository $userRepository;
 
-    // Initialiser le client de test et la base de données
+    /**
+     * Initialise le client de test et charge les fixtures nécessaires avant chaque test.
+     */
     protected function setUp(): void
     {
+        parent::setUp();
         $this->client = static::createClient();
 
         $container = static::getContainer();
-
         /** @var EntityManager $em */
         $em = $container->get('doctrine')->getManager();
 
-        // Recreer le schéma de la base de données
-        $schemaTool = new SchemaTool($em);
-        $metadata = $em->getMetadataFactory()->getAllMetadata();
-        $schemaTool->dropDatabase();
-        $schemaTool->createSchema($metadata);
-
-        // Charger les données de test
+        // Load fixtures after database is ready
         $fixture = new TestFixtures($container->get('security.password_hasher'));
         $fixture->load($em);
+        $em->flush(); // Ensure fixtures are persisted
+        $em->clear(); // Clear entity manager after loading fixtures
 
         $this->userRepository = $container->get(CompteRepository::class);
     }
 
-    // Tester le processus d'enregistrement
+    /**
+     * Teste le processus d'enregistrement d'un nouvel utilisateur.
+     */
     public function testRegister(): void
     {
         /*
-        |--------------------------------------------------------------------------
-        | Accès à la page d'inscription
-        |--------------------------------------------------------------------------
-        */
-
+         * Accès à la page d'inscription
+         */
         $this->client->request('GET', '/register');
-
         self::assertResponseIsSuccessful();
 
         /*
-        |--------------------------------------------------------------------------
-        | Soumission du formulaire
-        |--------------------------------------------------------------------------
-        */
-
+         * Soumission du formulaire d'enregistrement
+         */
         $this->client->submitForm('Register', [
             'registration_form[email]' => 'newuser@example.com',
             'registration_form[plainPassword]' => 'password',
@@ -64,34 +60,23 @@ class RegistrationControllerTest extends WebTestCase
         ]);
 
         /*
-        |--------------------------------------------------------------------------
-        | Vérifie qu'un utilisateur a été créé
-        |--------------------------------------------------------------------------
-        */
-
-
+         * Vérifie qu'un utilisateur a été créé
+         */
+        // Assuming 3 users from fixtures + 1 new
         self::assertCount(4, $this->userRepository->findAll());
 
         /*
-        |--------------------------------------------------------------------------
-        | Vérifie l'email enregistré
-        |--------------------------------------------------------------------------
-        */
-
+         * Vérifie l'email enregistré
+         */
         $user = $this->userRepository->findOneBy([
             'email' => 'newuser@example.com'
         ]);
-
         self::assertNotNull($user);
 
         /*
-        |--------------------------------------------------------------------------
-        | Vérifie la redirection après inscription
-        |--------------------------------------------------------------------------
-        */
-
+         * Vérifie la redirection après inscription réussie
+         */
         self::assertResponseRedirects();
-
         $this->client->followRedirect();
         $this->client->followRedirect();
 

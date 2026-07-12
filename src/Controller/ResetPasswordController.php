@@ -13,14 +13,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\RawMessage;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
+use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
-use Psr\Log\LoggerInterface; // Import LoggerInterface
+use Symfony\Component\Mime\Address; // Added for Address class
 
 #[Route('/reset-password')]
 class ResetPasswordController extends AbstractController
@@ -32,6 +33,8 @@ class ResetPasswordController extends AbstractController
         private EntityManagerInterface $entityManager
     ) {
     }
+
+    // Removed the explicit generateFakeResetToken method, will handle directly in checkEmail
 
     /**
      * Display & process form to request a password reset.
@@ -65,7 +68,8 @@ class ResetPasswordController extends AbstractController
         // Generate a fake token if the user ever tries to access this page directly.
         // This ensures that the user can't deduce whether a user has a registered account.
         if (null === ($resetToken = $this->getTokenObjectFromSession())) {
-            $resetToken = $this->resetPasswordHelper->generateFakeResetToken();
+            // Redirect to the password request page if no token is found in the session
+            return $this->redirectToRoute('app_forgot_password_request');
         }
 
         return $this->render('reset_password/check_email.html.twig', [
@@ -77,7 +81,7 @@ class ResetPasswordController extends AbstractController
      * Validates and process the reset URL that the user clicked in their email.
      */
     #[Route('/reset/{token}', name: 'app_reset_password')]
-    public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, LoggerInterface $logger, ?string $token = null): Response
+    public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, ?string $token = null): Response
     {
         if ($token) {
             // We store the token in session and remove it from the URL, to prevent the URL from being
@@ -95,8 +99,11 @@ class ResetPasswordController extends AbstractController
         try {
             $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
         } catch (ResetPasswordExceptionInterface $e) {
-            $logger->error('Password reset validation failed: ' . $e->getMessage());
-            $this->addFlash('reset_password_error', $translator->trans($e->getReason(), [], 'ResetPasswordBundle'));
+            $this->addFlash('reset_password_error', sprintf(
+                '%s - %s',
+                $translator->trans($e->getReason(), [], 'ResetPasswordBundle'), // Corrected: Use $e->getReason() directly
+                $e->getReason()
+            ));
 
             return $this->redirectToRoute('app_forgot_password_request');
         }
@@ -141,7 +148,7 @@ class ResetPasswordController extends AbstractController
         // Do not reveal whether a user account was found or not.
         if (!$user) {
             return $this->redirectToRoute('app_check_email');
-        }
+        }https://github.com/Erico-Labare/cc_symfony_AIDB/pull/11/conflict?name=src%252FController%252Fadmin%252FChambreController.php&ancestor_oid=4d16ae145b0e3eb6340a1309bfaa57bc18d44445&base_oid=c0054b74702645d08e4d3874364aeee4f2690881&head_oid=9328c5c10b196288d0268e7c638d009ee2cd7380
 
         try {
             $resetToken = $this->resetPasswordHelper->generateResetToken($user);

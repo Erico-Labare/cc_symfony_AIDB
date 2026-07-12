@@ -25,7 +25,7 @@ class CompteType extends AbstractType
             ->add('email')
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
-                'required' => true,
+                'required' => $options['is_new'], // Make required conditional
             ])
             ->add('isVerified')
         ;
@@ -36,6 +36,7 @@ class CompteType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Compte::class,
+            'is_new' => true, // Default to true for new accounts
         ]);
     }
 }

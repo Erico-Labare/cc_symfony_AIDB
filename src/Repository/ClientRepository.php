@@ -41,7 +41,7 @@ class ClientRepository extends ServiceEntityRepository
         $query->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
-        return new Paginator($query);
+        return new Paginator($query, false); // Ajout de 'false' ici
     }
         /**
      * Retourne tous les clients déjà associés à un compte via ses réservations.

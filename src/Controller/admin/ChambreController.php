@@ -51,8 +51,8 @@ final class ChambreController extends AbstractController
             try {
                 $entityManager->persist($chambre);
                 $entityManager->flush();
-                $this->addFlash('success', $translator->trans('admin.chambre.new.success', [], 'app'));
-                return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', 'La chambre a été créée avec succès.');
+                return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER); // Corrected route name
             } catch (UniqueConstraintViolationException $e) {
                 $logger->error('Admin chambre creation failed due to unique constraint violation: ' . $e->getMessage());
                 $this->addFlash('error', $translator->trans('admin.chambre.error.unique_constraint', [], 'app'));
@@ -90,8 +90,8 @@ final class ChambreController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $entityManager->flush();
-                $this->addFlash('success', $translator->trans('admin.chambre.edit.success', [], 'app'));
-                return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', 'La chambre a été modifiée avec succès.');
+                return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER); // Corrected route name
             } catch (UniqueConstraintViolationException $e) {
                 $logger->error('Admin chambre edit failed due to unique constraint violation: ' . $e->getMessage());
                 $this->addFlash('error', $translator->trans('admin.chambre.error.unique_constraint', [], 'app'));
