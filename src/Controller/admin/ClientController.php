@@ -15,6 +15,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
 use Symfony\Contracts\Translation\TranslatorInterface; // Import TranslatorInterface
 use Psr\Log\LoggerInterface; // Import LoggerInterface
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException; // Import NotFoundHttpException
 
 #[Route('/admin/client')]
 #[IsGranted('ROLE_ADMIN')]
@@ -70,6 +71,17 @@ final class ClientController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}', name: 'app_admin_client_show', methods: ['GET'])]
+    public function show(Client $client): Response
+    {
+        // The Client entity is automatically resolved by Symfony's ParamConverter.
+        // If no client is found for the given ID, a NotFoundHttpException will be thrown automatically,
+        // resulting in a 404 response, which is what the test expects for a non-existent client.
+        return $this->render('admin/client/show.html.twig', [
+            'client' => $client,
+        ]);
+    }
+
     #[Route('/{id}/edit', name: 'app_admin_client_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Client $client, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
@@ -112,7 +124,7 @@ final class ClientController extends AbstractController
                 $this->addFlash('error', $translator->trans('admin.client.delete.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
                 $logger->critical('Unexpected error during admin client deletion: ' . $e->getMessage());
-                $this->addFlash('error', $translator->trans('admin.client.delete.error.unexpected', [], 'app'));
+                $this->addFlash('error', $translator->trans('admin.client.error.unexpected', [], 'app'));
             }
         } else {
             $this->addFlash('error', $translator->trans('csrf.invalid_token', [], 'app'));

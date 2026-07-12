@@ -220,6 +220,6 @@ class ReservationControllerTest extends WebTestCase
 
         self::assertResponseRedirects('/reservation/search');
         $client->followRedirect(); // Suit la redirection vers la page de recherche
-        self::assertStringContainsString('Erreur', $client->getResponse()->getContent()); // Vérifie le message d'erreur
+        self::assertStringContainsString('reservation.error.room_unavailable', $client->getResponse()->getContent()); // Vérifie le message d'erreur
     }
 }

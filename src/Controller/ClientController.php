@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Compte;
+use App\Repository\ClientRepository; // Import ClientRepository
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -11,6 +12,7 @@ use App\Form\AccountPasswordType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException; // Import NotFoundHttpException
 
 #[Route('/client')]
 final class ClientController extends AbstractController
@@ -21,15 +23,24 @@ final class ClientController extends AbstractController
      */
     #[Route('/profile', name: 'app_client_profile', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function profile(): Response
+    public function profile(ClientRepository $clientRepository): Response // Inject ClientRepository
     {
         $compte = $this->getUser();
         if (!$compte instanceof Compte) {
             throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
 
+        // Find the Client associated with the logged-in Compte via email
+        $client = $clientRepository->findOneBy(['email' => $compte->getEmail()]);
+
+        if (!$client) {
+            // If no client profile is found for the logged-in user, throw a 404
+            throw new NotFoundHttpException('No client profile found for this user.');
+        }
+
         return $this->render('client/profile.html.twig', [
             'compte' => $compte,
+            'client' => $client, // Pass the client object to the template
         ]);
     }
     /**

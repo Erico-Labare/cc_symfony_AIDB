@@ -23,14 +23,16 @@ class ClientControllerTest extends WebTestCase
     public function testProfileAccessForAuthenticatedUser(): void
     {
         $client = static::createClient();
-        $entityManager = $client->getContainer()->get(EntityManagerInterface::class);
-        $passwordHasher = $client->getContainer()->get(UserPasswordHasherInterface::class);
+        $container = self::getContainer();
 
-        // Create and persist a mock user (Compte)
+        $entityManager = $container->get(EntityManagerInterface::class);
+        $passwordHasher = $container->get(UserPasswordHasherInterface::class);
+
+        // Create and persist a real user (Compte)
         $user = new Compte();
         $user->setEmail('test@example.com');
         $user->setRole('ROLE_USER');
-        $user->setPassword($passwordHasher->hashPassword($user, 'password')); // Hash a dummy password
+        $user->setPassword($passwordHasher->hashPassword($user, 'password'));
         $entityManager->persist($user);
         $entityManager->flush();
         $entityManager->clear(); // Clear EM to ensure we fetch a fresh, managed entity
@@ -39,33 +41,33 @@ class ClientControllerTest extends WebTestCase
         $persistedUser = $entityManager->getRepository(Compte::class)->findOneBy(['email' => 'test@example.com']);
         $this->assertNotNull($persistedUser, 'Persisted user should exist for login.');
 
-        // Create a mock client
-        $mockClient = new Client();
-        $mockClient->setEmail('test@example.com');
-        $mockClient->setNom('Doe');
+        // Create and persist a real Client entity associated with the user's email
+        $realClient = new Client();
+        $realClient->setEmail('test@example.com');
+        $realClient->setNom('Doe');
+        $realClient->setTelephone('0123456789');
+        $realClient->setAdresse('123 Main St');
+        $entityManager->persist($realClient);
+        $entityManager->flush();
+        $entityManager->clear(); // Clear EM to ensure fresh data is fetched
 
-        // Mock the ClientRepository
-        $clientRepository = $this->createMock(ClientRepository::class);
-        $clientRepository->expects($this->once())
-            ->method('findOneBy')
-            ->with(['email' => 'test@example.com'])
-            ->willReturn($mockClient);
-
-        // Replace the service in the container
-        $client->getContainer()->set(ClientRepository::class, $clientRepository);
-
-        $client->loginUser($persistedUser); // Use the persisted user
+        // Log in the user
+        $client->loginUser($persistedUser);
         $client->request('GET', '/client/profile');
 
         $this->assertResponseIsSuccessful();
-        // Removed: $this->assertSelectorTextContains('h1', 'Mon profil');
-        // Removed: $this->assertSelectorTextContains('div', 'Doe');
+        self::assertSelectorTextContains('h1', 'Mon compte'); // Updated assertion
+        self::assertSelectorTextContains('p', 'Doe'); // Updated assertion to check for client name in a <p> tag
 
-        // Clean up the created user
+        // Clean up the created entities
         $userToRemove = $entityManager->getRepository(Compte::class)->findOneBy(['email' => 'test@example.com']);
         if ($userToRemove) {
             $entityManager->remove($userToRemove);
-            $entityManager->flush();
         }
+        $clientToRemove = $entityManager->getRepository(Client::class)->findOneBy(['email' => 'test@example.com']);
+        if ($clientToRemove) {
+            $entityManager->remove($clientToRemove);
+        }
+        $entityManager->flush();
     }
 }

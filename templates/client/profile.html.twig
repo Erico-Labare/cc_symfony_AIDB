@@ -5,8 +5,11 @@
 {% block body %}
     <div class="card shadow-sm">
         <div class="card-body">
-            <h5 class="card-title mb-4">Mon compte</h5>
+            <h1 class="card-title mb-4">Mon compte</h1> {# Changed h5 to h1 #}
 
+            <p class="card-text mb-2">
+                <strong>Nom :</strong> {{ client.nom }} {# Added client name #}
+            </p>
             <p class="card-text mb-2">
                 <strong>Email :</strong> {{ compte.email }}
             </p>

@@ -42,7 +42,8 @@ final class ReservationController extends AbstractController
         DisponibiliteService $disponibiliteService,
         SessionInterface $session,
         TranslatorInterface $translator,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ClientRepository $clientRepository // Inject ClientRepository here
     ): Response {
         $formData = [];
         $availableRooms = [];
@@ -138,7 +139,9 @@ final class ReservationController extends AbstractController
         $clients = [];
 
         if ($this->getUser() instanceof Compte) {
-            $clients = $clientRepository->findByCompte($this->getUser());
+            /** @var Compte $compteUser */
+            $compteUser = $this->getUser();
+            $clients = $clientRepository->findByCompte($compteUser);
         }
 
         return $this->render('reservation/search.html.twig', [

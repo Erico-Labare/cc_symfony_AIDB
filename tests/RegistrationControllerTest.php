@@ -78,7 +78,8 @@ class RegistrationControllerTest extends BaseWebTestCase
          */
         self::assertResponseRedirects();
         $this->client->followRedirect();
-        $this->client->followRedirect();
+        // Removed the second $this->client->followRedirect(); as only one redirect is expected
+        // after successful registration and login.
 
         self::assertResponseIsSuccessful();
     }
