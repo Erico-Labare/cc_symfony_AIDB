@@ -52,21 +52,6 @@ Basé sur les règles de gestion, le MCD se traduit par les entités suivantes :
 
 TODO : METTRE IMAGE
 
-## Critères d'Évaluation
-
-*   **Configuration du projet** (/1)
-*   **Organisation des packages** (/1)
-*   **Bonnes pratiques** (SOLID, Tell don’t ask, généricité, etc.) (/2)
-*   **Documentation du code** (/1)
-*   **Vues responsives design** (/1)
-*   **Couverture des exigences/Code opérationnel** (/5)
-*   **Maîtrise de la dette technique** (évaluée avec SonarQube) (/1)
-*   **Gestion des exceptions** (individuellement ou globalement) (/1)
-*   **Gestion de l’authentification/mot de passe oublié** (/1)
-*   **Tests** (/2)
-*   **Présentation orale** (/4)
-*   **TOTAL** /20
-
 ## Installations
 
 ### Installation du projet
