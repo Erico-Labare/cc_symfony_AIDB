@@ -13,6 +13,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
+use Symfony\Contracts\Translation\TranslatorInterface; // Import TranslatorInterface
+use Psr\Log\LoggerInterface; // Import LoggerInterface
 
 #[Route('/admin/hotel')]
 #[IsGranted('ROLE_ADMIN')]
@@ -39,7 +41,7 @@ final class HotelController extends AbstractController
 
     // Créer un nouvel hôtel
     #[Route('/new', name: 'app_admin_hotel_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         $hotel = new Hotel();
         $form = $this->createForm(HotelType::class, $hotel);
@@ -49,14 +51,17 @@ final class HotelController extends AbstractController
             try {
                 $entityManager->persist($hotel);
                 $entityManager->flush();
-                $this->addFlash('success', 'L\'hôtel a été créé avec succès.');
-                return $this->redirectToRoute('app_hotel_index', [], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', $translator->trans('admin.hotel.new.success', [], 'app'));
+                return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER); // Corrected route
             } catch (UniqueConstraintViolationException $e) {
-                $this->addFlash('error', 'Une erreur est survenue : Un hôtel avec le même nom existe déjà.');
+                $logger->error('Admin hotel creation failed due to unique constraint violation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.hotel.error.unique_constraint', [], 'app'));
             } catch (ORMException $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la création de l\'hôtel : ' . $e->getMessage());
+                $logger->error('Admin hotel creation failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.hotel.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+                $logger->critical('Unexpected error during admin hotel creation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.hotel.error.unexpected', [], 'app'));
             }
         }
 
@@ -77,7 +82,7 @@ final class HotelController extends AbstractController
 
     // Modifier un hôtel existant
     #[Route('/{id}/edit', name: 'app_admin_hotel_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Hotel $hotel, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Hotel $hotel, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         $form = $this->createForm(HotelType::class, $hotel);
         $form->handleRequest($request);
@@ -85,14 +90,17 @@ final class HotelController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $entityManager->flush();
-                $this->addFlash('success', 'L\'hôtel a été modifié avec succès.');
-                return $this->redirectToRoute('app_hotel_index', [], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', $translator->trans('admin.hotel.edit.success', [], 'app'));
+                return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER); // Corrected route
             } catch (UniqueConstraintViolationException $e) {
-                $this->addFlash('error', 'Une erreur est survenue : Un hôtel avec le même nom existe déjà.');
+                $logger->error('Admin hotel edit failed due to unique constraint violation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.hotel.error.unique_constraint', [], 'app'));
             } catch (ORMException $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la modification de l\'hôtel : ' . $e->getMessage());
+                $logger->error('Admin hotel edit failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.hotel.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+                $logger->critical('Unexpected error during admin hotel edit: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.hotel.error.unexpected', [], 'app'));
             }
         }
 
@@ -104,20 +112,22 @@ final class HotelController extends AbstractController
 
     // Supprimer un hôtel
     #[Route('/{id}', name: 'app_admin_hotel_delete', methods: ['POST'])]
-    public function delete(Request $request, Hotel $hotel, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Hotel $hotel, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         if ($this->isCsrfTokenValid('delete' . $hotel->getId(), $request->getPayload()->getString('_token'))) {
             try {
                 $entityManager->remove($hotel);
                 $entityManager->flush();
-                $this->addFlash('success', 'L\'hôtel a été supprimé avec succès.');
+                $this->addFlash('success', $translator->trans('admin.hotel.delete.success', [], 'app'));
             } catch (ORMException $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la suppression de l\'hôtel : ' . $e->getMessage());
+                $logger->error('Admin hotel deletion failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.hotel.delete.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+                $logger->critical('Unexpected error during admin hotel deletion: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.hotel.delete.error.unexpected', [], 'app'));
             }
         } else {
-            $this->addFlash('error', 'Token CSRF invalide.');
+            $this->addFlash('error', $translator->trans('csrf.invalid_token', [], 'app'));
         }
 
         return $this->redirectToRoute('app_admin_hotel_index', [], Response::HTTP_SEE_OTHER);

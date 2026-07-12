@@ -19,6 +19,7 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface; // Import UrlGeneratorInterface
+use Psr\Log\LoggerInterface; // Import LoggerInterface for logging exceptions
 
 class RegistrationController extends AbstractController
 {
@@ -33,7 +34,9 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $userPasswordHasher,
         Security $security,
         EntityManagerInterface $entityManager,
-        UrlGeneratorInterface $urlGenerator // Inject UrlGeneratorInterface
+        UrlGeneratorInterface $urlGenerator, // Inject UrlGeneratorInterface
+        TranslatorInterface $translator, // Inject TranslatorInterface
+        LoggerInterface $logger // Inject LoggerInterface
     ): Response {
         $user = new Compte();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -63,53 +66,29 @@ class RegistrationController extends AbstractController
                     (new TemplatedEmail())
                         ->from(new Address('no-reply@hotel-reservation.com', 'Hotel-Reservation'))
                         ->to((string) $user->getEmail())
-                        ->subject('Please Confirm your Email')
+                        ->subject($translator->trans('registration.email.subject', [], 'app'))
                         ->htmlTemplate('registration/confirmation_email.html.twig')
                 );
 
-                $this->addFlash('success', 'Votre compte a été créé avec succès. Veuillez vérifier votre e-mail pour confirmer votre adresse.');
+                $this->addFlash('success', $translator->trans('registration.success', [], 'app'));
 
-                return $security->login($user, 'form_login', 'main');
+                // Get the target path from the request, or default to app_reservation_search
+                $targetPath = $request->query->get('_target_path', $urlGenerator->generate('app_reservation_search'));
+
+                // Log the user in and redirect to the target path
+                $security->login($user, 'form_login', 'main');
+
+                return $this->redirect($targetPath);
             } catch (UniqueConstraintViolationException $e) {
-                $this->addFlash('error', 'Une erreur est survenue : Un compte avec cet e-mail existe déjà.');
+                $logger->error('Registration failed due to unique constraint violation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('registration.error.email_exists', [], 'app'));
             } catch (ORMException $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la création du compte : ' . $e->getMessage());
+                $logger->error('Registration failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('registration.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+                $logger->critical('Unexpected error during registration: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('registration.error.unexpected', [], 'app'));
             }
-            /** @var Compte $compte */
-            $compte = $form->getData();
-
-            /** @var string $plainPassword */
-            $plainPassword = $form->get('plainPassword')->getData();
-
-            // hacher le mot de passe en clair
-            $compte->setPassword($userPasswordHasher->hashPassword($compte, $plainPassword));
-
-            // définir le rôle utilisateur par défaut
-            $compte->setRole('ROLE_USER');
-
-            $entityManager->persist($compte);
-            $entityManager->flush();
-
-            // générer une URL signée et l'envoyer à l'utilisateur
-            $this->emailVerifier->sendEmailConfirmation(
-                'app_verify_email',
-                $user,
-                (new TemplatedEmail())
-                    ->from(new Address('no-reply@hotel-reservation.com', 'Hotel-Reservation'))
-                    ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
-
-            // Get the target path from the request, or default to app_reservation_search
-            $targetPath = $request->query->get('_target_path', $urlGenerator->generate('app_reservation_search'));
-
-            // Log the user in and redirect to the target path
-            $security->login($user, 'form_login', 'main');
-
-            return $this->redirect($targetPath);
         }
 
         return $this->render('registration/register.html.twig', [
@@ -134,7 +113,7 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        $this->addFlash('success', 'Your email address has been verified.');
+        $this->addFlash('success', $translator->trans('email_verification.success', [], 'app'));
 
         return $this->redirectToRoute('app_register');
     }

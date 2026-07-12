@@ -14,6 +14,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
+use Symfony\Contracts\Translation\TranslatorInterface; // Import TranslatorInterface
+use Psr\Log\LoggerInterface; // Import LoggerInterface
 
 #[Route('/admin/compte')]
 #[IsGranted('ROLE_ADMIN')]
@@ -40,7 +42,7 @@ final class CompteController extends AbstractController
 
     // Créer un nouveau compte
     #[Route('/new', name: 'app_admin_compte_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         $compte = new Compte();
         $form = $this->createForm(CompteType::class, $compte);
@@ -57,14 +59,17 @@ final class CompteController extends AbstractController
 
                 $entityManager->persist($compte);
                 $entityManager->flush();
-                $this->addFlash('success', 'Le compte a été créé avec succès.');
-                return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', $translator->trans('admin.compte.new.success', [], 'app'));
+                return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
-                $this->addFlash('error', 'Une erreur est survenue : Un compte avec le même email existe déjà.');
+                $logger->error('Admin compte creation failed due to unique constraint violation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.compte.error.email_exists', [], 'app'));
             } catch (ORMException $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la création du compte : ' . $e->getMessage());
+                $logger->error('Admin compte creation failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.compte.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+                $logger->critical('Unexpected error during admin compte creation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.compte.error.unexpected', [], 'app'));
             }
         }
 
@@ -85,7 +90,7 @@ final class CompteController extends AbstractController
 
     // Modifier un compte existant
     #[Route('/{id}/edit', name: 'app_admin_compte_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Compte $compte, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Compte $compte, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         $form = $this->createForm(CompteType::class, $compte);
         $form->handleRequest($request);
@@ -93,14 +98,17 @@ final class CompteController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $entityManager->flush();
-                $this->addFlash('success', 'Le compte a été modifié avec succès.');
-                return $this->redirectToRoute('app_compte_index', [], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', $translator->trans('admin.compte.edit.success', [], 'app'));
+                return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
-                $this->addFlash('error', 'Une erreur est survenue : Un compte avec le même email existe déjà.');
+                $logger->error('Admin compte edit failed due to unique constraint violation: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.compte.error.email_exists', [], 'app'));
             } catch (ORMException $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la modification du compte : ' . $e->getMessage());
+                $logger->error('Admin compte edit failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.compte.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+                $logger->critical('Unexpected error during admin compte edit: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.compte.error.unexpected', [], 'app'));
             }
         }
 
@@ -112,20 +120,22 @@ final class CompteController extends AbstractController
 
     // Supprimer un compte
     #[Route('/{id}', name: 'app_admin_compte_delete', methods: ['POST'])]
-    public function delete(Request $request, Compte $compte, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Compte $compte, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         if ($this->isCsrfTokenValid('delete' . $compte->getId(), $request->getPayload()->getString('_token'))) {
             try {
                 $entityManager->remove($compte);
                 $entityManager->flush();
-                $this->addFlash('success', 'Le compte a été supprimé avec succès.');
+                $this->addFlash('success', $translator->trans('admin.compte.delete.success', [], 'app'));
             } catch (ORMException $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la suppression du compte : ' . $e->getMessage());
+                $logger->error('Admin compte deletion failed due to ORM exception: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.compte.delete.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur inattendue est survenue : ' . $e->getMessage());
+                $logger->critical('Unexpected error during admin compte deletion: ' . $e->getMessage());
+                $this->addFlash('error', $translator->trans('admin.compte.delete.error.unexpected', [], 'app'));
             }
         } else {
-            $this->addFlash('error', 'Token CSRF invalide.');
+            $this->addFlash('error', $translator->trans('csrf.invalid_token', [], 'app'));
         }
 
         return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
