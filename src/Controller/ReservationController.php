@@ -19,10 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Doctrine\ORM\Exception\ORMException;
-use Symfony\Component\HttpFoundation\Session\SessionInterface; // Import SessionInterface
 
 #[Route('/reservation')]
 final class ReservationController extends AbstractController
@@ -36,104 +32,42 @@ final class ReservationController extends AbstractController
         Request $request,
         HotelRepository $hotelRepository,
         DisponibiliteService $disponibiliteService,
-        SessionInterface $session // Inject SessionInterface
+        ClientRepository $clientRepository,
     ): Response {
-        $formData = [];
-        $availableRooms = [];
-
-        // Check for stored search parameters in session (after login/registration redirect)
-        if ($session->has('last_search_criteria')) {
-            $storedCriteria = $session->get('last_search_criteria');
-            $session->remove('last_search_criteria'); // Clear it after use
-
-            if (isset($storedCriteria['hotel_id'])) {
-                $hotel = $hotelRepository->find($storedCriteria['hotel_id']);
-                if ($hotel) {
-                    $formData['hotel'] = $hotel;
-                }
-            }
-            if (isset($storedCriteria['dateDebut'])) {
-                $formData['dateDebut'] = new \DateTime($storedCriteria['dateDebut']);
-            }
-            if (isset($storedCriteria['dateFin'])) {
-                $formData['dateFin'] = new \DateTime($storedCriteria['dateFin']);
-            }
-        }
-
-        // If it's a POST request, try to get submitted data to pre-fill the form
-        // This takes precedence over session data if a new search is performed
-        if ($request->isMethod('POST')) {
-            $submittedData = $request->request->all('reservation_form'); // Assuming 'reservation_form' is the form name
-
-            // Pre-fill hotel
-            if (isset($submittedData['hotel'])) {
-                $hotel = $hotelRepository->find($submittedData['hotel']);
-                if ($hotel) {
-                    $formData['hotel'] = $hotel;
-                }
-            }
-
-            // Pre-fill dateDebut
-            if (isset($submittedData['dateDebut'])) {
-                try {
-                    $formData['dateDebut'] = new \DateTime($submittedData['dateDebut']);
-                } catch (\Exception $e) {
-                    // Log or handle invalid date format if necessary
-                }
-            }
-
-            // Pre-fill dateFin
-            if (isset($submittedData['dateFin'])) {
-                try {
-                    $formData['dateFin'] = new \DateTime($submittedData['dateFin']);
-                } catch (\Exception $e) {
-                    // Log or handle invalid date format if necessary
-                }
-            }
-        }
-
-        $form = $this->createForm(ReservationFormType::class, $formData);
+        $form = $this->createForm(ReservationFormType::class);
         $form->handleRequest($request);
 
+        $availableRooms = [];
+        $hotels = $hotelRepository->findAll();
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $hotel = $data['hotel'] ?? null;
-            $dateDebut = $data['dateDebut'] ?? null;
-            $dateFin = $data['dateFin'] ?? null;
-
-            $hotelId = $hotel ? $hotel->getId() : null;
+            $hotel = $form->get('hotel')->getData();
+            $dateDebut = $form->get('dateDebut')->getData();
+            $dateFin = $form->get('dateFin')->getData();
+            $hotelId = $hotel?->getId();
 
             if ($hotelId && $dateDebut && $dateFin) {
                 try {
-                    // Adjust dateDebut to the start of the day (00:00:00)
-                    $dateDebut->setTime(0, 0, 0);
-                    // Adjust dateFin to the end of the day (23:59:59)
-                    $dateFin->setTime(23, 59, 59);
-
                     $availableRooms = $disponibiliteService->findAvailableRooms($dateDebut, $dateFin, $hotelId);
-
-                    // Store search criteria in session if user is not logged in
-                    if (!$this->getUser()) {
-                        $session->set('last_search_criteria', [
-                            'hotel_id' => $hotelId,
-                            'dateDebut' => $dateDebut->format('Y-m-d'),
-                            'dateFin' => $dateFin->format('Y-m-d'),
-                        ]);
-                    }
-
                 } catch (\InvalidArgumentException $e) {
                     $this->addFlash('error', $e->getMessage());
                 }
             }
         }
+        $clients = [];
+
+        if ($this->getUser() instanceof Compte) {
+            $clients = $clientRepository->findByCompte($this->getUser());
+        }
 
         return $this->render('reservation/search.html.twig', [
             'form' => $form,
             'availableRooms' => $availableRooms,
+            'hotels' => $hotels,
+            'clients' => $clients,
         ]);
     }
 
-    /**
+            /**
      * Crée une nouvelle réservation.
      * POST /reservation/create
      */
@@ -142,11 +76,12 @@ final class ReservationController extends AbstractController
     public function create(
         Request $request,
         ReservationService $reservationService,
-        ClientRepository $clientRepository, // Keep for potential future use, but not directly used for client creation here
+        ClientRepository $clientRepository,
         ChambreRepository $chambreRepository,
         EntityManagerInterface $entityManager,
     ): Response {
         $compte = $this->getUser();
+
         if (!$compte instanceof Compte) {
             throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
@@ -156,56 +91,104 @@ final class ReservationController extends AbstractController
         $dateFin = $request->request->get('dateFin');
         $commentaire = $request->request->get('commentaire');
 
-        // Get client details from the request
-        $clientNom = $request->request->get('client_nom');
-        $clientEmail = $request->request->get('client_email');
-        $clientTelephone = $request->request->get('client_telephone');
-        $clientAdresse = $request->request->get('client_adresse');
+        $clientId = $request->request->get('client_id');
+
+        $nom = trim($request->request->get('client_nom'));
+        $email = trim($request->request->get('client_email'));
+        $telephone = trim($request->request->get('client_telephone'));
+        $adresse = trim($request->request->get('client_adresse'));
 
         try {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Vérification de la chambre
+            |--------------------------------------------------------------------------
+            */
+
             $chambre = $chambreRepository->find($chambreId);
+
             if (!$chambre) {
-                throw $this->createNotFoundException('Chambre non trouvée.');
+                throw new \Exception('Chambre non trouvée.');
             }
 
-            // Create a new Client entity for this reservation
-            $client = new Client();
-            $client->setNom($clientNom);
-            $client->setEmail($clientEmail);
-            $client->setTelephone($clientTelephone);
-            $client->setAdresse($clientAdresse);
-            $entityManager->persist($client);
-            // No flush here, it will be flushed with the reservation
+            /*
+            |--------------------------------------------------------------------------
+            | Gestion du client
+            |--------------------------------------------------------------------------
+            */
 
-            $dateDebutObj = new \DateTime($dateDebut);
-            $dateFinObj = new \DateTime($dateFin);
+            if ($clientId) {
 
-            $reservation = $reservationService->createReservation(
-                $chambre,
-                $client, // Pass the newly created client
+                // L'utilisateur a sélectionné un client existant.
+                $client = $clientRepository->find($clientId);
+
+                if (!$client) {
+                    throw new \Exception('Client introuvable.');
+                }
+
+                // Mise à jour éventuelle des informations.
+                $client->setNom($nom);
+                $client->setEmail($email);
+                $client->setTelephone($telephone);
+                $client->setAdresse($adresse);
+
+            } else {
+
+                // Aucun client sélectionné.
+                // On vérifie qu'un client avec cet email n'existe pas déjà.
+
+                $existingClient = $clientRepository->findClientForCompteByEmail(
                 $compte,
-                $dateDebutObj,
-                $dateFinObj,
+                $email
+                );
+
+                if ($existingClient) {
+                    throw new \Exception(
+                        'Un client avec cette adresse email existe déjà. Veuillez le sélectionner dans la liste.'
+                    );
+                }
+
+                // Création d'un nouveau client.
+                $client = new Client();
+
+                $client->setNom($nom);
+                $client->setEmail($email);
+                $client->setTelephone($telephone);
+                $client->setAdresse($adresse);
+
+                $entityManager->persist($client);
+            }
+
+            // Sauvegarde des modifications du client.
+            $entityManager->flush();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Création de la réservation
+            |--------------------------------------------------------------------------
+            */
+
+            $reservationService->createReservation(
+                $chambre,
+                $client,
+                $compte,
+                new \DateTime($dateDebut),
+                new \DateTime($dateFin),
                 $commentaire,
             );
 
             $this->addFlash('success', 'Réservation créée avec succès !');
 
             return $this->redirectToRoute('app_reservation_my_reservations');
-        } catch (NotFoundHttpException $e) {
-            $this->addFlash('error', 'Erreur : ' . $e->getMessage());
-            return $this->redirectToRoute('app_reservation_search');
-        } catch (UniqueConstraintViolationException $e) {
-            $this->addFlash('error', 'Une erreur est survenue : ' . $e->getMessage());
-            return $this->redirectToRoute('app_reservation_search');
-        } catch (ORMException $e) {
-            $this->addFlash('error', 'Une erreur est survenue lors de la création de la réservation : ' . $e->getMessage());
-            return $this->redirectToRoute('app_reservation_search');
-        } catch (\InvalidArgumentException $e) {
-            $this->addFlash('error', 'Erreur de données : ' . $e->getMessage());
-            return $this->redirectToRoute('app_reservation_search');
+
         } catch (\Exception $e) {
-            $this->addFlash('error', 'Une erreur inattendue est survenue lors de la création de la réservation : ' . $e->getMessage());
+
+            $this->addFlash(
+                'error',
+                'Erreur lors de la création de la réservation : ' . $e->getMessage()
+            );
+
             return $this->redirectToRoute('app_reservation_search');
         }
     }
