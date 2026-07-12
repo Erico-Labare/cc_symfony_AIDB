@@ -6,6 +6,8 @@ use App\Entity\Client;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use App\Entity\Compte;
+
 
 /**
  * Repository de gestion des clients
@@ -40,5 +42,35 @@ class ClientRepository extends ServiceEntityRepository
             ->setMaxResults($limit);
 
         return new Paginator($query);
+    }
+        /**
+     * Retourne tous les clients déjà associés à un compte via ses réservations.
+     */
+    public function findByCompte(Compte $compte): array
+    {
+        return $this->createQueryBuilder('c')
+            ->distinct()
+            ->innerJoin('c.reservations', 'r')
+            ->where('r.compte = :compte')
+            ->setParameter('compte', $compte)
+            ->orderBy('c.nom', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+        /**
+     * Recherche un client appartenant déjà au compte connecté
+     * grâce à son adresse email.
+     */
+    public function findClientForCompteByEmail(Compte $compte, string $email): ?Client
+    {
+        return $this->createQueryBuilder('c')
+            ->innerJoin('c.reservations', 'r')
+            ->where('r.compte = :compte')
+            ->andWhere('c.email = :email')
+            ->setParameter('compte', $compte)
+            ->setParameter('email', $email)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }
