@@ -12,7 +12,8 @@ use App\Form\AccountPasswordType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException; // Keep this for other potential uses if needed, but won't be thrown here.
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Contracts\Translation\TranslatorInterface; // Added for translation
 
 /**
  * Contrôleur gérant les actions spécifiques aux clients.
@@ -63,6 +64,7 @@ final class ClientController extends AbstractController
      * @param Request $request La requête HTTP.
      * @param UserPasswordHasherInterface $passwordHasher Le service de hachage de mot de passe.
      * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction. // Added for translation
      * @return Response Une réponse HTTP affichant le formulaire ou redirigeant après succès/échec.
      * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté.
      */
@@ -72,11 +74,12 @@ final class ClientController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager,
+        TranslatorInterface $translator // Added for translation
     ): Response {
         $compte = $this->getUser();
 
         if (!$compte instanceof Compte) {
-            throw $this->createAccessDeniedException('Vous devez être connecté.');
+            throw $this->createAccessDeniedException($translator->trans('access_denied.not_connected', [], 'app'));
         }
 
         $form = $this->createForm(AccountPasswordType::class);
@@ -88,7 +91,7 @@ final class ClientController extends AbstractController
             if (!$passwordHasher->isPasswordValid($compte, $currentPassword)) {
                 $this->addFlash(
                     'danger',
-                    'Votre ancien mot de passe est incorrect.'
+                    $translator->trans('client.change_password.error.old_password_incorrect', [], 'app')
                 );
 
                 return $this->redirectToRoute('app_client_change_password');
@@ -107,7 +110,7 @@ final class ClientController extends AbstractController
 
             $this->addFlash(
                 'success',
-                'Votre mot de passe a été modifié avec succès.'
+                $translator->trans('client.change_password.success', [], 'app')
             );
 
             return $this->redirectToRoute('app_client_profile');

@@ -228,7 +228,7 @@ final class ReservationController extends AbstractController
             $chambre = $chambreRepository->find($chambreId);
 
             if (!$chambre) {
-                throw new \Exception('Chambre non trouvée.');
+                throw new \Exception($translator->trans('reservation.create.error.room_not_found_generic', [], 'app'));
             }
 
             /*
@@ -243,7 +243,7 @@ final class ReservationController extends AbstractController
                 $client = $clientRepository->find($clientId);
 
                 if (!$client) {
-                    throw new \Exception('Client introuvable.');
+                    throw new \Exception($translator->trans('reservation.create.error.client_not_found', [], 'app'));
                 }
 
                 // Mise à jour éventuelle des informations.
@@ -264,7 +264,7 @@ final class ReservationController extends AbstractController
 
                 if ($existingClient) {
                     throw new \Exception(
-                        'Un client avec cette adresse email existe déjà. Veuillez le sélectionner dans la liste.'
+                        $translator->trans('reservation.create.error.client_email_exists', [], 'app')
                     );
                 }
 

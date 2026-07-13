@@ -84,7 +84,7 @@ final class CompteController extends AbstractController
 
                 $entityManager->persist($compte);
                 $entityManager->flush();
-                $this->addFlash('success', 'Le compte a été créé avec succès.');
+                $this->addFlash('success', $translator->trans('admin.compte.new.success', [], 'app'));
                 return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
                 $logger->error('Admin compte creation failed due to unique constraint violation: ' . $e->getMessage());
@@ -149,7 +149,7 @@ final class CompteController extends AbstractController
                 }
 
                 $entityManager->flush();
-                $this->addFlash('success', 'Le compte a été modifié avec succès.');
+                $this->addFlash('success', $translator->trans('admin.compte.edit.success', [], 'app'));
                 return $this->redirectToRoute('app_admin_compte_index', [], Response::HTTP_SEE_OTHER);
             } catch (UniqueConstraintViolationException $e) {
                 $logger->error('Admin compte edit failed due to unique constraint violation: ' . $e->getMessage());
