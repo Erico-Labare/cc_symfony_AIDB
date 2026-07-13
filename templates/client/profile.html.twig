@@ -7,14 +7,12 @@
         <div class="card-body">
             <h1 class="card-title mb-4">Mon compte</h1> {# Changed h5 to h1 #}
 
+            {# Removed the conditional display of client.nom #}
             <p class="card-text mb-2">
-                <strong>Nom :</strong> {{ client.nom }} {# Added client name #}
+                <strong>Nom d'utilisateur / Email :</strong> {{ compte.email }} {# Renamed label #}
             </p>
             <p class="card-text mb-2">
-                <strong>Email :</strong> {{ compte.email }}
-            </p>
-            <p class="card-text mb-2">
-                <strong>Rôle :</strong>
+                <strong>Type de compte :</strong> {# Renamed label #}
                 {% if 'ROLE_ADMIN' in compte.roles %}
                     Administrateur
                 {% else %}

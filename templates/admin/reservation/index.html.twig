@@ -8,10 +8,18 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <a href="{{ path('app_admin_reservation_new') }}" class="btn btn-primary">Créer une nouvelle réservation</a>
-            <form method="GET" action="{{ path('app_admin_reservation_index') }}" class="d-flex">
-                <input type="text" name="search" class="form-control me-2" placeholder="Rechercher (ID, email client, ID chambre)" value="{{ search }}" style="width: 350px;"> {# Increased width for longer placeholder text #}
-                <button type="submit" class="btn btn-outline-secondary">Rechercher</button>
-            </form>
+            <div class="d-flex">
+                {# Nouvelle barre de recherche par ID de réservation #}
+                <form method="GET" action="{{ path('app_admin_reservation_index') }}" class="d-flex me-2">
+                    <input type="text" name="reservation_id" class="form-control me-2" placeholder="Rechercher par ID Réservation" value="{{ app.request.query.get('reservation_id') }}" style="width: 250px;">
+                    <button type="submit" class="btn btn-outline-secondary">Rechercher ID</button>
+                </form>
+                {# Barre de recherche existante modifiée #}
+                <form method="GET" action="{{ path('app_admin_reservation_index') }}" class="d-flex">
+                    <input type="text" name="search" class="form-control me-2" placeholder="Rechercher (email client, ID chambre)" value="{{ search }}" style="width: 350px;">
+                    <button type="submit" class="btn btn-outline-secondary">Rechercher</button>
+                </form>
+            </div>
         </div>
 
         <table class="table table-striped">
@@ -31,8 +39,8 @@
                 {% for reservation in reservations %}
                     <tr>
                         <td>{{ reservation.id }}</td>
-                        <td>{{ reservation.dateDebut ? reservation.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
-                        <td>{{ reservation.dateFin ? reservation.dateFin|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ reservation.dateDebut ? reservation.dateDebut|date('Y-m-d') : '' }}</td>
+                        <td>{{ reservation.dateFin ? reservation.dateFin|date('Y-m-d') : '' }}</td>
                         <td>{{ reservation.commentaire }}</td>
                         <td>{{ reservation.compte ? reservation.compte.email : 'N/A' }}</td>
                         <td>{{ reservation.client ? reservation.client.email : 'N/A' }}</td>
@@ -58,15 +66,15 @@
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
                 <li class="page-item {{ (page <= 1) ? 'disabled' : '' }}">
-                    <a class="page-link" href="{{ path('app_admin_reservation_index', {'page': page - 1, 'search': search}) }}">Précédent</a>
+                    <a class="page-link" href="{{ path('app_admin_reservation_index', {'page': page - 1, 'search': search, 'reservation_id': app.request.query.get('reservation_id')}) }}">Précédent</a>
                 </li>
                 {% for i in 1..maxPages %}
                     <li class="page-item {{ (page == i) ? 'active' : '' }}">
-                        <a class="page-link" href="{{ path('app_admin_reservation_index', {'page': i, 'search': search}) }}">{{ i }}</a>
+                        <a class="page-link" href="{{ path('app_admin_reservation_index', {'page': i, 'search': search, 'reservation_id': app.request.query.get('reservation_id')}) }}">{{ i }}</a>
                     </li>
                 {% endfor %}
                 <li class="page-item {{ (page >= maxPages) ? 'disabled' : '' }}">
-                    <a class="page-link" href="{{ path('app_admin_reservation_index', {'page': page + 1, 'search': search}) }}">Suivant</a>
+                    <a class="page-link" href="{{ path('app_admin_reservation_index', {'page': page + 1, 'search': search, 'reservation_id': app.request.query.get('reservation_id')}) }}">Suivant</a>
                 </li>
             </ul>
         </nav>

@@ -29,20 +29,20 @@ class DisponibiliteService
     ) {}
 
     /**
-     * Trouve toutes les chambres disponibles pour un hôtel donné et une période spécifique.
+     * Trouve toutes les chambres disponibles pour un hôtel donné (ou tous les hôtels) et une période spécifique.
      *
-     * Cette méthode filtre les chambres d'un hôtel qui ne sont pas déjà réservées
+     * Cette méthode filtre les chambres qui ne sont pas déjà réservées
      * pour la période spécifiée.
      *
      * @param \DateTimeInterface $dateDebut La date et l'heure de début de la période de recherche.
      * @param \DateTimeInterface $dateFin La date et l'heure de fin de la période de recherche.
-     * @param int $hotelId L'identifiant de l'hôtel dans lequel rechercher les chambres.
+     * @param int|null $hotelId L'identifiant de l'hôtel dans lequel rechercher les chambres. Si null, recherche dans tous les hôtels.
      *
      * @return Collection<int, Chambre> Une collection de chambres disponibles.
      *
      * @throws InvalidReservationDatesException Si la date de fin est antérieure ou égale à la date de début.
      */
-    public function findAvailableRooms(\DateTimeInterface $dateDebut, \DateTimeInterface $dateFin, int $hotelId): Collection
+    public function findAvailableRooms(\DateTimeInterface $dateDebut, \DateTimeInterface $dateFin, ?int $hotelId = null): Collection
     {
         if ($dateFin <= $dateDebut) {
             throw new InvalidReservationDatesException(
@@ -51,8 +51,12 @@ class DisponibiliteService
             );
         }
 
-        // Récupère toutes les chambres de l'hôtel spécifié
-        $allRooms = $this->chambreRepository->findBy(['hotel' => $hotelId]);
+        // Récupère toutes les chambres de l'hôtel spécifié ou de tous les hôtels
+        if ($hotelId !== null) {
+            $allRooms = $this->chambreRepository->findBy(['hotel' => $hotelId]);
+        } else {
+            $allRooms = $this->chambreRepository->findAll(); // Fetch all rooms if no hotelId is provided
+        }
 
         // Récupère toutes les réservations qui chevauchent la période donnée
         $reservedRooms = $this->reservationRepository->findBetweenDates($dateDebut, $dateFin);

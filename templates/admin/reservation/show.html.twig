@@ -34,7 +34,17 @@
                 </tr>
                 <tr>
                     <th>Chambre</th>
-                    <td>{{ reservation.chambre ? reservation.chambre.id : 'N/A' }}</td>
+                    <td>
+                        {% if reservation.chambre %}
+                            ID: {{ reservation.chambre.id }}<br>
+                            Hôtel: {{ reservation.chambre.hotel.nom }}<br>
+                            Étage: {{ reservation.chambre.etage }}<br>
+                            Type: {{ reservation.chambre.type }}<br>
+                            Nombre de lits: {{ reservation.chambre.nombreLit }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
                 </tr>
             </tbody>
         </table>

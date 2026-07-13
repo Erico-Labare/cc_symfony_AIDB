@@ -40,8 +40,9 @@ final class ReservationController extends AbstractController
         $page = $request->query->getInt('page', 1);
         $limit = 10; // Nombre d'éléments par page
         $search = $request->query->getString('search');
+        $reservationId = $request->query->getString('reservation_id'); // Nouveau paramètre
 
-        $reservations = $reservationRepository->paginateReservations($page, $limit, $search);
+        $reservations = $reservationRepository->paginateReservations($page, $limit, $search, $reservationId); // Passage du nouveau paramètre
         $maxPages = ceil(count($reservations) / $limit);
 
         return $this->render('admin/reservation/index.html.twig', [
@@ -49,6 +50,7 @@ final class ReservationController extends AbstractController
             'page' => $page,
             'maxPages' => $maxPages,
             'search' => $search,
+            'reservation_id' => $reservationId, // Passage du nouveau paramètre au template
         ]);
     }
 

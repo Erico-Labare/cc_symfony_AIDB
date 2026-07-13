@@ -29,17 +29,18 @@ class ReservationRepository extends ServiceEntityRepository
     }
 
     /**
-     * Récupère une liste paginée de réservations avec une option de recherche.
+     * Récupère une liste paginée de réservations avec des options de recherche.
      *
      * Permet de filtrer les réservations par leur ID, l'email du client ou l'ID de la chambre.
      * Inclut également les entités Client et Chambre associées.
      *
      * @param int $page La page actuelle à récupérer (commence à 1).
      * @param int $limit Le nombre maximum d'éléments par page.
-     * @param string|null $search Le terme de recherche pour filtrer.
+     * @param string|null $search Le terme de recherche pour filtrer par email client ou ID chambre.
+     * @param string|null $reservationId L'ID de la réservation pour filtrer spécifiquement par ID.
      * @return Paginator Une instance de Paginator contenant les réservations pour la page demandée.
      */
-    public function paginateReservations(int $page, int $limit, ?string $search = null): Paginator
+    public function paginateReservations(int $page, int $limit, ?string $search = null, ?string $reservationId = null): Paginator
     {
         $queryBuilder = $this->createQueryBuilder('r')
             ->leftJoin('r.client', 'cl')
@@ -48,10 +49,13 @@ class ReservationRepository extends ServiceEntityRepository
             ->addSelect('ch')
             ->orderBy('r.dateDebut', 'DESC');
 
-        if ($search) {
-            // Recherche par ID de réservation, email du client ou ID de chambre
-            // Utilisation de CONCAT pour convertir les IDs numériques en string pour la recherche LIKE
-            $queryBuilder->andWhere('CONCAT(r.id, \'\') LIKE :search OR cl.email LIKE :search OR CONCAT(ch.id, \'\') LIKE :search')
+        if ($reservationId) {
+            // Recherche spécifique par ID de réservation
+            $queryBuilder->andWhere('r.id = :reservationId')
+                ->setParameter('reservationId', $reservationId);
+        } elseif ($search) {
+            // Recherche par email du client ou ID de chambre
+            $queryBuilder->andWhere('cl.email LIKE :search OR CONCAT(ch.id, \'\') LIKE :search')
                 ->setParameter('search', '%' . $search . '%');
         }
 

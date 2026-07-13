@@ -12,7 +12,7 @@ use App\Form\AccountPasswordType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException; // Keep this for other potential uses if needed, but won't be thrown here.
 
 /**
  * Contrôleur gérant les actions spécifiques aux clients.
@@ -32,7 +32,6 @@ final class ClientController extends AbstractController
      * @param ClientRepository $clientRepository Le dépôt des clients pour récupérer les données du client.
      * @return Response Une réponse HTTP affichant le profil client.
      * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté.
-     * @throws NotFoundHttpException Si aucun profil client n'est trouvé pour l'utilisateur connecté.
      */
     #[Route('/profile', name: 'app_client_profile', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
@@ -44,16 +43,14 @@ final class ClientController extends AbstractController
         }
 
         // Find the Client associated with the logged-in Compte via email
+        // If no client profile is found for the logged-in user, $client will be null.
+        // We no longer throw an exception here, allowing admins (who might not have a Client entity)
+        // to still view their Compte profile.
         $client = $clientRepository->findOneBy(['email' => $compte->getEmail()]);
-
-        if (!$client) {
-            // If no client profile is found for the logged-in user, throw a 404
-            throw new NotFoundHttpException('No client profile found for this user.');
-        }
 
         return $this->render('client/profile.html.twig', [
             'compte' => $compte,
-            'client' => $client, // Pass the client object to the template
+            'client' => $client, // Pass the client object (can be null) to the template
         ]);
     }
 

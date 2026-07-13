@@ -30,6 +30,13 @@
         					Mon profil
     					</a>
 					</li>
+					{% if is_granted('ROLE_ADMIN') %} {# Added conditional check for admin role #}
+						<li class="nav-item">
+							<a class="nav-link" href="{{ path('app_admin') }}">
+								Gestion de l'administration
+							</a>
+						</li>
+					{% endif %}
 				{% endif %}
 
 			</ul>

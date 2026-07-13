@@ -31,11 +31,11 @@ class ReservationFormType extends AbstractType
             ->add('hotel', EntityType::class, [
                 'class' => Hotel::class,
                 'choice_label' => 'nom', // Affiche le nom de l'hôtel dans la liste déroulante
-                'placeholder' => 'Choisir un hôtel',
-                'required' => true,
+                'placeholder' => 'Tous les Hôtels', // Changed placeholder
+                'required' => false, // Changed to false
                 'label' => 'Hôtel',
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez sélectionner un hôtel.']),
+                    // Removed NotBlank constraint for hotel
                 ],
             ])
             ->add('dateDebut', DateType::class, [
