@@ -15,36 +15,43 @@
 *   [6. Guide d'Installation](#6-guide-dinstallation)
     *   [6.1. Installation du Projet](#61-installation-du-projet)
     *   [6.2. Configuration de la Base de Données (Développement)](#62-configuration-de-la-base-de-données-développement)
+    *   [6.3. Base de Données (Tests)](#63-base-de-données-tests)
 *   [7. Utilisation et Lancement](#7-utilisation-et-lancement)
     *   [7.1. Lancer l'Application](#71-lancer-lapplication)
+    *   [7.2. Scénarios d'Utilisation](#72-scénarios-dutilisation)
 *   [8. Gestion des Variables d'Environnement (.env)](#8-gestion-des-variables-denvironnement-env)
-    *   [8.1. Configuration Locale](#81-configuration-locale)
-    *   [8.2. Configuration du Service d'E-mail](#82-configuration-du-service-de-mail)
-*   [9. Base de Données (Tests)](#9-base-de-données-tests)
-*   [10. Risques, Limites et Dettes Techniques](#10-risques-limites-et-dettes-techniques)
-    *   [10.1. Risques](#101-risques)
-    *   [10.2. Limites](#102-limites)
-    *   [10.3. Dettes Techniques](#103-dettes-techniques)
-*   [11. Crédits](#11-crédits)
+    *   [8.1. Introduction aux Variables d'Environnement](#81-introduction-aux-variables-denvironnement)
+    *   [8.2. Configuration Locale Essentielle](#82-configuration-locale-essentielle)
+    *   [8.3. Configuration du Service d'E-mail](#83-configuration-du-service-de-mail)
+    *   [8.4. Exemple de Fichier .env.local Complet](#84-exemple-de-fichier-envlocal-complet)
+*   [9. Risques, Limites et Dettes Techniques](#9-risques-limites-et-dettes-techniques)
+    *   [9.1. Risques](#91-risques)
+    *   [9.2. Limites](#92-limites)
+    *   [9.3. Dettes Techniques](#93-dettes-techniques)
+*   [10. Crédits](#10-crédits)
 
 ---
 
 ## 1. Contexte du Projet
 
-Ce projet a pour objectif la réalisation d'une application web de type CRUD (Create, Read, Update, Delete) développée avec le framework Symfony. Elle simule un système de réservation centralisé pour un groupe hôtelier national. Les données sont persistées dans une base de données SQL. Dans le cadre du Master AIDB, ce projet vise à consolider les compétences en développement web moderne, en architecture logicielle et en gestion de projet.
+Ce projet a pour objectif la réalisation d'une **application web de type CRUD** (Create, Read, Update, Delete) développée avec le **framework Symfony**. Elle simule un système de réservation centralisé pour un groupe hôtelier national, avec des données persistées dans une **base de données SQL**. Dans le cadre du Master AIDB, ce projet vise à consolider les compétences en développement web moderne, en architecture logicielle et en gestion de projet.
 
 ## 2. Spécifications Fonctionnelles
 
+Cette section détaille les exigences fonctionnelles et les règles métier qui régissent le comportement de l'application.
+
 ### 2.1. Règles de Gestion
 
-1.  Un client effectue une réservation spécifique pour un hôtel et une chambre, avec des dates de début et de fin d'occupation définies.
-2.  Un client peut réserver plusieurs chambres pour la même période, mais chaque réservation doit inclure au moins une chambre.
-3.  Un hôtel propose plusieurs chambres de différents types (ex: simple, double, suite).
-4.  Chaque hôtel est classifié selon une catégorie spécifique (ex: \*, \*\*, \*\*\*).
+Les règles fondamentales régissant les interactions et les données du système sont les suivantes :
+
+1.  Un client effectue une **réservation spécifique** pour un hôtel et une chambre, avec des dates de début et de fin d'occupation définies.
+2.  Un client peut **réserver plusieurs chambres** pour la même période, mais chaque réservation doit inclure au moins une chambre.
+3.  Un hôtel propose **plusieurs chambres** de différents types (ex: simple, double, suite).
+4.  Chaque hôtel est classifié selon une **catégorie spécifique** (ex: \*, \*\*, \*\*\*).
 
 ### 2.2. Fonctionnalités Détaillées
 
-L'application est structurée en plusieurs espaces, chacun offrant des fonctionnalités adaptées à son rôle :
+L'application est structurée en plusieurs espaces, chacun offrant des fonctionnalités adaptées à son rôle d'utilisateur.
 
 #### 2.2.1. Espace Public
 
@@ -56,38 +63,41 @@ L'application est structurée en plusieurs espaces, chacun offrant des fonctionn
 #### 2.2.2. Espace Client
 
 *   **Visualisation des Réservations** : Affichage de l'historique des réservations effectuées par le client.
-*   **Ajout de Commentaires** : Possibilité d'ajouter des demandes spéciales ou commentaires à une réservation (ex: ajout d'un lit bébé).
+*   **Ajout de Commentaires** : Possibilité d'ajouter des demandes spéciales ou commentaires à une réservation (ex: lit bébé, préférences).
+*   **Effectuer une nouvelle réservation** : Le client, une fois connecté, peut rechercher et réserver une chambre. Ses informations personnelles (email, téléphone) sont pré-remplies ou facilement accessibles.
 
 #### 2.2.3. Espace Administrateur
 
 *   **Gestion des Chambres (CRUD)** : Interface complète pour la création, lecture, mise à jour et suppression des chambres, incluant pagination et recherche.
-*   **Gestion des Réservations (CRUD)** : Interface complète pour la gestion des réservations clients, avec pagination et recherche par numéro de réservation. Le détail de chaque réservation affiche l'ensemble des chambres concernées.
-*   **Gestion des Clients (CRUD)** : Interface complète pour la gestion des clients, avec pagination et recherche par nom ou email.
+*   **Gestion des Réservations (CRUD)** : Interface complète pour la gestion des réservations clients, avec pagination et recherche par numéro de réservation. Le détail d'une réservation affiche toutes les chambres associées.
+*   **Gestion des Clients (CRUD)** : Interface complète pour la gestion des profils clients, avec pagination et recherche par nom ou email.
 
-**Note :** Toutes les vues Twig sont conçues pour être *responsive design*, sans charte graphique imposée. L'intégration d'un template Bootstrap est autorisée.
+**Note :** Toutes les vues Twig sont conçues pour être ***responsive design***, sans charte graphique imposée. L'intégration d'un template Bootstrap est autorisée.
 
 ## 3. Stack Technique
 
-*   **Framework** : Symfony (choisi pour sa robustesse, sa modularité et son écosystème mature, facilitant le développement rapide et maintenable d'applications web complexes).
-*   **Langage de Programmation** : PHP
-*   **Base de Données** : SQL (pour sa fiabilité et sa large adoption dans les systèmes de gestion de données relationnelles).
-*   **Moteur de Templating** : Twig (pour sa syntaxe concise et sa performance, permettant une séparation claire entre la logique métier et la présentation).
-*   **Développement Front-end** : Bootstrap (sélectionné pour son efficacité à créer des interfaces *responsive design* rapidement et de manière standardisée).
+Cette section présente l'ensemble des technologies et outils utilisés pour le développement de l'application, avec une brève justification des choix effectués.
+
+*   **Framework** : **Symfony** (choisi pour sa robustesse, sa modularité et son écosystème mature, facilitant le développement rapide et maintenable d'applications web complexes).
+*   **Langage de Programmation** : **PHP**
+*   **Base de Données** : **SQL** (pour sa fiabilité et sa large adoption dans les systèmes de gestion de données relationnelles).
+*   **Moteur de Templating** : **Twig** (pour sa syntaxe concise et sa performance, permettant une séparation claire entre la logique métier et la présentation).
+*   **Développement Front-end** : **Bootstrap** (sélectionné pour son efficacité à créer des interfaces *responsive design* rapidement et de manière standardisée).
 
 ## 4. Architecture du Projet
 
-Le projet adhère à une architecture en couches, respectant les bonnes pratiques de Symfony :
+Le projet adhère à une architecture en couches, respectant les bonnes pratiques de Symfony, afin d'assurer la maintenabilité, la scalabilité et la séparation des préoccupations.
 
 *   **Contrôleurs** : Gèrent les requêtes HTTP et orchestrent les réponses.
 *   **Services** : Encapsulent la logique métier et les opérations complexes.
 *   **Entités** : Représentent les objets métier et sont mappées aux tables de la base de données.
 *   **Repositories** : Fournissent des méthodes pour interagir avec les entités et la base de données.
 
-*(Il est recommandé d'ajouter ici un diagramme d'architecture (ex: C4 model, diagramme de composants) pour une meilleure visualisation des interactions entre les couches et les composants du système.)*
+*(**Recommandation :** Il est fortement conseillé d'ajouter ici un diagramme d'architecture (ex: C4 model, diagramme de composants) pour une meilleure visualisation des interactions entre les couches et les composants du système.)*
 
 ## 5. Modèle Conceptuel de Données (MCD)
 
-Basé sur les règles de gestion, le MCD se traduit par les entités suivantes :
+Cette section présente la structure des données de l'application, essentielle à la compréhension de la logique métier et de la persistance.
 
 ### Modèle Conceptuel de Données (MCD)
 ![Diagramme MCD](_Doc-Conception/MCD.png)
@@ -95,9 +105,11 @@ Basé sur les règles de gestion, le MCD se traduit par les entités suivantes :
 ### Modèle Logique de Données (MLD)
 ![Diagramme MLD](_Doc-Conception/MLD.PNG)
 
-*(Les diagrammes ci-dessus illustrent la structure des données et leurs relations. Le MCD présente une vue conceptuelle des entités métier, tandis que le MLD détaille l'organisation des tables dans la base de données.)*
+*(**Note :** Les diagrammes ci-dessus illustrent la structure des données et leurs relations. Le **MCD** présente une vue conceptuelle des entités métier, tandis que le **MLD** détaille l'organisation des tables dans la base de données, incluant les types de données et les contraintes.)*
 
 ## 6. Guide d'Installation
+
+Ce guide fournit les étapes nécessaires pour installer et configurer le projet sur votre environnement local.
 
 ### 6.1. Installation du Projet
 
@@ -107,14 +119,30 @@ Basé sur les règles de gestion, le MCD se traduit par les entités suivantes :
 
 ### 6.2. Configuration de la Base de Données (Développement)
 
+Ces étapes concernent la mise en place de la base de données pour l'environnement de développement.
+
 1.  **Vérification PHP.ini** : Assurez-vous que votre fichier `php.ini` (localisable via `php --ini`) est correctement configuré avec les extensions `mysql` et `pdo_mysql` activées.
-2.  **Création de la base de données** : Exécutez `php bin/console doctrine:database:create` (pour un SGBD comme MySQL ou PostgreSQL) ou créez-la manuellement via votre SGBD.
+2.  **Création de la base de données** : Exécutez `php bin/console doctrine:database:create` (pour un SGBD comme **MySQL** ou **PostgreSQL**) ou créez-la manuellement via votre SGBD.
 3.  **(Optionnel) Génération de migration** : Si aucun fichier de migration n'est présent dans `/migrations`, générez-en un avec `php bin/console make:migration`.
 4.  **Exécution des migrations** : Appliquez les migrations à la base de données avec `php bin/console doctrine:migrations:migrate`.
 5.  **(Optionnel) Validation du schéma** : Vérifiez la synchronisation du schéma de la base de données avec les entités Doctrine via `php bin/console doctrine:schema:validate`. Le résultat attendu est : `[OK] The mapping files are correct. [OK] The database schema is in sync with the mapping files.`
 6.  **(Optionnel) Chargement des données de développement** : Installez les données par défaut configurées dans `DataFixtures\AppFixtures` avec `php bin/console doctrine:fixtures:load --group=dev`.
 
+### 6.3. Base de Données (Tests)
+
+Cette sous-section détaille la configuration de la base de données spécifiquement pour l'environnement de test.
+
+1.  **Vérification PHP.ini** : Comme pour le développement, assurez-vous que les extensions `mysql` et `pdo_mysql` sont activées.
+2.  **(Optionnel) Suppression de la base de données de test existante** : `php bin/console doctrine:database:drop --env=test --force`.
+3.  **Création de la base de données de test** : `php bin/console doctrine:database:create --env=test`.
+4.  **Exécution des migrations de test** : `php bin/console doctrine:migrations:migrate --env=test`.
+5.  **(Optionnel) Validation du schéma de test** : `php bin/console doctrine:schema:validate --env=test`. Le résultat attendu est : `[OK] The mapping files are correct. [OK] The database schema is in sync with the mapping files.`
+6.  **Chargement des données de test** : Installez les données par défaut configurées dans `DataFixtures\TestFixtures` avec `php bin/console doctrine:fixtures:load --env=test --group=test`.
+7.  **Lancement des tests** : Exécutez les tests unitaires et fonctionnels avec `php bin/phpunit`.
+
 ## 7. Utilisation et Lancement
+
+Cette section explique comment démarrer l'application et présente les différents scénarios d'utilisation pour les différents profils d'utilisateurs.
 
 ### 7.1. Lancer l'Application
 
@@ -122,15 +150,109 @@ Basé sur les règles de gestion, le MCD se traduit par les entités suivantes :
 2.  **Accéder à l'accueil Symfony** : Ouvrez votre navigateur et naviguez vers `http://localhost:8000/`.
 3.  **Accéder à l'application** : L'application est accessible via `http://localhost:8000/home`.
 
+### 7.2. Scénarios d'Utilisation
+
+Cette section décrit les principaux parcours utilisateurs et les fonctionnalités accessibles selon le rôle.
+
+#### 7.2.1. Scénarios pour les Utilisateurs Publics (Non Connectés)
+
+*   **Rechercher une chambre** :
+    1.  L'utilisateur accède à la page d'accueil.
+    2.  Il utilise le formulaire de recherche pour spécifier des dates de début et de fin de séjour.
+    3.  Le système affiche les chambres disponibles correspondant aux critères.
+*   **Consulter les détails d'une chambre** :
+    1.  Depuis les résultats de recherche ou une liste, l'utilisateur clique sur une chambre.
+    2.  Il visualise les informations détaillées de la chambre (type, catégorie d'hôtel, description, etc.).
+*   **Tenter de réserver une chambre** :
+    1.  L'utilisateur sélectionne une chambre et clique sur "**Réserver**".
+    2.  Le système le redirige vers la page de connexion/inscription pour finaliser la réservation.
+*   **S'inscrire / Se connecter** :
+    1.  L'utilisateur clique sur "**Connexion**" ou "**Inscription**".
+    2.  Il remplit le formulaire correspondant (email, mot de passe, numéro de téléphone, etc.).
+    3.  Après validation, il accède à son espace client.
+*   **Réinitialiser son mot de passe** :
+    1.  L'utilisateur clique sur "**Mot de passe oublié**".
+    2.  Il saisit son adresse e-mail.
+    3.  Le système envoie un lien de réinitialisation par e-mail.
+    4.  L'utilisateur clique sur le lien et définit un nouveau mot de passe.
+
+#### 7.2.2. Scénarios pour les Utilisateurs Connectés (Clients)
+
+*   **Gérer ses réservations** :
+    1.  Le client se connecte à son espace.
+    2.  Il accède à la section "**Mes Réservations**".
+    3.  Il peut visualiser le statut et les détails de ses réservations passées et futures.
+*   **Ajouter un commentaire à une réservation** :
+    1.  Depuis la liste de ses réservations, le client sélectionne une réservation.
+    2.  Il utilise le formulaire dédié pour ajouter une demande spéciale (ex: lit bébé, préférences).
+    3.  Le commentaire est enregistré et visible par l'administration.
+*   **Effectuer une nouvelle réservation** :
+    1.  Le client, une fois connecté, peut rechercher et réserver une chambre.
+    2.  Ses informations personnelles (email, téléphone) sont pré-remplies ou facilement accessibles.
+
+#### 7.2.3. Scénarios pour les Administrateurs
+
+*   **Gérer les chambres (CRUD)** :
+    1.  L'administrateur se connecte à l'espace d'administration.
+    2.  Il navigue vers la section "**Gestion des Chambres**".
+    3.  Il peut **ajouter** de nouvelles chambres, **modifier** les informations existantes, **supprimer** des chambres, et **rechercher** des chambres spécifiques.
+    4.  La pagination est disponible pour les listes longues.
+*   **Gérer les réservations (CRUD)** :
+    1.  L'administrateur accède à la section "**Gestion des Réservations**".
+    2.  Il peut **consulter** toutes les réservations, les **modifier** (ex: statut, dates si nécessaire), les **supprimer**, et **rechercher** par numéro de réservation.
+    3.  Le détail d'une réservation affiche toutes les chambres associées.
+    4.  La pagination est disponible.
+*   **Gérer les clients (CRUD)** :
+    1.  L'administrateur accède à la section "**Gestion des Clients**".
+    2.  Il peut **ajouter**, **modifier** ou **supprimer** des profils clients, et **rechercher** des clients par nom ou e-mail.
+    3.  La pagination est disponible.
+
 ## 8. Gestion des Variables d'Environnement (.env)
 
-Le fichier `.env` est versionné dans le cadre de ce projet de contrôle continu. Dans ce contexte spécifique, le partage des valeurs de configuration ne présente pas de risque particulier lié à des environnements de production.
+La configuration des variables d'environnement est cruciale pour le bon fonctionnement de l'application, en particulier pour adapter le projet à différents environnements (développement, test, production) sans modifier le code source.
 
-### 8.1. Configuration Locale
+### 8.1. Introduction aux Variables d'Environnement
 
-Il est recommandé de créer un fichier `.env.local` pour surcharger les variables d'environnement spécifiques à votre machine de développement.
+Le fichier `.env` est versionné dans le cadre de ce projet de contrôle continu. Dans ce contexte spécifique, le partage des valeurs de configuration ne présente pas de risque particulier lié à des environnements de production. Pour une configuration locale, il est fortement recommandé de créer un fichier `.env.local` à la racine du projet. Ce fichier surchargera les valeurs définies dans `.env` et ne doit **pas** être versionné.
 
-### 8.2. Configuration du Service d'E-mail
+### 8.2. Configuration Locale Essentielle
+
+Voici les variables d'environnement clés à configurer dans votre fichier `.env.local` pour faire fonctionner le projet en local :
+
+*   **`APP_ENV`** : Définit l'environnement de l'application. Pour le développement local, utilisez `dev`.
+    ```dotenv
+    APP_ENV=dev
+    ```
+
+*   **`APP_SECRET`** : Une chaîne de caractères unique utilisée par Symfony pour la sécurité (signatures, sessions, etc.). Générez une chaîne aléatoire et complexe.
+    ```dotenv
+    APP_SECRET="votre_secret_unique_et_complexe_ici"
+    ```
+
+*   **`DATABASE_URL`** : L'URL de connexion à votre base de données. Le format varie selon le SGBD.
+
+    *   **Exemple pour MySQL (avec XAMPP/WAMP ou Docker) :**
+        ```dotenv
+        DATABASE_URL="mysql://db_user:db_password@127.0.0.1:3306/db_name?serverVersion=5.7&charset=utf8mb4"
+        ```
+        *   `db_user` : Nom d'utilisateur de votre base de données (souvent `root` en local).
+        *   `db_password` : Mot de passe de votre base de données (souvent vide en local pour `root`).
+        *   `127.0.0.1` : Adresse IP du serveur de base de données (souvent `localhost` ou `127.0.0.1`).
+        *   `3306` : Port de votre serveur MySQL.
+        *   `db_name` : Nom de la base de données que vous avez créée pour le projet.
+        *   `serverVersion` : Version de votre serveur MySQL (ajustez si nécessaire, ex: `8.0`).
+
+    *   **Exemple pour PostgreSQL :**
+        ```dotenv
+        DATABASE_URL="postgresql://db_user:db_password@127.0.0.1:5432/db_name?serverVersion=13&charset=utf8"
+        ```
+        *   `db_user` : Nom d'utilisateur de votre base de données.
+        *   `db_password` : Mot de passe de votre base de données.
+        *   `127.0.0.1` : Adresse IP du serveur de base de données.
+        *   `5432` : Port de votre serveur PostgreSQL.
+        *   `db_name` : Nom de la base de données que vous avez créée pour le projet.
+
+### 8.3. Configuration du Service d'E-mail
 
 Pour assurer le bon fonctionnement des fonctionnalités d'envoi d'e-mails (réinitialisation de mot de passe, vérification d'e-mail), vous devez configurer la variable d'environnement `MAILER_DSN` dans votre fichier `.env` ou `.env.local`.
 
@@ -141,19 +263,19 @@ Pour assurer le bon fonctionnement des fonctionnalités d'envoi d'e-mails (réin
     **Exemples de configuration `MAILER_DSN` :**
 
     *   **Mailtrap (développement/test) :**
-        ```
+        ```dotenv
         MAILER_DSN=smtp://VOTRE_USERNAME_MAILTRAP:VOTRE_PASSWORD_MAILTRAP@smtp.mailtrap.io:2525
         ```
         *(Remplacez par vos identifiants Mailtrap, disponibles sur votre compte.)*
 
     *   **Serveur SMTP générique (ex: Gmail avec mot de passe d'application si 2FA activé) :**
-        ```
+        ```dotenv
         MAILER_DSN=smtp://VOTRE_EMAIL:VOTRE_MOT_DE_PASSE@smtp.VOTRE_SERVEUR_SMTP:PORT
         ```
         *(Exemple Gmail: `smtp://monemail@gmail.com:monmotdepasseapp@smtp.gmail.com:587`)*
 
     *   **SendGrid :**
-        ```
+        ```dotenv
         MAILER_DSN=smtp://apikey:VOTRE_CLE_API_SENDGRID@smtp.sendgrid.net:587
         ```
 
@@ -161,41 +283,51 @@ Pour assurer le bon fonctionnement des fonctionnalités d'envoi d'e-mails (réin
 
 Assurez-vous également que l'adresse e-mail de l'expéditeur configurée dans votre application (ex: `no-reply@hotel-reservation.com`) est autorisée à envoyer des e-mails via le service choisi.
 
-## 9. Base de Données (Tests)
+### 8.4. Exemple de Fichier `.env.local` Complet
 
-Pour l'environnement de test, suivez ces étapes :
+Voici un exemple de ce à quoi pourrait ressembler votre fichier `.env.local` pour un environnement de développement local utilisant MySQL :
 
-1.  **Vérification PHP.ini** : Comme pour le développement, assurez-vous que les extensions `mysql` et `pdo_mysql` sont activées.
-2.  **(Optionnel) Suppression de la base de données de test existante** : `php bin/console doctrine:database:drop --env=test --force`.
-3.  **Création de la base de données de test** : `php bin/console doctrine:database:create --env=test`.
-4.  **Exécution des migrations de test** : `php bin/console doctrine:migrations:migrate --env=test`.
-5.  **(Optionnel) Validation du schéma de test** : `php bin/console doctrine:schema:validate --env=test`. Le résultat attendu est : `[OK] The mapping files are correct. [OK] The database schema is in sync with the mapping files.`
-6.  **Chargement des données de test** : Installez les données par défaut configurées dans `DataFixtures\TestFixtures` avec `php bin/console doctrine:fixtures:load --env=test --group=test`.
-7.  **Lancement des tests** : Exécutez les tests unitaires et fonctionnels avec `php bin/phpunit`.
+```dotenv
+# .env.local
+# Fichier de configuration des variables d'environnement locales.
+# NE PAS VERSIONNER CE FICHIER !
 
-## 10. Risques, Limites et Dettes Techniques
+APP_ENV=dev
+APP_SECRET="votre_secret_unique_et_complexe_ici_genere_par_symfony_ou_vous-meme"
+
+# Configuration de la base de données MySQL
+DATABASE_URL="mysql://root:@127.0.0.1:3306/cc_symfony_aidb?serverVersion=5.7&charset=utf8mb4"
+
+# Configuration du service d'e-mail (exemple Mailtrap)
+MAILER_DSN=smtp://VOTRE_USERNAME_MAILTRAP:VOTRE_PASSWORD_MAILTRAP@smtp.mailtrap.io:2525
+
+# Pour les tests, vous pouvez définir une URL de base de données différente si nécessaire
+# DATABASE_URL_TEST="mysql://root:@127.0.0.1:3306/cc_symfony_aidb_test?serverVersion=5.7&charset=utf8mb4"
+```
+
+## 9. Risques, Limites et Dettes Techniques
 
 Cette section aborde les défis inhérents au projet, les contraintes imposées par son périmètre actuel et les améliorations techniques envisagées pour des évolutions futures. Elle témoigne d'une approche proactive et réaliste face aux exigences d'un développement logiciel professionnel.
 
-### 10.1. Risques
+### 9.1. Risques
 
 1.  **Sécurité des Données et Authentification** :
     *   **Risque** : Vulnérabilités potentielles dans la gestion des mots de passe (stockage, réinitialisation) et des sessions utilisateurs, pouvant mener à des accès non autorisés. Les injections SQL ou autres attaques web sont également un risque constant si les validations d'entrée ne sont pas rigoureuses.
-    *   **Mitigation** : Utilisation des fonctionnalités de sécurité intégrées de Symfony (Symfony Security Component), validation stricte des entrées utilisateur, hachage des mots de passe avec des algorithmes robustes (ex: Argon2i, bcrypt).
+    *   **Mitigation** : Utilisation des fonctionnalités de sécurité intégrées de Symfony (**Symfony Security Component**), validation stricte des entrées utilisateur, hachage des mots de passe avec des algorithmes robustes (ex: **Argon2i, bcrypt**).
 
 2.  **Performance de la Base de Données** :
     *   **Risque** : Avec l'augmentation du nombre de réservations, de clients ou de chambres, les requêtes de recherche et de pagination pourraient devenir lentes, impactant l'expérience utilisateur.
-    *   **Mitigation** : Optimisation des requêtes Doctrine, ajout d'index pertinents sur les colonnes fréquemment utilisées (dates, IDs, noms), utilisation de caches (ex: Redis pour les résultats de recherche fréquents).
+    *   **Mitigation** : Optimisation des requêtes Doctrine, ajout d'**index pertinents** sur les colonnes fréquemment utilisées (dates, IDs, noms), utilisation de **caches** (ex: Redis pour les résultats de recherche fréquents).
 
 3.  **Complexité de la Gestion des Conflits de Réservation** :
     *   **Risque** : Bien que le MCD permette de réserver plusieurs chambres à la même date, la gestion des disponibilités en temps réel et la prévention des sur-réservations peut devenir complexe, surtout en cas de forte concurrence.
-    *   **Mitigation** : Implémentation de mécanismes de verrouillage optimistes ou pessimistes au niveau de la base de données lors des tentatives de réservation.
+    *   **Mitigation** : Implémentation de mécanismes de **verrouillage optimistes ou pessimistes** au niveau de la base de données lors des tentatives de réservation.
 
 4.  **Dépendances Tierces (Bootstrap, etc.)** :
     *   **Risque** : L'intégration d'un template Bootstrap ou d'autres bibliothèques tierces peut introduire des vulnérabilités ou des problèmes de compatibilité si elles ne sont pas maintenues à jour.
-    *   **Mitigation** : Suivi régulier des mises à jour de sécurité des dépendances, utilisation d'outils comme `composer audit`.
+    *   **Mitigation** : Suivi régulier des **mises à jour de sécurité** des dépendances, utilisation d'outils comme `composer audit`.
 
-### 10.2. Limites
+### 9.2. Limites
 
 1.  **Fonctionnalités Commerciales** :
     *   **Paiement** : L'absence de système de paiement intégré est une limitation majeure pour une application de réservation réelle.
@@ -211,7 +343,7 @@ Cette section aborde les défis inhérents au projet, les contraintes imposées 
 4.  **Reporting et Statistiques** :
     *   L'application ne fournit pas d'outils de reporting ou de statistiques pour les administrateurs (taux d'occupation, revenus, etc.).
 
-### 10.3. Dettes Techniques
+### 9.3. Dettes Techniques
 
 1.  **Couverture des Tests** :
     *   **Dette** : Bien que des tests soient requis, la couverture complète (tests unitaires, fonctionnels, d'intégration) de toutes les fonctionnalités critiques peut être limitée par le temps. Une couverture insuffisante peut rendre les futures modifications risquées.
@@ -219,21 +351,21 @@ Cette section aborde les défis inhérents au projet, les contraintes imposées 
 
 2.  **Documentation du Code** :
     *   **Dette** : La documentation du code source peut être hétérogène ou incomplète, en particulier pour les logiques complexes ou les choix d'architecture.
-    *   **Plan d'action** : Maintenir une documentation Javadoc/PHPDoc à jour pour les classes, méthodes et interfaces, ainsi qu'un README détaillé pour le projet.
+    *   **Plan d'action** : Maintenir une documentation **Javadoc/PHPDoc** à jour pour les classes, méthodes et interfaces, ainsi qu'un README détaillé pour le projet.
 
 3.  **Optimisation SonarQube** :
-    *   **Dette** : Les rapports SonarQube peuvent révéler des "code smells", des duplications ou des vulnérabilités qui, bien que non bloquantes, augmentent la dette technique et la complexité de maintenance à long terme.
+    *   **Dette** : Les rapports SonarQube peuvent révéler des "**code smells**", des duplications ou des vulnérabilités qui, bien que non bloquantes, augmentent la dette technique et la complexité de maintenance à long terme.
     *   **Plan d'action** : Réviser et corriger les problèmes de haute priorité identifiés par SonarQube, en intégrant l'analyse SonarQube dans le processus de développement.
 
 4.  **Gestion des Exceptions et Messages Utilisateur** :
     *   **Dette** : La gestion des exceptions peut être fonctionnelle mais ne pas toujours fournir des messages d'erreur clairs et conviviaux à l'utilisateur final, ou ne pas logguer suffisamment de détails pour le débogage.
-    *   **Plan d'action** : Affiner les messages d'erreur pour l'utilisateur, implémenter un système de logging robuste (ex: Monolog) pour les erreurs serveur.
+    *   **Plan d'action** : Affiner les messages d'erreur pour l'utilisateur, implémenter un système de **logging robuste** (ex: Monolog) pour les erreurs serveur.
 
 5.  **Évolutivité de l'Architecture** :
     *   **Dette** : Bien que le projet suive une architecture MVC, certaines décisions de conception initiales pourraient ne pas être optimales pour une évolution vers des microservices ou une architecture plus distribuée.
-    *   **Plan d'action** : Réévaluer l'architecture à mesure que les besoins évoluent, en se concentrant sur la séparation des préoccupations et la modularité.
+    *   **Plan d'action** : Réévaluer l'architecture à mesure que les besoins évoluent, en se concentrant sur la **séparation des préoccupations** et la **modularité**.
 
-## 11. Crédits
+## 10. Crédits
 
 *   **Uly AUSTRIE** - Master AIDB
 *   **Abel CORREIA** - Master AIDB
