@@ -44,11 +44,11 @@ class ReservationFormType extends AbstractType
                 'required' => true,
                 'label' => 'Date de début',
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez sélectionner une date de début.']),
-                    new GreaterThanOrEqual([
-                        'value' => 'today',
-                        'message' => 'La date de début ne peut pas être antérieure à aujourd\'hui.',
-                    ]),
+                    new NotBlank(message: 'Veuillez sélectionner une date de début.'),
+                    new GreaterThanOrEqual(
+                        value: 'today',
+                        message: 'La date de début ne peut pas être antérieure à aujourd\'hui.',
+                    ),
                 ],
             ])
             ->add('dateFin', DateType::class, [
@@ -57,7 +57,7 @@ class ReservationFormType extends AbstractType
                 'required' => true,
                 'label' => 'Date de fin',
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez sélectionner une date de fin.']),
+                    new NotBlank(message: 'Veuillez sélectionner une date de fin.'),
                     // La validation que dateFin > dateDebut sera gérée au niveau du contrôleur ou du service
                 ],
             ])

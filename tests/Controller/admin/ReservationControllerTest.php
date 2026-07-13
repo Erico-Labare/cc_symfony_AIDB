@@ -190,8 +190,8 @@ final class ReservationControllerTest extends BaseWebTestCase
         $crawler = $this->client->request('GET', '/admin/reservation/new');
         // Soumet le formulaire avec des données valides
         $form = $crawler->selectButton('Enregistrer')->form([
-            'reservation[dateDebut]' => $dateDebut->format('Y-m-d H:i:s'),
-            'reservation[dateFin]' => $dateFin->format('Y-m-d H:i:s'),
+            'reservation[dateDebut]' => $dateDebut->format('Y-m-d'),
+            'reservation[dateFin]' => $dateFin->format('Y-m-d'),
             'reservation[commentaire]' => 'Commentaire test ' . uniqid(),
             'reservation[compte]' => $this->testCompte->getId(),
             'reservation[client]' => $this->testClient->getId(),
@@ -320,8 +320,8 @@ final class ReservationControllerTest extends BaseWebTestCase
         $this->client->loginUser($this->admin);
         $crawler = $this->client->request('GET', '/admin/reservation/' . $id . '/edit');
         $form = $crawler->selectButton('Mettre à jour')->form([
-            'reservation[dateDebut]' => $newDateDebut->format('Y-m-d H:i:s'),
-            'reservation[dateFin]' => $newDateFin->format('Y-m-d H:i:s'),
+            'reservation[dateDebut]' => $newDateDebut->format('Y-m-d'),
+            'reservation[dateFin]' => $newDateFin->format('Y-m-d'),
             'reservation[commentaire]' => 'Reservation Updated ' . uniqid(),
             'reservation[compte]' => $managedTestCompte->getId(),
             'reservation[client]' => $managedTestClient->getId(),
@@ -335,7 +335,7 @@ final class ReservationControllerTest extends BaseWebTestCase
         $updatedReservation = $entityManager->getRepository(Reservation::class)->find($id);
         self::assertNotNull($updatedReservation);
         self::assertStringContainsString('Reservation Updated', $updatedReservation->getCommentaire());
-        self::assertEquals($newDateDebut->format('Y-m-d H:i:s'), $updatedReservation->getDateDebut()->format('Y-m-d H:i:s'));
+        self::assertEquals($newDateDebut->format('Y-m-d'), $updatedReservation->getDateDebut()->format('Y-m-d'));
     }
 
     /**

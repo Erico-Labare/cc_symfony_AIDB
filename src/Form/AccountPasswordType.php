@@ -35,9 +35,7 @@ class AccountPasswordType extends AbstractType
                     'autocomplete' => 'current-password', // Aide les navigateurs à suggérer le mot de passe actuel
                 ],
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez saisir votre ancien mot de passe.',
-                    ]),
+                    new NotBlank(message: 'Veuillez saisir votre ancien mot de passe.'),
                 ],
             ])
             ->add('plainPassword', RepeatedType::class, [
@@ -51,14 +49,12 @@ class AccountPasswordType extends AbstractType
                         'autocomplete' => 'new-password', // Aide les navigateurs à suggérer un nouveau mot de passe
                     ],
                     'constraints' => [
-                        new NotBlank([
-                            'message' => 'Veuillez saisir un nouveau mot de passe.',
-                        ]),
-                        new Length([
-                            'min' => 6,
-                            'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères.',
-                            'max' => 4096, // Longueur maximale supportée par Symfony Security
-                        ]),
+                        new NotBlank(message: 'Veuillez saisir un nouveau mot de passe.'),
+                        new Length(
+                            min: 6,
+                            minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.',
+                            max: 4096, // Longueur maximale supportée par Symfony Security
+                        ),
                     ],
                 ],
                 'second_options' => [

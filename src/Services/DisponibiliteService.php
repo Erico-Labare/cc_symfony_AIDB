@@ -46,7 +46,7 @@ class DisponibiliteService
     {
         if ($dateFin <= $dateDebut) {
             throw new InvalidReservationDatesException(
-                'La date de fin doit être après la date de début.',
+                'La date de fin ne peut pas être antérieure à la date de début.',
                 'reservation.error.invalid_dates_order'
             );
         }

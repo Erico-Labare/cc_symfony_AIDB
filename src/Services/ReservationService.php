@@ -56,14 +56,14 @@ class ReservationService
     ): Reservation {
         if ($dateFin <= $dateDebut) {
             throw new InvalidReservationDatesException(
-                'La date de fin doit être après la date de début.',
+                'La date de fin ne peut pas être antérieure à la date de début.',
                 'reservation.error.invalid_dates_order'
             );
         }
 
         if (!$this->disponibiliteService->isRoomAvailable($chambre, $dateDebut, $dateFin)) {
             throw new RoomUnavailableException(
-                'La chambre n\'est pas disponible pour cette période.',
+                'La chambre n\'est pas disponible pour les dates demandées.',
                 'reservation.error.room_unavailable'
             );
         }

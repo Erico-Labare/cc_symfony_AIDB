@@ -64,7 +64,7 @@ class LoginControllerTest extends BaseWebTestCase
         $this->client->request('GET', '/login');
         self::assertResponseIsSuccessful();
 
-        $this->client->submitForm('Sign in', [
+        $this->client->submitForm('Se connecter', [
             '_username' => 'doesNotExist@example.com',
             '_password' => 'password',
         ]);
@@ -75,7 +75,7 @@ class LoginControllerTest extends BaseWebTestCase
         // Vérifie que le message d'erreur est affiché.
         self::assertSelectorTextContains(
             '.alert-danger',
-            'Invalid credentials.'
+            'Identifiants invalides.'
         );
 
         /*
@@ -86,7 +86,7 @@ class LoginControllerTest extends BaseWebTestCase
         $this->client->request('GET', '/login');
         self::assertResponseIsSuccessful();
 
-        $this->client->submitForm('Sign in', [
+        $this->client->submitForm('Se connecter', [
             '_username' => 'test@test.com',
             '_password' => 'bad-password',
         ]);
@@ -97,7 +97,7 @@ class LoginControllerTest extends BaseWebTestCase
         // Vérifie que le message d'erreur est affiché.
         self::assertSelectorTextContains(
             '.alert-danger',
-            'Invalid credentials.'
+            'Identifiants invalides.'
         );
 
         /*
@@ -105,7 +105,7 @@ class LoginControllerTest extends BaseWebTestCase
          * Vérifie que la connexion réussit avec des identifiants valides.
          */
 
-        $this->client->submitForm('Sign in', [
+        $this->client->submitForm('Se connecter', [
             '_username' => 'test@test.com',
             '_password' => 'password',
         ]);

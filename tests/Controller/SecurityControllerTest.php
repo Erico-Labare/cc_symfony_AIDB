@@ -38,7 +38,7 @@ class SecurityControllerTest extends WebTestCase
     {
         $this->client->request('GET', '/login');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h1', 'Please sign in'); // Corrected assertion text
+        $this->assertSelectorTextContains('h1', 'Veuillez vous connecter'); // Corrected assertion text
         $this->assertSelectorExists('form');
         $this->assertSelectorExists('input[name="_username"]');
         $this->assertSelectorExists('input[name="_password"]');
@@ -53,7 +53,7 @@ class SecurityControllerTest extends WebTestCase
     public function testLoginWithBadCredentials(): void
     {
         $crawler = $this->client->request('GET', '/login');
-        $form = $crawler->selectButton('Sign in')->form([
+        $form = $crawler->selectButton('Se connecter')->form([
             '_username' => 'wrong@example.com',
             '_password' => 'wrongpassword',
         ]);
@@ -62,7 +62,7 @@ class SecurityControllerTest extends WebTestCase
         $this->assertResponseRedirects('/login');
         $this->client->followRedirect();
 
-        $this->assertSelectorTextContains('.alert.alert-danger', 'Invalid credentials.'); // Adjust based on your error message
+        $this->assertSelectorTextContains('.alert.alert-danger', 'Identifiants invalides.'); // Adjust based on your error message
         $this->assertSame('wrong@example.com', $form['_username']->getValue());
     }
 
@@ -88,7 +88,7 @@ class SecurityControllerTest extends WebTestCase
         $entityManager->flush();
 
         $crawler = $this->client->request('GET', '/login');
-        $form = $crawler->selectButton('Sign in')->form([
+        $form = $crawler->selectButton('Se connecter')->form([
             '_username' => 'valid_login@example.com',
             '_password' => 'password',
         ]);
