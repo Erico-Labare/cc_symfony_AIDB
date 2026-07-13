@@ -14,7 +14,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * Test du contrôleur d'administration des chambres.
  *
  * Cette classe contient les tests fonctionnels pour la gestion des chambres
- * par un administrateur.
+ * par un administrateur. Elle couvre les scénarios d'accès, de création,
+ * de modification, de consultation et de suppression de chambres, en vérifiant
+ * les autorisations nécessaires pour chaque action.
  */
 final class ChambreControllerTest extends BaseWebTestCase
 {
@@ -27,7 +29,8 @@ final class ChambreControllerTest extends BaseWebTestCase
      * Configure l'environnement de test avant chaque test.
      *
      * Initialise le client de test et prépare les données utilisateur (admin et non-admin),
-     * ainsi qu'un hôtel de test.
+     * ainsi qu'un hôtel de test. Cette méthode est appelée avant chaque exécution de test
+     * pour s'assurer d'un environnement propre et cohérent.
      */
     protected function setUp(): void
     {
@@ -39,6 +42,10 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Initialise les données de test, s'assurant qu'un utilisateur admin, un utilisateur non-admin,
      * et un hôtel de test existent.
+     *
+     * Crée un utilisateur avec le rôle 'ROLE_ADMIN', un autre avec 'ROLE_USER'
+     * et un hôtel de test s'ils n'existent pas déjà, pour être utilisés dans les
+     * scénarios de test d'autorisation et de manipulation de données.
      */
     private function setupData(): void
     {
@@ -85,7 +92,8 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des chambres sans authentification.
      *
-     * Doit rediriger vers la page de connexion.
+     * Vérifie qu'un utilisateur non connecté est redirigé vers la page de connexion
+     * lorsqu'il tente d'accéder à la liste des chambres.
      */
     public function testIndexWithoutAuthentication(): void
     {
@@ -96,7 +104,8 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des chambres avec un utilisateur non-admin.
      *
-     * Doit retourner un statut 403 (Accès interdit).
+     * Vérifie qu'un utilisateur avec le rôle 'ROLE_USER' reçoit une erreur 403
+     * (Accès interdit) lorsqu'il tente d'accéder à la liste des chambres.
      */
     public function testIndexWithNonAdmin(): void
     {
@@ -108,7 +117,8 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des chambres avec un admin.
      *
-     * Doit retourner un statut 200 (Succès).
+     * Vérifie qu'un utilisateur avec le rôle 'ROLE_ADMIN' peut accéder
+     * à la liste des chambres avec succès (statut 200).
      */
     public function testIndexWithAdmin(): void
     {
@@ -120,7 +130,8 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage du formulaire de création d'une nouvelle chambre.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Vérifie qu'un administrateur peut accéder au formulaire de création
+     * d'une chambre avec succès (statut 200).
      */
     public function testNewFormGet(): void
     {
@@ -132,6 +143,7 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Teste la soumission du formulaire de création d'une nouvelle chambre.
      *
+     * Simule la soumission d'un formulaire de création de chambre avec des données valides.
      * Vérifie la redirection après soumission et la persistance de la chambre en base de données.
      */
     public function testNewFormSubmit(): void
@@ -159,7 +171,8 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage des détails d'une chambre existante.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Crée une chambre de test, puis vérifie qu'un administrateur peut accéder
+     * à sa page de détails avec succès (statut 200).
      */
     public function testShowExistingChambre(): void
     {
@@ -182,7 +195,8 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage des détails d'une chambre inexistante.
      *
-     * Doit retourner un statut 404 (Non trouvé).
+     * Vérifie qu'une tentative d'accès aux détails d'une chambre avec un ID
+     * qui n'existe pas renvoie une erreur 404 (Non trouvé).
      */
     public function testShowNonExistentChambre(): void
     {
@@ -194,7 +208,8 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage du formulaire de modification d'une chambre existante.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Crée une chambre de test, puis vérifie qu'un administrateur peut accéder
+     * à son formulaire de modification avec succès (statut 200).
      */
     public function testEditFormGet(): void
     {
@@ -217,7 +232,9 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Teste la soumission du formulaire de modification d'une chambre.
      *
-     * Vérifie la redirection après soumission et que les données de la chambre ont été mises à jour.
+     * Crée une chambre de test, simule la soumission de son formulaire de modification
+     * avec de nouvelles données. Vérifie la redirection après soumission et que
+     * les données de la chambre ont été mises à jour en base de données.
      */
     public function testEditFormSubmit(): void
     {
@@ -254,7 +271,9 @@ final class ChambreControllerTest extends BaseWebTestCase
     /**
      * Teste la suppression d'une chambre avec un jeton CSRF valide.
      *
-     * Crée une chambre, la supprime via le formulaire et vérifie qu'elle n'existe plus en base de données.
+     * Crée une chambre de test, simule sa suppression via le formulaire de suppression
+     * (qui inclut un jeton CSRF). Vérifie la redirection après suppression et que
+     * la chambre n'existe plus en base de données.
      */
     public function testDeleteWithValidCsrfToken(): void
     {

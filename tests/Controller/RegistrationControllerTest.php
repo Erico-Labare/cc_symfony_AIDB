@@ -12,20 +12,32 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface; // Keep the import for type hinting if needed, but not for mocking
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Contracts\Translation\TranslatorInterface; // Keep the import for type hinting if needed, but not for mocking
+use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\ExpiredSignatureException;
 
+/**
+ * Teste le contrôleur d'enregistrement.
+ *
+ * Cette classe contient les tests fonctionnels pour le processus d'enregistrement
+ * et de vérification d'email des utilisateurs. Elle simule les interactions
+ * utilisateur avec le formulaire d'inscription et les pages de vérification.
+ */
 class RegistrationControllerTest extends WebTestCase
 {
     private $client;
     private $mockEmailVerifier;
     private $mockUserPasswordHasher;
     private $mockSecurity;
-    // private $mockUrlGenerator; // Removed mock UrlGenerator
-    // private $mockTranslator; // Removed mock Translator
 
+    /**
+     * Configure l'environnement de test avant chaque test.
+     *
+     * Initialise le client de test et crée des mocks pour les services
+     * dont le contrôleur dépend, afin de contrôler leur comportement
+     * pendant les tests.
+     */
     protected function setUp(): void
     {
         $this->client = static::createClient();
@@ -34,18 +46,19 @@ class RegistrationControllerTest extends WebTestCase
         $this->mockEmailVerifier = $this->createMock(EmailVerifier::class);
         $this->mockUserPasswordHasher = $this->createMock(UserPasswordHasherInterface::class);
         $this->mockSecurity = $this->createMock(Security::class);
-        // $this->mockUrlGenerator = $this->createMock(UrlGeneratorInterface::class); // Removed mock UrlGenerator creation
-        // $this->mockTranslator = $this->createMock(TranslatorInterface::class); // Removed mock Translator creation
-
 
         // Replace services in the container
         $this->client->getContainer()->set(EmailVerifier::class, $this->mockEmailVerifier);
         $this->client->getContainer()->set(UserPasswordHasherInterface::class, $this->mockUserPasswordHasher);
         $this->client->getContainer()->set(Security::class, $this->mockSecurity);
-        // $this->client->getContainer()->set(UrlGeneratorInterface::class, $this->mockUrlGenerator); // Removed mock UrlGenerator replacement
-        // $this->client->getContainer()->set(TranslatorInterface::class, $this->mockTranslator); // Removed mock Translator replacement
     }
 
+    /**
+     * Teste que la page d'enregistrement se charge avec succès.
+     *
+     * Vérifie que l'accès à l'URL '/register' renvoie une réponse réussie (statut 200)
+     * et que le contenu de la page contient le titre attendu et le formulaire d'inscription.
+     */
     public function testRegisterPageLoadsSuccessfully(): void
     {
         $this->client->request('GET', '/register');
@@ -152,6 +165,14 @@ class RegistrationControllerTest extends WebTestCase
     }
     */
 
+    /**
+     * Teste l'enregistrement avec des données invalides.
+     *
+     * Simule la soumission du formulaire d'enregistrement avec un email mal formaté,
+     * un mot de passe trop court et les termes non acceptés.
+     * Vérifie que la réponse indique une erreur de validation (statut 422)
+     * et qu'aucun email de vérification n'est envoyé.
+     */
     public function testRegistrationWithInvalidData(): void
     {
         $crawler = $this->client->request('GET', '/register');
@@ -174,12 +195,25 @@ class RegistrationControllerTest extends WebTestCase
         $this->mockSecurity->expects($this->never())->method('login');
     }
 
+    /**
+     * Teste que la vérification d'email nécessite une authentification.
+     *
+     * Tente d'accéder à l'URL de vérification d'email sans être connecté
+     * et vérifie que l'utilisateur est redirigé vers la page de connexion.
+     */
     public function testVerifyEmailRequiresAuthentication(): void
     {
         $this->client->request('GET', '/verify/email');
         $this->assertResponseRedirects('/login'); // Redirige vers la page de connexion si non authentifié
     }
 
+    /**
+     * Teste la vérification d'email réussie.
+     *
+     * Crée un utilisateur non vérifié, le connecte, puis simule une vérification
+     * d'email réussie. Vérifie que la méthode `handleEmailConfirmation` est appelée
+     * et que l'utilisateur est redirigé après la vérification.
+     */
     public function testSuccessfulEmailVerification(): void
     {
         $entityManager = $this->client->getContainer()->get(EntityManagerInterface::class);
@@ -221,6 +255,14 @@ class RegistrationControllerTest extends WebTestCase
         }
     }
 
+    /**
+     * Teste la vérification d'email avec un lien invalide.
+     *
+     * Crée un utilisateur non vérifié, le connecte, puis simule une tentative
+     * de vérification d'email avec un lien invalide (qui lève une exception).
+     * Vérifie que l'utilisateur est redirigé vers la page d'enregistrement
+     * et qu'un message d'erreur est affiché.
+     */
     public function testEmailVerificationWithInvalidLink(): void
     {
         $entityManager = $this->client->getContainer()->get(EntityManagerInterface::class);

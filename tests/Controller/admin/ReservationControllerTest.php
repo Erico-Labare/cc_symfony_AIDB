@@ -16,7 +16,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * Test du contrôleur d'administration des réservations.
  *
  * Cette classe contient les tests fonctionnels pour la gestion des réservations
- * par un administrateur.
+ * par un administrateur. Elle couvre les scénarios d'accès, de création,
+ * de modification, de consultation et de suppression de réservations, en vérifiant
+ * les autorisations nécessaires pour chaque action.
  */
 final class ReservationControllerTest extends BaseWebTestCase
 {
@@ -32,6 +34,8 @@ final class ReservationControllerTest extends BaseWebTestCase
      *
      * Initialise le client de test et prépare les données utilisateur (admin et non-admin),
      * ainsi que les entités nécessaires pour les réservations (client, chambre, compte).
+     * Cette méthode est appelée avant chaque exécution de test pour s'assurer
+     * d'un environnement propre et cohérent.
      */
     protected function setUp(): void
     {
@@ -43,6 +47,10 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Initialise les données de test, s'assurant qu'un utilisateur admin, un utilisateur non-admin,
      * un client, un compte et une chambre de test existent.
+     *
+     * Crée un utilisateur avec le rôle 'ROLE_ADMIN', un autre avec 'ROLE_USER',
+     * ainsi qu'un client, un compte et une chambre de test s'ils n'existent pas déjà,
+     * pour être utilisés dans les scénarios de test d'autorisation et de manipulation de données.
      */
     private function setupData(): void
     {
@@ -116,7 +124,8 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des réservations sans authentification.
      *
-     * Doit rediriger vers la page de connexion.
+     * Vérifie qu'un utilisateur non connecté est redirigé vers la page de connexion
+     * lorsqu'il tente d'accéder à la liste des réservations.
      */
     public function testIndexWithoutAuthentication(): void
     {
@@ -127,7 +136,8 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des réservations avec un utilisateur non-admin.
      *
-     * Doit retourner un statut 403 (Accès interdit).
+     * Vérifie qu'un utilisateur avec le rôle 'ROLE_USER' reçoit une erreur 403
+     * (Accès interdit) lorsqu'il tente d'accéder à la liste des réservations.
      */
     public function testIndexWithNonAdmin(): void
     {
@@ -139,7 +149,8 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des réservations avec un admin.
      *
-     * Doit retourner un statut 200 (Succès).
+     * Vérifie qu'un utilisateur avec le rôle 'ROLE_ADMIN' peut accéder
+     * à la liste des réservations avec succès (statut 200).
      */
     public function testIndexWithAdmin(): void
     {
@@ -152,7 +163,8 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage du formulaire de création d'une nouvelle réservation.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Vérifie qu'un administrateur peut accéder au formulaire de création
+     * d'une réservation avec succès (statut 200).
      */
     public function testNewFormGet(): void
     {
@@ -164,6 +176,7 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Teste la soumission du formulaire de création d'une nouvelle réservation.
      *
+     * Simule la soumission d'un formulaire de création de réservation avec des données valides.
      * Vérifie la redirection après soumission et la persistance de la réservation en base de données.
      */
     public function testNewFormSubmit(): void
@@ -197,7 +210,8 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage des détails d'une réservation existante.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Crée une réservation de test, puis vérifie qu'un administrateur peut accéder
+     * à sa page de détails avec succès (statut 200).
      */
     public function testShowExistingReservation(): void
     {
@@ -228,7 +242,8 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage des détails d'une réservation inexistante.
      *
-     * Doit retourner un statut 404 (Non trouvé).
+     * Vérifie qu'une tentative d'accès aux détails d'une réservation avec un ID
+     * qui n'existe pas renvoie une erreur 404 (Non trouvé).
      */
     public function testShowNonExistentReservation(): void
     {
@@ -240,7 +255,8 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage du formulaire de modification d'une réservation existante.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Crée une réservation de test, puis vérifie qu'un administrateur peut accéder
+     * à son formulaire de modification avec succès (statut 200).
      */
     public function testEditFormGet(): void
     {
@@ -271,7 +287,9 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Teste la soumission du formulaire de modification d'une réservation.
      *
-     * Vérifie la redirection après soumission et que les données de la réservation ont été mises à jour.
+     * Crée une réservation de test, simule la soumission de son formulaire de modification
+     * avec de nouvelles données. Vérifie la redirection après soumission et que
+     * les données de la réservation ont été mises à jour en base de données.
      */
     public function testEditFormSubmit(): void
     {
@@ -312,7 +330,7 @@ final class ReservationControllerTest extends BaseWebTestCase
         $this->client->submit($form);
         self::assertResponseRedirects('/admin/reservation/');
 
-        // Vérifie que la réservation a été modifiée en la récupérant de la base de données
+        // Vérifie que la réservation a été modifiée en le récupérant de la base de données
         $entityManager->clear();
         $updatedReservation = $entityManager->getRepository(Reservation::class)->find($id);
         self::assertNotNull($updatedReservation);
@@ -323,7 +341,9 @@ final class ReservationControllerTest extends BaseWebTestCase
     /**
      * Teste la suppression d'une réservation avec un jeton CSRF valide.
      *
-     * Crée une réservation, la supprime via le formulaire et vérifie qu'elle n'existe plus en base de données.
+     * Crée une réservation de test, simule sa suppression via le formulaire de suppression
+     * (qui inclut un jeton CSRF). Vérifie la redirection après suppression et que
+     * la réservation n'existe plus en base de données.
      */
     public function testDeleteWithValidCsrfToken(): void
     {

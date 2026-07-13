@@ -16,7 +16,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
  * Teste le service de réservation.
  *
  * Cette classe contient les tests unitaires pour la logique de création de réservation
- * dans le ReservationService.
+ * dans le ReservationService. Elle vérifie différents scénarios, y compris la création
+ * réussie, la gestion des dates invalides et la disponibilité des chambres.
  */
 class ReservationServiceTest extends BaseWebTestCase
 {
@@ -27,20 +28,22 @@ class ReservationServiceTest extends BaseWebTestCase
      * Configure l'environnement de test avant chaque test.
      *
      * Initialise le service de réservation et l'EntityManager.
+     * Le kernel est démarré pour accéder aux services du conteneur.
      */
     protected function setUp(): void
     {
         parent::setUp();
         static::bootKernel();
         $container = self::getContainer();
-        $this->service = $container->get(ReservationService::class); // Reverted to original autowiring
-        $this->entityManager = $container->get(EntityManagerInterface::class);
+        $this->service = $container->get(ReservationService::class); // Récupération du service de réservation
+        $this->entityManager = $container->get(EntityManagerInterface::class); // Récupération de l'EntityManager
     }
 
     /**
      * Teste la création d'une réservation avec des dates invalides (date de fin avant la date de début).
      *
-     * Une InvalidArgumentException devrait être levée.
+     * Une InvalidArgumentException devrait être levée, car la logique métier interdit
+     * une date de fin antérieure à la date de début.
      */
     public function testCreateReservationWithInvalidDates(): void
     {
@@ -84,6 +87,7 @@ class ReservationServiceTest extends BaseWebTestCase
 
         // On s'attend à une exception car la date de fin est antérieure à la date de début
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('La date de fin ne peut pas être antérieure à la date de début.');
 
         $this->service->createReservation(
             $chambre,
@@ -97,7 +101,8 @@ class ReservationServiceTest extends BaseWebTestCase
     /**
      * Teste la création réussie d'une réservation.
      *
-     * Vérifie que la réservation est correctement créée et que ses propriétés sont définies.
+     * Vérifie que la réservation est correctement créée et que ses propriétés sont définies
+     * conformément aux données fournies.
      */
     public function testCreateReservationSuccess(): void
     {
@@ -132,7 +137,7 @@ class ReservationServiceTest extends BaseWebTestCase
         $this->entityManager->persist($compte);
 
         $this->entityManager->flush();
-        $entityManagerId = $chambre->getId(); // Store ID before clear
+        $entityManagerId = $chambre->getId(); // Stocke l'ID avant de vider le cache
         $this->entityManager->clear();
 
         // Re-fetch entities after clear to ensure they are managed
@@ -167,7 +172,8 @@ class ReservationServiceTest extends BaseWebTestCase
     /**
      * Teste la création d'une réservation pour une chambre déjà occupée.
      *
-     * Une InvalidArgumentException devrait être levée avec un message spécifique.
+     * Une InvalidArgumentException devrait être levée avec un message spécifique
+     * indiquant que la chambre n'est pas disponible pour les dates demandées.
      */
     public function testCreateReservationUnavailableRoom(): void
     {
@@ -220,7 +226,7 @@ class ReservationServiceTest extends BaseWebTestCase
 
         // On s'attend à une exception car la chambre n'est pas disponible pour les dates demandées
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('n\'est pas disponible');
+        $this->expectExceptionMessage('La chambre n\'est pas disponible pour les dates demandées.');
 
         $this->service->createReservation(
             $chambre,

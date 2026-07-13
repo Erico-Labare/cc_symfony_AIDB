@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Compte;
-use App\Repository\ClientRepository; // Import ClientRepository
+use App\Repository\ClientRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,18 +12,31 @@ use App\Form\AccountPasswordType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException; // Import NotFoundHttpException
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Contrôleur gérant les actions spécifiques aux clients.
+ *
+ * Ce contrôleur permet aux utilisateurs avec le rôle 'ROLE_USER' d'accéder
+ * à leur profil et de modifier leur mot de passe.
+ */
 #[Route('/client')]
 final class ClientController extends AbstractController
 {
     /**
      * Affiche le profil de l'utilisateur connecté.
-     * GET /client/profile
+     *
+     * Récupère les informations du compte utilisateur et du client associé
+     * pour les afficher sur la page de profil.
+     *
+     * @param ClientRepository $clientRepository Le dépôt des clients pour récupérer les données du client.
+     * @return Response Une réponse HTTP affichant le profil client.
+     * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté.
+     * @throws NotFoundHttpException Si aucun profil client n'est trouvé pour l'utilisateur connecté.
      */
     #[Route('/profile', name: 'app_client_profile', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function profile(ClientRepository $clientRepository): Response // Inject ClientRepository
+    public function profile(ClientRepository $clientRepository): Response
     {
         $compte = $this->getUser();
         if (!$compte instanceof Compte) {
@@ -43,8 +56,18 @@ final class ClientController extends AbstractController
             'client' => $client, // Pass the client object to the template
         ]);
     }
+
     /**
      * Permet à l'utilisateur connecté de modifier son mot de passe.
+     *
+     * Gère l'affichage et la soumission du formulaire de changement de mot de passe,
+     * y compris la vérification de l'ancien mot de passe et le hachage du nouveau.
+     *
+     * @param Request $request La requête HTTP.
+     * @param UserPasswordHasherInterface $passwordHasher Le service de hachage de mot de passe.
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @return Response Une réponse HTTP affichant le formulaire ou redirigeant après succès/échec.
+     * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté.
      */
     #[Route('/change-password', name: 'app_client_change_password', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
@@ -63,11 +86,9 @@ final class ClientController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $currentPassword = $form->get('currentPassword')->getData();
 
             if (!$passwordHasher->isPasswordValid($compte, $currentPassword)) {
-
                 $this->addFlash(
                     'danger',
                     'Votre ancien mot de passe est incorrect.'

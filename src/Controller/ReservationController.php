@@ -28,12 +28,31 @@ use App\Exception\RoomUnavailableException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Contrôleur gérant les actions liées aux réservations.
+ *
+ * Ce contrôleur permet aux utilisateurs de rechercher des chambres disponibles,
+ * de créer, consulter, modifier (commentaire) et annuler leurs réservations.
+ * Il intègre la logique de vérification de disponibilité et de gestion des erreurs.
+ */
 #[Route('/reservation')]
 final class ReservationController extends AbstractController
 {
     /**
-     * Affiche le formulaire de recherche de chambres disponibles.
-     * GET /reservation/search
+     * Affiche le formulaire de recherche de chambres disponibles et les résultats.
+     *
+     * Gère la soumission du formulaire de recherche, la récupération des critères
+     * de recherche depuis la session (après une redirection, par exemple) et
+     * l'affichage des chambres disponibles.
+     *
+     * @param Request $request La requête HTTP.
+     * @param HotelRepository $hotelRepository Le dépôt des hôtels.
+     * @param DisponibiliteService $disponibiliteService Le service de disponibilité des chambres.
+     * @param SessionInterface $session La session HTTP pour stocker/récupérer les critères de recherche.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @param ClientRepository $clientRepository Le dépôt des clients.
+     * @return Response Une réponse HTTP affichant le formulaire de recherche et les résultats.
      */
     #[Route('/search', name: 'app_reservation_search', methods: ['GET', 'POST'])]
     public function search(
@@ -43,7 +62,7 @@ final class ReservationController extends AbstractController
         SessionInterface $session,
         TranslatorInterface $translator,
         LoggerInterface $logger,
-        ClientRepository $clientRepository // Inject ClientRepository here
+        ClientRepository $clientRepository
     ): Response {
         $formData = [];
         $availableRooms = [];
@@ -152,9 +171,22 @@ final class ReservationController extends AbstractController
         ]);
     }
 
-            /**
+    /**
      * Crée une nouvelle réservation.
-     * POST /reservation/create
+     *
+     * Cette action est accessible via une requête POST après la sélection d'une chambre.
+     * Elle gère la création d'un nouveau client si nécessaire, puis la création
+     * de la réservation via le service dédié.
+     *
+     * @param Request $request La requête HTTP.
+     * @param ReservationService $reservationService Le service de gestion des réservations.
+     * @param ClientRepository $clientRepository Le dépôt des clients.
+     * @param ChambreRepository $chambreRepository Le dépôt des chambres.
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse de redirection après la création ou en cas d'erreur.
+     * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté.
      */
     #[Route('/create', name: 'app_reservation_create', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
@@ -304,8 +336,11 @@ final class ReservationController extends AbstractController
     }
 
     /**
-     * Affiche les réservations de l'utilisateur connecté.
-     * GET /my-reservations
+     * Affiche la liste des réservations de l'utilisateur connecté.
+     *
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @return Response Une réponse HTTP affichant la liste des réservations.
+     * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté.
      */
     #[Route('/my-reservations', name: 'app_reservation_my_reservations', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
@@ -324,8 +359,16 @@ final class ReservationController extends AbstractController
     }
 
     /**
-     * Modifie le commentaire d'une réservation.
-     * GET|POST /reservation/{id}/comment/edit
+     * Modifie le commentaire d'une réservation existante.
+     *
+     * Permet à l'utilisateur de mettre à jour le commentaire d'une de ses réservations.
+     *
+     * @param Request $request La requête HTTP.
+     * @param Reservation $reservation L'entité Reservation à modifier (résolue par le ParamConverter).
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @return Response Une réponse HTTP affichant le formulaire ou redirigeant après succès.
+     * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté ou n'est pas le propriétaire de la réservation.
      */
     #[Route('/{id}/comment/edit', name: 'app_reservation_comment_edit', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
@@ -363,7 +406,16 @@ final class ReservationController extends AbstractController
 
     /**
      * Annule une réservation.
-     * POST /reservation/{id}/cancel
+     *
+     * Supprime une réservation après vérification du jeton CSRF et des droits de l'utilisateur.
+     *
+     * @param Request $request La requête HTTP.
+     * @param Reservation $reservation L'entité Reservation à annuler (résolue par le ParamConverter).
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse de redirection après l'annulation ou en cas d'erreur.
+     * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté ou n'est pas le propriétaire de la réservation.
      */
     #[Route('/{id}/cancel', name: 'app_reservation_cancel', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]

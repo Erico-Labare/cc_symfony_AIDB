@@ -4,11 +4,37 @@ namespace App\Exception;
 
 use InvalidArgumentException;
 
+/**
+ * Exception levée lorsque les dates fournies pour une réservation sont invalides.
+ *
+ * Cette exception étend InvalidArgumentException et permet d'inclure
+ * une clé de traduction et des paramètres pour un message d'erreur internationalisé.
+ */
 class InvalidReservationDatesException extends InvalidArgumentException
 {
+    /**
+     * Clé de traduction pour le message d'erreur.
+     *
+     * @var string|null
+     */
     private ?string $translationKey;
+
+    /**
+     * Paramètres pour la traduction du message d'erreur.
+     *
+     * @var array
+     */
     private array $translationParameters;
 
+    /**
+     * Constructeur de l'exception InvalidReservationDatesException.
+     *
+     * @param string $message Le message d'erreur par défaut.
+     * @param string|null $translationKey La clé de traduction optionnelle.
+     * @param array $translationParameters Les paramètres de traduction optionnels.
+     * @param int $code Le code d'erreur.
+     * @param \Throwable|null $previous L'exception précédente dans la chaîne.
+     */
     public function __construct(
         string $message = "Les dates de réservation sont invalides.",
         ?string $translationKey = null,
@@ -21,11 +47,21 @@ class InvalidReservationDatesException extends InvalidArgumentException
         $this->translationParameters = $translationParameters;
     }
 
+    /**
+     * Retourne la clé de traduction associée à cette exception.
+     *
+     * @return string|null La clé de traduction.
+     */
     public function getTranslationKey(): ?string
     {
         return $this->translationKey;
     }
 
+    /**
+     * Retourne les paramètres de traduction associés à cette exception.
+     *
+     * @return array Les paramètres de traduction.
+     */
     public function getTranslationParameters(): array
     {
         return $this->translationParameters;

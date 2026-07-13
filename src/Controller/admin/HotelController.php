@@ -13,14 +13,27 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
-use Symfony\Contracts\Translation\TranslatorInterface; // Import TranslatorInterface
-use Psr\Log\LoggerInterface; // Import LoggerInterface
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Psr\Log\LoggerInterface;
 
+/**
+ * Contrôleur d'administration pour la gestion des hôtels.
+ *
+ * Ce contrôleur permet aux administrateurs (ROLE_ADMIN) de lister, créer,
+ * afficher, modifier et supprimer des hôtels. Il intègre la gestion des
+ * erreurs et la journalisation.
+ */
 #[Route('/admin/hotel')]
 #[IsGranted('ROLE_ADMIN')]
 final class HotelController extends AbstractController
 {
-    // Lister tous les hôtels avec pagination et recherche
+    /**
+     * Liste tous les hôtels avec des options de pagination et de recherche.
+     *
+     * @param Request $request La requête HTTP, utilisée pour récupérer les paramètres de page et de recherche.
+     * @param HotelRepository $hotelRepository Le dépôt des hôtels pour l'accès aux données.
+     * @return Response Une réponse HTTP affichant la liste des hôtels.
+     */
     #[Route(name: 'app_admin_hotel_index', methods: ['GET'])]
     public function index(Request $request, HotelRepository $hotelRepository): Response
     {
@@ -39,7 +52,18 @@ final class HotelController extends AbstractController
         ]);
     }
 
-    // Créer un nouvel hôtel
+    /**
+     * Crée un nouvel hôtel.
+     *
+     * Affiche le formulaire de création et gère sa soumission. En cas de succès,
+     * l'hôtel est persisté en base de données.
+     *
+     * @param Request $request La requête HTTP.
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse HTTP affichant le formulaire ou redirigeant.
+     */
     #[Route('/new', name: 'app_admin_hotel_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
@@ -71,7 +95,12 @@ final class HotelController extends AbstractController
         ]);
     }
 
-    // Afficher un hôtel spécifique
+    /**
+     * Affiche les détails d'un hôtel spécifique.
+     *
+     * @param Hotel $hotel L'entité Hotel à afficher (résolue par le ParamConverter).
+     * @return Response Une réponse HTTP affichant les détails de l'hôtel.
+     */
     #[Route('/{id}', name: 'app_admin_hotel_show', methods: ['GET'])]
     public function show(Hotel $hotel): Response
     {
@@ -80,7 +109,19 @@ final class HotelController extends AbstractController
         ]);
     }
 
-    // Modifier un hôtel existant
+    /**
+     * Modifie un hôtel existant.
+     *
+     * Affiche le formulaire de modification et gère sa soumission. En cas de succès,
+     * les modifications sont persistées en base de données.
+     *
+     * @param Request $request La requête HTTP.
+     * @param Hotel $hotel L'entité Hotel à modifier (résolue par le ParamConverter).
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse HTTP affichant le formulaire ou redirigeant.
+     */
     #[Route('/{id}/edit', name: 'app_admin_hotel_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Hotel $hotel, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
@@ -110,7 +151,18 @@ final class HotelController extends AbstractController
         ]);
     }
 
-    // Supprimer un hôtel
+    /**
+     * Supprime un hôtel.
+     *
+     * Gère la suppression d'un hôtel après vérification du jeton CSRF.
+     *
+     * @param Request $request La requête HTTP.
+     * @param Hotel $hotel L'entité Hotel à supprimer (résolue par le ParamConverter).
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse de redirection après la suppression ou en cas d'erreur.
+     */
     #[Route('/{id}', name: 'app_admin_hotel_delete', methods: ['POST'])]
     public function delete(Request $request, Hotel $hotel, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {

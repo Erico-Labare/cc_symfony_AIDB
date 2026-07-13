@@ -3,17 +3,25 @@
 namespace App\Entity;
 
 use App\Repository\ReservationRepository;
-
 use Doctrine\ORM\Mapping as ORM;
-
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Représente l'entité Reservation.
+ *
+ * Cette classe définit la structure des données pour une réservation,
+ * incluant les dates de début et de fin, un commentaire optionnel,
+ * et les relations avec le compte utilisateur qui a effectué la réservation,
+ * le client pour qui la réservation est faite, et la chambre réservée.
+ * Elle intègre des règles de validation pour garantir la conformité des données.
+ */
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
-
 class Reservation
 {
     /**
-     * Clé primaire auto-générée.
+     * L'identifiant unique de la réservation.
+     *
+     * @var int|null
      */
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,78 +29,74 @@ class Reservation
     private ?int $id = null;
 
     /**
-     * Date de début de la réservation.
+     * La date et l'heure de début de la réservation.
      *
-     * Contraintes :
-     * - obligatoire
+     * Doit être non vide.
+     *
+     * @var \DateTimeInterface|null
      */
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "La date de début de la réservation ne peut pas être vide.")]
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $dateDebut = null;
 
     /**
-     * Date de fin de la réservation.
+     * La date et l'heure de fin de la réservation.
      *
-     * Contraintes :
-     * - obligatoire
+     * Doit être non vide.
+     *
+     * @var \DateTimeInterface|null
      */
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "La date de fin de la réservation ne peut pas être vide.")]
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $dateFin = null;
 
     /**
-     * Commentaire / demande spéciale du client.
+     * Un commentaire ou une demande spéciale concernant la réservation.
      *
-     * Exemples :
-     * - lit bébé
-     * - chambre non-fumeur
-     * - étage bas
+     * Ce champ est optionnel.
+     *
+     * @var string|null
      */
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $commentaire = null;
 
     /**
-     * Relation :
-     * Plusieurs réservations peuvent être créées par un compte.
+     * Le compte utilisateur qui a effectué cette réservation.
      *
-     * Reservation N <> 1 Compte
+     * Chaque réservation doit être liée à un compte.
+     *
+     * @var Compte|null
      */
-
     #[ORM\ManyToOne(inversedBy: 'reservations', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Compte $compte = null;
 
     /**
-     * Relation :
-     * Plusieurs réservations peuvent appartenir à un client.
+     * Le client pour qui cette réservation est faite.
      *
-     * Reservation N <> 1 Client
+     * Chaque réservation doit être liée à un client.
+     *
+     * @var Client|null
      */
-
-
     #[ORM\ManyToOne(inversedBy: 'reservations', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Client $client = null;
 
     /**
-     * Relation :
-     * Plusieurs réservations peuvent concerner une chambre.
+     * La chambre qui est réservée.
      *
-     * Reservation N <> 1 Chambre
+     * Chaque réservation doit concerner une chambre.
+     *
+     * @var Chambre|null
      */
-
     #[ORM\ManyToOne(inversedBy: 'reservations', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Chambre $chambre = null;
 
-    /*
-    |--------------------------------------------------------------------------
-    | GETTERS / SETTERS
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Retourne l'identifiant de la réservation.
+     * Retourne l'identifiant unique de la réservation.
+     *
+     * @return int|null L'identifiant de la réservation ou null si non persisté.
      */
     public function getId(): ?int
     {
@@ -100,7 +104,9 @@ class Reservation
     }
 
     /**
-     * Retourne la date de début.
+     * Retourne la date de début de la réservation.
+     *
+     * @return \DateTimeInterface|null La date de début.
      */
     public function getDateDebut(): ?\DateTimeInterface
     {
@@ -108,7 +114,10 @@ class Reservation
     }
 
     /**
-     * Définit la date de début.
+     * Définit la date de début de la réservation.
+     *
+     * @param \DateTimeInterface $dateDebut La nouvelle date de début.
+     * @return static
      */
     public function setDateDebut(\DateTimeInterface $dateDebut): static
     {
@@ -118,7 +127,9 @@ class Reservation
     }
 
     /**
-     * Retourne la date de fin.
+     * Retourne la date de fin de la réservation.
+     *
+     * @return \DateTimeInterface|null La date de fin.
      */
     public function getDateFin(): ?\DateTimeInterface
     {
@@ -126,7 +137,10 @@ class Reservation
     }
 
     /**
-     * Définit la date de fin.
+     * Définit la date de fin de la réservation.
+     *
+     * @param \DateTimeInterface $dateFin La nouvelle date de fin.
+     * @return static
      */
     public function setDateFin(\DateTimeInterface $dateFin): static
     {
@@ -137,6 +151,8 @@ class Reservation
 
     /**
      * Retourne le commentaire de la réservation.
+     *
+     * @return string|null Le commentaire.
      */
     public function getCommentaire(): ?string
     {
@@ -145,6 +161,9 @@ class Reservation
 
     /**
      * Définit le commentaire de la réservation.
+     *
+     * @param string|null $commentaire Le nouveau commentaire.
+     * @return static
      */
     public function setCommentaire(?string $commentaire): static
     {
@@ -153,61 +172,69 @@ class Reservation
         return $this;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RELATIONS
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Retourne le compte qui a créé la réservation.
+     * Retourne le compte utilisateur associé à cette réservation.
+     *
+     * @return Compte|null Le compte utilisateur.
      */
-
     public function getCompte(): ?Compte
     {
         return $this->compte;
     }
 
+    /**
+     * Définit le compte utilisateur associé à cette réservation.
+     *
+     * @param Compte|null $compte Le compte utilisateur à associer.
+     * @return static
+     */
     public function setCompte(?Compte $compte): static
     {
         $this->compte = $compte;
         return $this;
     }
 
-
     /**
-     * Retourne le client auquel appartient la réservation.
+     * Retourne le client associé à cette réservation.
+     *
+     * @return Client|null Le client.
      */
-
     public function getClient(): ?Client
     {
         return $this->client;
     }
 
+    /**
+     * Définit le client associé à cette réservation.
+     *
+     * @param Client|null $client Le client à associer.
+     * @return static
+     */
     public function setClient(?Client $client): static
     {
         $this->client = $client;
         return $this;
     }
 
-
     /**
-     * Retourne la chambre concernée par la réservation.
+     * Retourne la chambre associée à cette réservation.
+     *
+     * @return Chambre|null La chambre.
      */
-
-    /**
-     * Retourne la chambre concernée par la réservation.
-     */
-
     public function getChambre(): ?Chambre
     {
         return $this->chambre;
     }
 
+    /**
+     * Définit la chambre associée à cette réservation.
+     *
+     * @param Chambre|null $chambre La chambre à associer.
+     * @return static
+     */
     public function setChambre(?Chambre $chambre): static
     {
         $this->chambre = $chambre;
         return $this;
     }
-
 }

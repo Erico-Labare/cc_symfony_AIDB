@@ -8,15 +8,28 @@ use App\Entity\Client;
 use App\Entity\Chambre;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Teste l'entité Reservation.
+ *
+ * Cette classe contient les tests unitaires pour vérifier le comportement de l'entité Reservation,
+ * y compris la création, la modification des propriétés (dates, commentaire)
+ * et la gestion des relations avec le compte, le client et la chambre.
+ */
 class ReservationTest extends TestCase
 {
+    /**
+     * Teste la création d'une instance de Reservation.
+     */
     public function testCanCreateReservation(): void
     {
         $reservation = new Reservation();
         $this->assertInstanceOf(Reservation::class, $reservation);
-        $this->assertNull($reservation->getId()); // ID should be null before persisting
+        $this->assertNull($reservation->getId()); // L'ID doit être null avant la persistance
     }
 
+    /**
+     * Teste les méthodes getDateDebut() et setDateDebut().
+     */
     public function testGetSetDateDebut(): void
     {
         $reservation = new Reservation();
@@ -25,6 +38,9 @@ class ReservationTest extends TestCase
         $this->assertSame($date, $reservation->getDateDebut());
     }
 
+    /**
+     * Teste les méthodes getDateFin() et setDateFin().
+     */
     public function testGetSetDateFin(): void
     {
         $reservation = new Reservation();
@@ -33,6 +49,9 @@ class ReservationTest extends TestCase
         $this->assertSame($date, $reservation->getDateFin());
     }
 
+    /**
+     * Teste les méthodes getCommentaire() et setCommentaire().
+     */
     public function testGetSetCommentaire(): void
     {
         $reservation = new Reservation();
@@ -44,6 +63,9 @@ class ReservationTest extends TestCase
         $this->assertNull($reservation->getCommentaire());
     }
 
+    /**
+     * Teste les méthodes getCompte() et setCompte().
+     */
     public function testGetSetCompte(): void
     {
         $reservation = new Reservation();
@@ -55,6 +77,9 @@ class ReservationTest extends TestCase
         $this->assertNull($reservation->getCompte());
     }
 
+    /**
+     * Teste les méthodes getClient() et setClient().
+     */
     public function testGetSetClient(): void
     {
         $reservation = new Reservation();
@@ -66,6 +91,9 @@ class ReservationTest extends TestCase
         $this->assertNull($reservation->getClient());
     }
 
+    /**
+     * Teste les méthodes getChambre() et setChambre().
+     */
     public function testGetSetChambre(): void
     {
         $reservation = new Reservation();

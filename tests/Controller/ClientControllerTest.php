@@ -10,8 +10,20 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+/**
+ * Teste le contrôleur Client.
+ *
+ * Cette classe contient les tests fonctionnels pour les actions liées aux clients,
+ * notamment l'accès au profil client et la vérification des autorisations.
+ */
 class ClientControllerTest extends WebTestCase
 {
+    /**
+     * Teste l'accès au profil client pour un utilisateur anonyme.
+     *
+     * Vérifie qu'un utilisateur non connecté est redirigé vers la page de connexion
+     * lorsqu'il tente d'accéder à son profil.
+     */
     public function testProfileAccessDeniedForAnonymousUser(): void
     {
         $client = static::createClient();
@@ -20,6 +32,13 @@ class ClientControllerTest extends WebTestCase
         $this->assertResponseRedirects('/login');
     }
 
+    /**
+     * Teste l'accès au profil client pour un utilisateur authentifié.
+     *
+     * Crée un utilisateur et un client associés, connecte l'utilisateur,
+     * puis vérifie que l'accès au profil est réussi et que les informations
+     * du client sont affichées correctement.
+     */
     public function testProfileAccessForAuthenticatedUser(): void
     {
         $client = static::createClient();

@@ -14,14 +14,27 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
-use Symfony\Contracts\Translation\TranslatorInterface; // Import TranslatorInterface
-use Psr\Log\LoggerInterface; // Import LoggerInterface
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Psr\Log\LoggerInterface;
 
+/**
+ * Contrôleur d'administration pour la gestion des comptes utilisateurs.
+ *
+ * Ce contrôleur permet aux administrateurs (ROLE_ADMIN) de lister, créer,
+ * afficher, modifier et supprimer des comptes utilisateurs. Il intègre la
+ * gestion des mots de passe, des rôles, des erreurs et la journalisation.
+ */
 #[Route('/admin/compte')]
 #[IsGranted('ROLE_ADMIN')]
 final class CompteController extends AbstractController
 {
-    // Lister tous les comptes avec pagination et recherche
+    /**
+     * Liste tous les comptes utilisateurs avec des options de pagination et de recherche.
+     *
+     * @param Request $request La requête HTTP, utilisée pour récupérer les paramètres de page et de recherche.
+     * @param CompteRepository $compteRepository Le dépôt des comptes pour l'accès aux données.
+     * @return Response Une réponse HTTP affichant la liste des comptes.
+     */
     #[Route(name: 'app_admin_compte_index', methods: ['GET'])]
     public function index(Request $request, CompteRepository $compteRepository): Response
     {
@@ -40,7 +53,19 @@ final class CompteController extends AbstractController
         ]);
     }
 
-    // Créer un nouveau compte
+    /**
+     * Crée un nouveau compte utilisateur.
+     *
+     * Affiche le formulaire de création et gère sa soumission. En cas de succès,
+     * le compte est persisté en base de données avec le mot de passe haché.
+     *
+     * @param Request $request La requête HTTP.
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param UserPasswordHasherInterface $passwordHasher Le service de hachage de mot de passe.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse HTTP affichant le formulaire ou redirigeant.
+     */
     #[Route('/new', name: 'app_admin_compte_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
@@ -79,7 +104,12 @@ final class CompteController extends AbstractController
         ]);
     }
 
-    // Afficher un compte spécifique
+    /**
+     * Affiche les détails d'un compte utilisateur spécifique.
+     *
+     * @param Compte $compte L'entité Compte à afficher (résolue par le ParamConverter).
+     * @return Response Une réponse HTTP affichant les détails du compte.
+     */
     #[Route('/{id}', name: 'app_admin_compte_show', methods: ['GET'])]
     public function show(Compte $compte): Response
     {
@@ -88,9 +118,23 @@ final class CompteController extends AbstractController
         ]);
     }
 
-    // Modifier un compte existant
+    /**
+     * Modifie un compte utilisateur existant.
+     *
+     * Affiche le formulaire de modification et gère sa soumission. En cas de succès,
+     * les modifications sont persistées en base de données. Le mot de passe est
+     * haché s'il est fourni.
+     *
+     * @param Request $request La requête HTTP.
+     * @param Compte $compte L'entité Compte à modifier (résolue par le ParamConverter).
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param UserPasswordHasherInterface $passwordHasher Le service de hachage de mot de passe.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse HTTP affichant le formulaire ou redirigeant.
+     */
     #[Route('/{id}/edit', name: 'app_admin_compte_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Compte $compte, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function edit(Request $request, Compte $compte, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
         $form = $this->createForm(CompteType::class, $compte, ['is_new' => false]); // Pass is_new option
         $form->handleRequest($request);
@@ -125,7 +169,18 @@ final class CompteController extends AbstractController
         ]);
     }
 
-    // Supprimer un compte
+    /**
+     * Supprime un compte utilisateur.
+     *
+     * Gère la suppression d'un compte après vérification du jeton CSRF.
+     *
+     * @param Request $request La requête HTTP.
+     * @param Compte $compte L'entité Compte à supprimer (résolue par le ParamConverter).
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse de redirection après la suppression ou en cas d'erreur.
+     */
     #[Route('/{id}', name: 'app_admin_compte_delete', methods: ['POST'])]
     public function delete(Request $request, Compte $compte, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {

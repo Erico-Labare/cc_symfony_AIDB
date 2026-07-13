@@ -11,12 +11,25 @@ use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
 use Doctrine\ORM\Tools\Pagination\Paginator; // Import Paginator
 
+/**
+ * Teste le ReservationRepository.
+ *
+ * Cette classe contient les tests unitaires pour vérifier le bon fonctionnement
+ * des méthodes personnalisées du ReservationRepository, notamment la recherche
+ * de réservations entre deux dates.
+ */
 class ReservationRepositoryTest extends TestCase
 {
     private $entityManager;
     private $managerRegistry;
     private $repository;
 
+    /**
+     * Configure l'environnement de test avant chaque test.
+     *
+     * Crée des mocks pour l'EntityManager et le ManagerRegistry, puis initialise
+     * une instance mockée du ReservationRepository.
+     */
     protected function setUp(): void
     {
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
@@ -40,6 +53,12 @@ class ReservationRepositoryTest extends TestCase
             ->getMock();
     }
 
+    /**
+     * Teste la méthode findBetweenDates.
+     *
+     * Vérifie que la méthode construit correctement la requête et retourne
+     * les réservations attendues entre les dates spécifiées.
+     */
     public function testFindBetweenDates(): void
     {
         $dateDebut = new \DateTimeImmutable('2023-01-01');

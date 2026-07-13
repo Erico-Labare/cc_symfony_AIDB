@@ -3,19 +3,26 @@
 namespace App\Entity;
 
 use App\Repository\ClientRepository;
-
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Représente l'entité Client.
+ *
+ * Cette classe définit la structure des données pour un client, incluant
+ * ses informations personnelles (nom, adresse, email, téléphone) et
+ * ses relations avec les réservations. Elle intègre des règles de validation
+ * pour garantir la conformité des données.
+ */
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
-
 class Client
 {
     /**
-     * Clé primaire auto-générée.
+     * L'identifiant unique du client.
+     *
+     * @var int|null
      */
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -23,88 +30,76 @@ class Client
     private ?int $id = null;
 
     /**
-     * Nom du client.
+     * Le nom complet du client.
      *
-     * Contraintes :
-     * - obligatoire
-     * - longueur maximale : 120 caractères
+     * Doit être non vide et ne pas dépasser 120 caractères.
+     *
+     * @var string|null
      */
-
-    #[Assert\NotBlank]
-    #[Assert\Length(max: 120)]
+    #[Assert\NotBlank(message: "Le nom du client ne peut pas être vide.")]
+    #[Assert\Length(max: 120, maxMessage: "Le nom du client ne peut pas dépasser {{ limit }} caractères.")]
     #[ORM\Column(length: 120)]
     private ?string $nom = null;
 
     /**
-     * Adresse postale du client.
+     * L'adresse postale du client.
      *
-     * Contraintes :
-     * - obligatoire
+     * Doit être non vide.
+     *
+     * @var string|null
      */
-
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "L'adresse du client ne peut pas être vide.")]
     #[ORM\Column(type: 'text')]
     private ?string $adresse = null;
 
     /**
-     * Adresse email du client.
+     * L'adresse email du client.
      *
-     * Contraintes :
-     * - obligatoire
-     * - format email valide
+     * Doit être non vide et avoir un format d'email valide.
+     *
+     * @var string|null
      */
-
-    #[Assert\NotBlank]
-    #[Assert\Email]
+    #[Assert\NotBlank(message: "L'adresse email du client ne peut pas être vide.")]
+    #[Assert\Email(message: "L'adresse email '{{ value }}' n'est pas une adresse email valide.")]
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
     /**
-     * Numéro de téléphone du client.
+     * Le numéro de téléphone du client.
      *
-     * Contraintes :
-     * - obligatoire
-     * - longueur maximale : 50 caractères
+     * Doit être non vide et ne pas dépasser 50 caractères.
+     *
+     * @var string|null
      */
-
-    #[Assert\NotBlank]
-    #[Assert\Length(max: 50)]
+    #[Assert\NotBlank(message: "Le numéro de téléphone du client ne peut pas être vide.")]
+    #[Assert\Length(max: 50, maxMessage: "Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.")]
     #[ORM\Column(length: 50)]
     private ?string $telephone = null;
 
     /**
-     * Un client peut posséder plusieurs réservations.
+     * Collection des réservations effectuées par ce client.
      *
-     * Relation :
-     * Client 1 <> 0,n Reservation
-     */
-
-    /**
+     * Un client peut avoir plusieurs réservations.
+     *
      * @var Collection<int, Reservation>
      */
-
-
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Reservation::class)]
-
     private Collection $reservations;
 
     /**
-     * Constructeur
+     * Constructeur de la classe Client.
+     *
+     * Initialise la collection de réservations.
      */
-
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | GETTERS / SETTERS
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Retourne l'identifiant du client.
+     *
+     * @return int|null L'identifiant du client ou null si non persisté.
      */
     public function getId(): ?int
     {
@@ -113,6 +108,8 @@ class Client
 
     /**
      * Retourne le nom du client.
+     *
+     * @return string|null Le nom du client.
      */
     public function getNom(): ?string
     {
@@ -121,6 +118,9 @@ class Client
 
     /**
      * Définit le nom du client.
+     *
+     * @param string $nom Le nouveau nom du client.
+     * @return static
      */
     public function setNom(string $nom): static
     {
@@ -131,6 +131,8 @@ class Client
 
     /**
      * Retourne l'adresse du client.
+     *
+     * @return string|null L'adresse du client.
      */
     public function getAdresse(): ?string
     {
@@ -139,6 +141,9 @@ class Client
 
     /**
      * Définit l'adresse du client.
+     *
+     * @param string $adresse La nouvelle adresse du client.
+     * @return static
      */
     public function setAdresse(string $adresse): static
     {
@@ -149,6 +154,8 @@ class Client
 
     /**
      * Retourne l'email du client.
+     *
+     * @return string|null L'email du client.
      */
     public function getEmail(): ?string
     {
@@ -157,6 +164,9 @@ class Client
 
     /**
      * Définit l'email du client.
+     *
+     * @param string $email La nouvelle adresse email du client.
+     * @return static
      */
     public function setEmail(string $email): static
     {
@@ -167,6 +177,8 @@ class Client
 
     /**
      * Retourne le numéro de téléphone du client.
+     *
+     * @return string|null Le numéro de téléphone du client.
      */
     public function getTelephone(): ?string
     {
@@ -175,6 +187,9 @@ class Client
 
     /**
      * Définit le numéro de téléphone du client.
+     *
+     * @param string $telephone Le nouveau numéro de téléphone du client.
+     * @return static
      */
     public function setTelephone(string $telephone): static
     {
@@ -183,30 +198,24 @@ class Client
         return $this;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RELATIONS
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Retourne les réservations associées au client.
+     * Retourne la collection des réservations associées à ce client.
      *
-     * @return Collection<int, Reservation>
+     * @return Collection<int, Reservation> La collection de réservations.
      */
     public function getReservations(): Collection
     {
         return $this->reservations;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | MÉTHODES DE GESTION DES RELATIONS
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Permet d'ajouter une réservation au client.
+     * Ajoute une réservation à la collection du client.
+     *
+     * Si la réservation n'est pas déjà associée à ce client, elle est ajoutée
+     * et la relation bidirectionnelle est établie.
+     *
+     * @param Reservation $reservation La réservation à ajouter.
+     * @return static
      */
     public function addReservation(Reservation $reservation): static
     {
@@ -219,11 +228,17 @@ class Client
     }
 
     /**
-     * Permet de retirer une réservation du client.
+     * Retire une réservation de la collection du client.
+     *
+     * Si la réservation est retirée, la relation bidirectionnelle est rompue.
+     *
+     * @param Reservation $reservation La réservation à retirer.
+     * @return static
      */
     public function removeReservation(Reservation $reservation): static
     {
         if ($this->reservations->removeElement($reservation)) {
+            // set the owning side to null (unless already changed)
             if ($reservation->getClient() === $this) {
                 $reservation->setClient(null);
             }

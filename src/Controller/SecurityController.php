@@ -7,9 +7,23 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
+/**
+ * Contrôleur gérant les fonctionnalités de sécurité de l'application.
+ *
+ * Ce contrôleur est responsable de l'affichage du formulaire de connexion
+ * et de la gestion de la déconnexion des utilisateurs.
+ */
 class SecurityController extends AbstractController
 {
-    // Afficher le formulaire de connexion
+    /**
+     * Affiche le formulaire de connexion.
+     *
+     * Récupère les éventuelles erreurs d'authentification et le dernier nom
+     * d'utilisateur saisi pour pré-remplir le formulaire.
+     *
+     * @param AuthenticationUtils $authenticationUtils Utilitaire d'authentification de Symfony.
+     * @return Response Une réponse HTTP affichant le formulaire de connexion.
+     */
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -25,7 +39,15 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    // Gérer la déconnexion de l'utilisateur
+    /**
+     * Gère la déconnexion de l'utilisateur.
+     *
+     * Cette méthode est vide car la déconnexion est interceptée par le pare-feu
+     * de sécurité de Symfony.
+     *
+     * @throws \LogicException Cette exception est levée si la méthode est appelée directement,
+     *                         ce qui ne devrait pas arriver en production.
+     */
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {

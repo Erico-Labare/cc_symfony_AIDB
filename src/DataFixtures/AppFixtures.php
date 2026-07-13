@@ -7,17 +7,27 @@ use App\Entity\Compte;
 use App\Entity\Hotel;
 use App\Entity\Chambre;
 use App\Entity\Reservation;
-
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
-
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+/**
+ * Fixtures de données pour l'application en environnement de développement.
+ *
+ * Cette classe charge un ensemble de données de base (hôtels, chambres, clients,
+ * comptes utilisateurs et réservations) pour faciliter le développement et les tests
+ * en environnement non-production.
+ */
 class AppFixtures extends Fixture implements FixtureGroupInterface
 {
     /**
-     * Permet de faire al séparation entre les fixture de développement et les fixtures de test.
+     * Définit les groupes de fixtures auxquels cette classe appartient.
+     *
+     * Permet de charger sélectivement les fixtures. Ici, elles sont destinées
+     * à l'environnement de développement.
+     *
+     * @return array<string> Un tableau de noms de groupes.
      */
     public static function getGroups(): array
     {
@@ -27,13 +37,25 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
     private UserPasswordHasherInterface $passwordHasher;
 
     /**
-     * Injection du service de hashage des mots de passe
+     * Constructeur de AppFixtures.
+     *
+     * Injecte le service de hachage des mots de passe.
+     *
+     * @param UserPasswordHasherInterface $passwordHasher Le service de hachage de mot de passe.
      */
     public function __construct(UserPasswordHasherInterface $passwordHasher)
     {
         $this->passwordHasher = $passwordHasher;
     }
 
+    /**
+     * Charge les données de fixtures dans la base de données.
+     *
+     * Cette méthode crée et persiste des entités Hotel, Chambre, Client, Compte
+     * et Reservation pour peupler la base de données de développement.
+     *
+     * @param ObjectManager $manager Le gestionnaire d'objets Doctrine.
+     */
     public function load(ObjectManager $manager): void
     {
         /*
@@ -66,8 +88,6 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
         $chambre1->setEtage(1);
         $chambre1->setType('Single');
         $chambre1->setNombreLit(1);
-
-
         $chambre1->setHotel($hotel1);
 
         $manager->persist($chambre1);
@@ -76,8 +96,6 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
         $chambre2->setEtage(2);
         $chambre2->setType('Double');
         $chambre2->setNombreLit(2);
-
-
         $chambre2->setHotel($hotel1);
 
         $manager->persist($chambre2);
@@ -86,8 +104,6 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
         $chambre3->setEtage(3);
         $chambre3->setType('Suite');
         $chambre3->setNombreLit(3);
-
-
         $chambre3->setHotel($hotel2);
 
         $manager->persist($chambre3);
@@ -123,6 +139,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
         $compteAdmin = new Compte();
         $compteAdmin->setEmail('admin@hotel.fr');
         $compteAdmin->setRole('ROLE_ADMIN');
+        $compteAdmin->setIsVerified(true); // Marquer comme vérifié pour les fixtures de dev
 
         $hashedPasswordAdmin = $this->passwordHasher->hashPassword(
             $compteAdmin,
@@ -136,6 +153,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
         $compteUser = new Compte();
         $compteUser->setEmail('user@hotel.fr');
         $compteUser->setRole('ROLE_USER');
+        $compteUser->setIsVerified(true); // Marquer comme vérifié pour les fixtures de dev
 
         $hashedPasswordUser = $this->passwordHasher->hashPassword(
             $compteUser,
@@ -153,20 +171,9 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
         */
 
         $reservation1 = new Reservation();
-
-        $reservation1->setDateDebut(
-            new \DateTime('2026-06-01')
-        );
-
-        $reservation1->setDateFin(
-            new \DateTime('2026-06-07')
-        );
-
-        $reservation1->setCommentaire(
-            'Demande de lit bébé.'
-        );
-
-
+        $reservation1->setDateDebut(new \DateTime('2026-06-01'));
+        $reservation1->setDateFin(new \DateTime('2026-06-07'));
+        $reservation1->setCommentaire('Demande de lit bébé.');
         $reservation1->setCompte($compteUser);
         $reservation1->setClient($client1);
         $reservation1->setChambre($chambre2);

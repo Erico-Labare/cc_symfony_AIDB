@@ -21,23 +21,44 @@ use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
-use Symfony\Component\Mime\Address; // Added for Address class
+use Symfony\Component\Mime\Address;
+use Psr\Log\LoggerInterface;
 
+/**
+ * Contrôleur gérant le processus de réinitialisation de mot de passe.
+ *
+ * Ce contrôleur implémente les fonctionnalités nécessaires pour permettre
+ * aux utilisateurs de demander une réinitialisation de leur mot de passe
+ * et de le modifier via un lien sécurisé envoyé par email.
+ */
 #[Route('/reset-password')]
 class ResetPasswordController extends AbstractController
 {
     use ResetPasswordControllerTrait;
 
+    /**
+     * Constructeur du contrôleur de réinitialisation de mot de passe.
+     *
+     * @param ResetPasswordHelperInterface $resetPasswordHelper Le service d'aide à la réinitialisation de mot de passe.
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     */
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private EntityManagerInterface $entityManager
     ) {
     }
 
-    // Removed the explicit generateFakeResetToken method, will handle directly in checkEmail
-
     /**
-     * Display & process form to request a password reset.
+     * Affiche et traite le formulaire de demande de réinitialisation de mot de passe.
+     *
+     * Permet à l'utilisateur de saisir son adresse email pour recevoir un lien
+     * de réinitialisation.
+     *
+     * @param Request $request La requête HTTP.
+     * @param MailerInterface $mailer Le service d'envoi d'emails.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse HTTP affichant le formulaire ou redirigeant.
      */
     #[Route('', name: 'app_forgot_password_request')]
     public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator, LoggerInterface $logger): Response
@@ -60,15 +81,19 @@ class ResetPasswordController extends AbstractController
     }
 
     /**
-     * Confirmation page after a user has requested a password reset.
+     * Page de confirmation après qu'un utilisateur a demandé une réinitialisation de mot de passe.
+     *
+     * Cette page informe l'utilisateur qu'un email a été envoyé (ou non, pour des raisons de sécurité).
+     *
+     * @return Response Une réponse HTTP affichant la page de confirmation.
      */
     #[Route('/check-email', name: 'app_check_email')]
     public function checkEmail(): Response
     {
-        // Generate a fake token if the user ever tries to access this page directly.
-        // This ensures that the user can't deduce whether a user has a registered account.
+        // Génère un jeton factice si l'utilisateur tente d'accéder directement à cette page.
+        // Cela garantit que l'utilisateur ne peut pas déduire si un compte est enregistré.
         if (null === ($resetToken = $this->getTokenObjectFromSession())) {
-            // Redirect to the password request page if no token is found in the session
+            // Redirige vers la page de demande de mot de passe si aucun jeton n'est trouvé en session.
             return $this->redirectToRoute('app_forgot_password_request');
         }
 
@@ -78,14 +103,22 @@ class ResetPasswordController extends AbstractController
     }
 
     /**
-     * Validates and process the reset URL that the user clicked in their email.
+     * Valide et traite l'URL de réinitialisation sur laquelle l'utilisateur a cliqué dans son email.
+     *
+     * Permet à l'utilisateur de définir un nouveau mot de passe après avoir validé le jeton.
+     *
+     * @param Request $request La requête HTTP.
+     * @param UserPasswordHasherInterface $passwordHasher Le service de hachage de mot de passe.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param string|null $token Le jeton de réinitialisation de mot de passe.
+     * @return Response Une réponse HTTP affichant le formulaire de réinitialisation ou redirigeant.
      */
     #[Route('/reset/{token}', name: 'app_reset_password')]
     public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, ?string $token = null): Response
     {
         if ($token) {
-            // We store the token in session and remove it from the URL, to prevent the URL from being
-            // loaded in a browser and potentially leaking the token to 3rd party JavaScript.
+            // Nous stockons le jeton en session et le retirons de l'URL, pour éviter que l'URL ne soit
+            // chargée dans un navigateur et potentiellement fuir le jeton à des scripts JavaScript tiers.
             $this->storeTokenInSession($token);
 
             return $this->redirectToRoute('app_reset_password');
@@ -101,22 +134,22 @@ class ResetPasswordController extends AbstractController
         } catch (ResetPasswordExceptionInterface $e) {
             $this->addFlash('reset_password_error', sprintf(
                 '%s - %s',
-                $translator->trans($e->getReason(), [], 'ResetPasswordBundle'), // Corrected: Use $e->getReason() directly
+                $translator->trans($e->getReason(), [], 'ResetPasswordBundle'),
                 $e->getReason()
             ));
 
             return $this->redirectToRoute('app_forgot_password_request');
         }
 
-        // The token is valid; allow the user to change their password.
+        // Le jeton est valide ; permet à l'utilisateur de changer son mot de passe.
         $form = $this->createForm(ChangePasswordFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // A ResetPasswordRequest object should be used only once, remove it.
+            // Un objet ResetPasswordRequest ne doit être utilisé qu'une seule fois, nous le supprimons.
             $this->resetPasswordHelper->removeResetRequest($token);
 
-            // Encode(hash) the plain password, and set it.
+            // Encode (hache) le mot de passe en clair et le définit.
             /** @var Compte $user */
             $encodedPassword = $passwordHasher->hashPassword(
                 $user,
@@ -126,7 +159,7 @@ class ResetPasswordController extends AbstractController
             $user->setPassword($encodedPassword);
             $this->entityManager->flush();
 
-            // The session is cleaned up after the password has been changed.
+            // La session est nettoyée après que le mot de passe a été modifié.
             $this->cleanSessionAfterReset();
 
             $this->addFlash('success', $translator->trans('reset_password.success', [], 'app'));
@@ -139,16 +172,28 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
+    /**
+     * Traite l'envoi de l'email de réinitialisation de mot de passe.
+     *
+     * Recherche l'utilisateur par email, génère un jeton de réinitialisation
+     * et envoie un email contenant le lien de réinitialisation.
+     *
+     * @param string $emailFormData L'adresse email soumise par l'utilisateur.
+     * @param MailerInterface $mailer Le service d'envoi d'emails.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return RedirectResponse Une réponse de redirection vers la page de vérification d'email.
+     */
     private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer, TranslatorInterface $translator, LoggerInterface $logger): RedirectResponse
     {
         $user = $this->entityManager->getRepository(Compte::class)->findOneBy([
             'email' => $emailFormData,
         ]);
 
-        // Do not reveal whether a user account was found or not.
+        // Ne pas révéler si un compte utilisateur a été trouvé ou non.
         if (!$user) {
             return $this->redirectToRoute('app_check_email');
-        }https://github.com/Erico-Labare/cc_symfony_AIDB/pull/11/conflict?name=src%252FController%252Fadmin%252FChambreController.php&ancestor_oid=4d16ae145b0e3eb6340a1309bfaa57bc18d44445&base_oid=c0054b74702645d08e4d3874364aeee4f2690881&head_oid=9328c5c10b196288d0268e7c638d009ee2cd7380
+        }
 
         try {
             $resetToken = $this->resetPasswordHelper->generateResetToken($user);
@@ -176,7 +221,7 @@ class ResetPasswordController extends AbstractController
             return $this->redirectToRoute('app_forgot_password_request');
         }
 
-        // Store the token object in session for retrieval in checkEmail()
+        // Stocke l'objet jeton en session pour le récupérer dans checkEmail()
         $this->setTokenObjectInSession($resetToken);
 
         return $this->redirectToRoute('app_check_email');

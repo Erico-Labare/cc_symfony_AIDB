@@ -12,7 +12,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * Test du contrôleur d'administration des comptes.
  *
  * Cette classe contient les tests fonctionnels pour la gestion des comptes utilisateur
- * par un administrateur.
+ * par un administrateur. Elle couvre les scénarios d'accès, de création,
+ * de modification, de consultation et de suppression de comptes, en vérifiant
+ * les autorisations nécessaires pour chaque action.
  */
 final class CompteControllerTest extends BaseWebTestCase
 {
@@ -24,6 +26,8 @@ final class CompteControllerTest extends BaseWebTestCase
      * Configure l'environnement de test avant chaque test.
      *
      * Initialise le client de test et prépare les données utilisateur (admin et non-admin).
+     * Cette méthode est appelée avant chaque exécution de test pour s'assurer
+     * d'un environnement propre et cohérent.
      */
     protected function setUp(): void
     {
@@ -34,6 +38,10 @@ final class CompteControllerTest extends BaseWebTestCase
 
     /**
      * Initialise les données de test, s'assurant qu'un utilisateur admin et un utilisateur non-admin existent.
+     *
+     * Crée un utilisateur avec le rôle 'ROLE_ADMIN' et un autre avec 'ROLE_USER'
+     * s'ils n'existent pas déjà, pour être utilisés dans les scénarios de test
+     * d'autorisation.
      */
     private function setupData(): void
     {
@@ -73,7 +81,8 @@ final class CompteControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des comptes sans authentification.
      *
-     * Doit rediriger vers la page de connexion.
+     * Vérifie qu'un utilisateur non connecté est redirigé vers la page de connexion
+     * lorsqu'il tente d'accéder à la liste des comptes.
      */
     public function testIndexWithoutAuthentication(): void
     {
@@ -84,7 +93,8 @@ final class CompteControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des comptes avec un utilisateur non-admin.
      *
-     * Doit retourner un statut 403 (Accès interdit).
+     * Vérifie qu'un utilisateur avec le rôle 'ROLE_USER' reçoit une erreur 403
+     * (Accès interdit) lorsqu'il tente d'accéder à la liste des comptes.
      */
     public function testIndexWithNonAdmin(): void
     {
@@ -96,7 +106,8 @@ final class CompteControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des comptes avec un admin.
      *
-     * Doit retourner un statut 200 (Succès).
+     * Vérifie qu'un utilisateur avec le rôle 'ROLE_ADMIN' peut accéder
+     * à la liste des comptes avec succès (statut 200).
      */
     public function testIndexWithAdmin(): void
     {
@@ -108,7 +119,8 @@ final class CompteControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage du formulaire de création d'un nouveau compte.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Vérifie qu'un administrateur peut accéder au formulaire de création
+     * d'un compte avec succès (statut 200).
      */
     public function testNewFormGet(): void
     {
@@ -120,6 +132,7 @@ final class CompteControllerTest extends BaseWebTestCase
     /**
      * Teste la soumission du formulaire de création d'un nouveau compte.
      *
+     * Simule la soumission d'un formulaire de création de compte avec des données valides.
      * Vérifie la redirection après soumission et la persistance du compte en base de données.
      */
     public function testNewFormSubmit(): void
@@ -148,7 +161,8 @@ final class CompteControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage des détails d'un compte existant.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Vérifie qu'un administrateur peut accéder à la page de détails
+     * d'un compte existant avec succès (statut 200).
      */
     public function testShowExistingCompte(): void
     {
@@ -160,7 +174,8 @@ final class CompteControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage des détails d'un compte inexistant.
      *
-     * Doit retourner un statut 404 (Non trouvé).
+     * Vérifie qu'une tentative d'accès aux détails d'un compte avec un ID
+     * qui n'existe pas renvoie une erreur 404 (Non trouvé).
      */
     public function testShowNonExistentCompte(): void
     {
@@ -172,7 +187,8 @@ final class CompteControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage du formulaire de modification d'un compte existant.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Vérifie qu'un administrateur peut accéder au formulaire de modification
+     * d'un compte existant avec succès (statut 200).
      */
     public function testEditFormGet(): void
     {
@@ -184,7 +200,9 @@ final class CompteControllerTest extends BaseWebTestCase
     /**
      * Teste la soumission du formulaire de modification d'un compte.
      *
-     * Vérifie la redirection après soumission et que les données du compte ont été mises à jour.
+     * Crée un compte de test, simule la soumission de son formulaire de modification
+     * avec de nouvelles données. Vérifie la redirection après soumission et que
+     * les données du compte ont été mises à jour en base de données.
      */
     public function testEditFormSubmit(): void
     {
@@ -226,7 +244,9 @@ final class CompteControllerTest extends BaseWebTestCase
     /**
      * Teste la suppression d'un compte avec un jeton CSRF valide.
      *
-     * Crée un compte, le supprime via le formulaire et vérifie qu'il n'existe plus en base de données.
+     * Crée un compte de test, le supprime via le formulaire de suppression
+     * (qui inclut un jeton CSRF). Vérifie la redirection après suppression et que
+     * le compte n'existe plus en base de données.
      */
     public function testDeleteWithValidCsrfToken(): void
     {

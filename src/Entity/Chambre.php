@@ -2,22 +2,27 @@
 
 namespace App\Entity;
 
-
 use App\Repository\ChambreRepository;
-
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
 use Symfony\Component\Validator\Constraints as Assert;
 
-
+/**
+ * Représente l'entité Chambre.
+ *
+ * Cette classe définit la structure des données pour une chambre d'hôtel,
+ * incluant ses propriétés (étage, type, nombre de lits) et ses relations
+ * avec l'hôtel auquel elle appartient et les réservations qui la concernent.
+ * Elle intègre des règles de validation pour garantir la conformité des données.
+ */
 #[ORM\Entity(repositoryClass: ChambreRepository::class)]
-
 class Chambre
 {
     /**
-     * Clé primaire auto-générée.
+     * L'identifiant unique de la chambre.
+     *
+     * @var int|null
      */
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -25,82 +30,74 @@ class Chambre
     private ?int $id = null;
 
     /**
-     * Numéro ou étage de la chambre.
+     * L'étage où se situe la chambre.
      *
-     * Contraintes :
-     * - obligatoire
+     * Doit être non vide.
+     *
+     * @var int|null
      */
-
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "L'étage de la chambre ne peut pas être vide.")]
     #[ORM\Column]
     private ?int $etage = null;
 
     /**
-     * Type de chambre.
+     * Le type de la chambre (ex: "single", "double", "suite").
      *
-     * Exemples :
-     * - single
-     * - double
-     * - suite
+     * Doit être non vide et ne pas dépasser 50 caractères.
      *
-     * Contraintes :
-     * - obligatoire
+     * @var string|null
      */
-
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "Le type de chambre ne peut pas être vide.")]
+    #[Assert\Length(max: 50, maxMessage: "Le type de chambre ne peut pas dépasser {{ limit }} caractères.")]
     #[ORM\Column(length: 50)]
     private ?string $type = null;
 
     /**
-     * Nombre de lits dans la chambre.
+     * Le nombre de lits disponibles dans la chambre.
      *
-     * Contraintes :
-     * - obligatoire
+     * Doit être non vide.
+     *
+     * @var int|null
      */
-
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "Le nombre de lits ne peut pas être vide.")]
     #[ORM\Column]
     private ?int $nombreLit = null;
 
     /**
-     * Relation :
-     * Plusieurs chambres appartiennent à un hôtel.
+     * L'hôtel auquel cette chambre est associée.
      *
-     * Chambre N <> 1 Hotel
+     * Chaque chambre doit être liée à un hôtel.
+     *
+     * @var Hotel|null
      */
-
-
     #[ORM\ManyToOne(inversedBy: 'chambres', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Hotel $hotel = null;
 
     /**
+     * Collection des réservations pour cette chambre.
+     *
      * Une chambre peut être liée à plusieurs réservations.
-     */
-
-    /**
+     *
      * @var Collection<int, Reservation>
      */
-
     #[ORM\OneToMany(mappedBy: 'chambre', targetEntity: Reservation::class)]
     private Collection $reservations;
 
     /**
-     * Constructeur
+     * Constructeur de la classe Chambre.
+     *
+     * Initialise la collection de réservations.
      */
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | GETTERS / SETTERS
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Retourne l'identifiant de la chambre.
+     * Retourne l'identifiant unique de la chambre.
+     *
+     * @return int|null L'identifiant de la chambre ou null si non persisté.
      */
     public function getId(): ?int
     {
@@ -109,6 +106,8 @@ class Chambre
 
     /**
      * Retourne l'étage de la chambre.
+     *
+     * @return int|null L'étage de la chambre.
      */
     public function getEtage(): ?int
     {
@@ -117,6 +116,9 @@ class Chambre
 
     /**
      * Définit l'étage de la chambre.
+     *
+     * @param int $etage Le nouvel étage de la chambre.
+     * @return static
      */
     public function setEtage(int $etage): static
     {
@@ -127,6 +129,8 @@ class Chambre
 
     /**
      * Retourne le type de chambre.
+     *
+     * @return string|null Le type de chambre.
      */
     public function getType(): ?string
     {
@@ -135,6 +139,9 @@ class Chambre
 
     /**
      * Définit le type de chambre.
+     *
+     * @param string $type Le nouveau type de chambre.
+     * @return static
      */
     public function setType(string $type): static
     {
@@ -144,7 +151,9 @@ class Chambre
     }
 
     /**
-     * Retourne le nombre de lits.
+     * Retourne le nombre de lits dans la chambre.
+     *
+     * @return int|null Le nombre de lits.
      */
     public function getNombreLit(): ?int
     {
@@ -152,7 +161,10 @@ class Chambre
     }
 
     /**
-     * Définit le nombre de lits.
+     * Définit le nombre de lits dans la chambre.
+     *
+     * @param int $nombreLit Le nouveau nombre de lits.
+     * @return static
      */
     public function setNombreLit(int $nombreLit): static
     {
@@ -161,14 +173,10 @@ class Chambre
         return $this;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RELATIONS
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Retourne l'hôtel associé à la chambre.
+     *
+     * @return Hotel|null L'hôtel associé.
      */
     public function getHotel(): ?Hotel
     {
@@ -177,6 +185,9 @@ class Chambre
 
     /**
      * Définit l'hôtel associé à la chambre.
+     *
+     * @param Hotel|null $hotel L'hôtel à associer.
+     * @return static
      */
     public function setHotel(?Hotel $hotel): static
     {
@@ -184,14 +195,10 @@ class Chambre
         return $this;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RÉSERVATIONS
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * @return Collection<int, Reservation>
+     * Retourne la collection des réservations pour cette chambre.
+     *
+     * @return Collection<int, Reservation> La collection de réservations.
      */
     public function getReservations(): Collection
     {
@@ -199,7 +206,13 @@ class Chambre
     }
 
     /**
-     * Ajoute une réservation à la chambre.
+     * Ajoute une réservation à la collection de la chambre.
+     *
+     * Si la réservation n'est pas déjà associée à cette chambre, elle est ajoutée
+     * et la relation bidirectionnelle est établie.
+     *
+     * @param Reservation $reservation La réservation à ajouter.
+     * @return static
      */
     public function addReservation(Reservation $reservation): static
     {
@@ -216,11 +229,17 @@ class Chambre
     }
 
     /**
-     * Retire une réservation de la chambre.
+     * Retire une réservation de la collection de la chambre.
+     *
+     * Si la réservation est retirée, la relation bidirectionnelle est rompue.
+     *
+     * @param Reservation $reservation La réservation à retirer.
+     * @return static
      */
     public function removeReservation(Reservation $reservation): static
     {
         if ($this->reservations->removeElement($reservation)) {
+            // set the owning side to null (unless already changed)
             if ($reservation->getChambre() === $this) {
                 $reservation->setChambre(null);
             }

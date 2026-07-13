@@ -18,25 +18,52 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface; // Import UrlGeneratorInterface
-use Psr\Log\LoggerInterface; // Import LoggerInterface for logging exceptions
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Psr\Log\LoggerInterface;
 
+/**
+ * Contrôleur gérant l'enregistrement et la vérification d'email des utilisateurs.
+ *
+ * Ce contrôleur est responsable de l'affichage du formulaire d'inscription,
+ * de la création de nouveaux comptes, de l'envoi d'emails de confirmation
+ * et de la gestion du processus de vérification d'email.
+ */
 class RegistrationController extends AbstractController
 {
+    /**
+     * Constructeur du contrôleur d'enregistrement.
+     *
+     * @param EmailVerifier $emailVerifier Le service de vérification d'email.
+     */
     public function __construct(private EmailVerifier $emailVerifier)
     {
     }
 
-    // Enregistrer un nouveau compte utilisateur
+    /**
+     * Enregistre un nouveau compte utilisateur.
+     *
+     * Gère la soumission du formulaire d'inscription, le hachage du mot de passe,
+     * la persistance du nouvel utilisateur et l'envoi de l'email de confirmation.
+     * En cas de succès, l'utilisateur est connecté et redirigé.
+     *
+     * @param Request $request La requête HTTP.
+     * @param UserPasswordHasherInterface $userPasswordHasher Le service de hachage de mot de passe.
+     * @param Security $security Le service de sécurité pour la connexion automatique.
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param UrlGeneratorInterface $urlGenerator Le générateur d'URL.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse HTTP affichant le formulaire ou redirigeant après succès/échec.
+     */
     #[Route('/register', name: 'app_register')]
     public function register(
         Request $request,
         UserPasswordHasherInterface $userPasswordHasher,
         Security $security,
         EntityManagerInterface $entityManager,
-        UrlGeneratorInterface $urlGenerator, // Inject UrlGeneratorInterface
-        TranslatorInterface $translator, // Inject TranslatorInterface
-        LoggerInterface $logger // Inject LoggerInterface
+        UrlGeneratorInterface $urlGenerator,
+        TranslatorInterface $translator,
+        LoggerInterface $logger
     ): Response {
         $user = new Compte();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -96,7 +123,17 @@ class RegistrationController extends AbstractController
         ]);
     }
 
-    // Vérifier l'adresse e-mail de l'utilisateur
+    /**
+     * Vérifie l'adresse e-mail de l'utilisateur.
+     *
+     * Cette action est appelée lorsque l'utilisateur clique sur le lien de vérification
+     * envoyé par email. Elle valide le lien et marque l'utilisateur comme vérifié.
+     *
+     * @param Request $request La requête HTTP contenant les paramètres de vérification.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @return Response Une réponse de redirection après la vérification ou en cas d'erreur.
+     * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas authentifié.
+     */
     #[Route('/verify/email', name: 'app_verify_email')]
     public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
     {

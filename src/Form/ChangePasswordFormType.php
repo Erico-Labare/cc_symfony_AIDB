@@ -10,8 +10,20 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * Formulaire pour la modification du mot de passe suite à une demande de réinitialisation.
+ *
+ * Ce formulaire est utilisé dans le processus de réinitialisation de mot de passe
+ * pour permettre à l'utilisateur de définir un nouveau mot de passe.
+ */
 class ChangePasswordFormType extends AbstractType
 {
+    /**
+     * Construit le formulaire de modification du mot de passe.
+     *
+     * @param FormBuilderInterface $builder Le constructeur de formulaire.
+     * @param array $options Les options du formulaire.
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -21,12 +33,12 @@ class ChangePasswordFormType extends AbstractType
                     'attr' => ['autocomplete' => 'new-password', 'class' => 'form-control'],
                     'constraints' => [
                         new NotBlank([
-                            'message' => 'Veuillez entrer un mot de passe',
+                            'message' => 'Veuillez entrer un mot de passe.',
                         ]),
                         new Length([
                             'min' => 6,
-                            'minMessage' => 'Votre mot de passe doit contenir au moins {{ limit }} caractères',
-                            // max length allowed by Symfony for security reasons
+                            'minMessage' => 'Votre mot de passe doit contenir au moins {{ limit }} caractères.',
+                            // Longueur maximale autorisée par Symfony pour des raisons de sécurité
                             'max' => 4096,
                         ]),
                     ],
@@ -37,15 +49,23 @@ class ChangePasswordFormType extends AbstractType
                     'label' => 'Confirmer le mot de passe',
                 ],
                 'invalid_message' => 'Les champs du mot de passe doivent correspondre.',
-                // Instead of being set onto the object directly,
-                // this is read and encoded in the controller
+                // Au lieu d'être directement défini sur l'objet,
+                // ce champ est lu et encodé dans le contrôleur.
                 'mapped' => false,
             ])
         ;
     }
 
+    /**
+     * Configure les options par défaut pour ce type de formulaire.
+     *
+     * @param OptionsResolver $resolver Le résolveur d'options.
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            // Aucune option spécifique n'est définie pour ce formulaire,
+            // car il ne mappe pas directement une entité.
+        ]);
     }
 }

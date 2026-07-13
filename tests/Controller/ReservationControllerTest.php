@@ -12,7 +12,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 /**
  * Test du contrôleur de réservation.
  *
- * Cette classe contient les tests fonctionnels pour les actions liées aux réservations.
+ * Cette classe contient les tests fonctionnels pour les actions liées aux réservations,
+ * y compris la recherche de chambres, la création de réservations et la gestion des accès.
  */
 class ReservationControllerTest extends WebTestCase
 {
@@ -22,7 +23,8 @@ class ReservationControllerTest extends WebTestCase
     /**
      * Configure l'environnement de test avant chaque test.
      *
-     * Assure que le kernel est arrêté avant chaque test pour éviter les fuites d'état.
+     * Assure que le kernel est arrêté avant chaque test pour éviter les fuites d'état
+     * et garantir l'indépendance des tests.
      */
     protected function setUp(): void
     {
@@ -30,7 +32,10 @@ class ReservationControllerTest extends WebTestCase
     }
 
     /**
-     * Prépare les données de test nécessaires (client, utilisateur, hôtel).
+     * Prépare les données de test nécessaires (client, utilisateur, hôtel, chambre).
+     *
+     * Cette méthode crée et persiste un hôtel, une chambre et un utilisateur de test
+     * pour les besoins des scénarios de test.
      *
      * @return array Contient le client de test, l'utilisateur de test et l'hôtel de test.
      */
@@ -72,7 +77,8 @@ class ReservationControllerTest extends WebTestCase
     /**
      * Teste l'accessibilité de la page de recherche de réservations.
      *
-     * Vérifie que la page répond avec un statut 200 et contient le titre attendu.
+     * Vérifie que la page de recherche est accessible sans authentification
+     * et qu'elle renvoie un statut HTTP 200 (OK).
      */
     public function testSearchPageAccessible(): void
     {
@@ -88,7 +94,8 @@ class ReservationControllerTest extends WebTestCase
     /**
      * Teste que la page de recherche s'affiche correctement sans dates spécifiées.
      *
-     * Vérifie que la réponse est un succès (statut 200).
+     * Vérifie que la page de recherche est rendue avec succès même si aucun critère
+     * de date n'est fourni, affichant ainsi le formulaire de recherche.
      */
     public function testSearchWithoutDatesShowsForm(): void
     {
@@ -103,7 +110,8 @@ class ReservationControllerTest extends WebTestCase
     /**
      * Teste que l'accès à "Mes réservations" nécessite une authentification.
      *
-     * Tente de créer une réservation sans être connecté et vérifie la redirection vers la page de connexion.
+     * Tente d'accéder à la page de création de réservation sans être connecté
+     * et vérifie que l'utilisateur est redirigé vers la page de connexion.
      */
     public function testMyReservationsRequiresAuthentication(): void
     {
@@ -129,7 +137,8 @@ class ReservationControllerTest extends WebTestCase
     /**
      * Teste l'accès à la page "Mes réservations" avec authentification.
      *
-     * Connecte un utilisateur et vérifie que la page est accessible et contient le titre attendu.
+     * Connecte un utilisateur de test et vérifie que la page "Mes réservations"
+     * est accessible et affiche le titre attendu.
      */
     public function testMyReservationsWithAuthentication(): void
     {
@@ -147,8 +156,9 @@ class ReservationControllerTest extends WebTestCase
     /**
      * Teste la création réussie d'une réservation.
      *
-     * Connecte un utilisateur, soumet un formulaire de réservation valide et vérifie la redirection
-     * et la persistance de la réservation en base de données.
+     * Connecte un utilisateur, soumet un formulaire de réservation valide,
+     * vérifie la redirection vers la page "Mes réservations" et la persistance
+     * de la nouvelle réservation en base de données.
      */
     public function testCreateReservationSuccess(): void
     {
@@ -182,8 +192,9 @@ class ReservationControllerTest extends WebTestCase
     /**
      * Teste la tentative de création d'une réservation pour une chambre déjà indisponible.
      *
-     * Crée une première réservation, puis tente d'en créer une seconde qui chevauche les dates.
-     * Vérifie la redirection vers la page de recherche et la présence d'un message d'erreur.
+     * Crée une première réservation pour une chambre, puis tente d'en créer une seconde
+     * qui chevauche les dates de la première. Vérifie la redirection vers la page de recherche
+     * et la présence d'un message d'erreur indiquant l'indisponibilité de la chambre.
      */
     public function testCreateReservationForUnavailableRoom(): void
     {

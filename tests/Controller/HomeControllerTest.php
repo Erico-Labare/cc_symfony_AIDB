@@ -11,7 +11,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * Test du contrôleur d'accueil.
  *
- * Cette classe contient les tests fonctionnels pour la page d'accueil.
+ * Cette classe contient les tests fonctionnels pour la page d'accueil,
+ * y compris l'accès à la page et l'affichage des informations utilisateur
+ * après connexion.
  */
 final class HomeControllerTest extends BaseWebTestCase
 {
@@ -20,6 +22,9 @@ final class HomeControllerTest extends BaseWebTestCase
 
     /**
      * Initialise le client de test et les données nécessaires avant chaque test.
+     *
+     * Cette méthode est appelée avant chaque exécution de test pour s'assurer
+     * d'un environnement propre et cohérent.
      */
     protected function setUp(): void
     {
@@ -30,6 +35,9 @@ final class HomeControllerTest extends BaseWebTestCase
 
     /**
      * Configure les données de test, s'assurant qu'un utilisateur non-admin existe.
+     *
+     * Crée un utilisateur de test avec le rôle 'ROLE_USER' s'il n'existe pas déjà,
+     * pour être utilisé dans les scénarios de test de connexion.
      */
     private function setupData(): void
     {
@@ -55,7 +63,7 @@ final class HomeControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la page d'accueil sans être connecté.
      *
-     * Vérifie que la réponse est réussie.
+     * Vérifie que la page d'accueil est accessible et renvoie une réponse réussie (statut 200).
      */
     public function testIndex(): void
     {
@@ -67,7 +75,9 @@ final class HomeControllerTest extends BaseWebTestCase
     /**
      * Teste que le rôle de l'utilisateur connecté s'affiche sur la page d'accueil.
      *
-     * Connecte un utilisateur non-admin et vérifie que son rôle est présent sur la page.
+     * Connecte un utilisateur non-admin et vérifie que son rôle ('ROLE_USER')
+     * est présent dans le contenu de la page d'accueil, confirmant ainsi
+     * l'affichage des informations utilisateur après connexion.
      */
     public function testHomeShowsUserIfLogged(): void
     {

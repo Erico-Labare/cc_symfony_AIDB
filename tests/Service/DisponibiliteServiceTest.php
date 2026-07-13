@@ -17,7 +17,9 @@ use App\Tests\BaseWebTestCase;
  * Teste le service de disponibilité des chambres.
  *
  * Cette classe contient les tests unitaires pour la logique de vérification de disponibilité
- * des chambres dans le DisponibiliteService.
+ * des chambres dans le DisponibiliteService. Elle couvre les scénarios de recherche de chambres
+ * disponibles, de vérification de la disponibilité individuelle d'une chambre, et la gestion
+ * des dates invalides.
  */
 class DisponibiliteServiceTest extends BaseWebTestCase
 {
@@ -30,6 +32,7 @@ class DisponibiliteServiceTest extends BaseWebTestCase
      * Configure l'environnement de test avant chaque test.
      *
      * Initialise le service de disponibilité, les dépôts et l'EntityManager.
+     * Le kernel est démarré pour accéder aux services du conteneur.
      */
     protected function setUp(): void
     {
@@ -45,7 +48,8 @@ class DisponibiliteServiceTest extends BaseWebTestCase
     /**
      * Teste la recherche de chambres disponibles avec des dates invalides (date de fin avant la date de début).
      *
-     * Une InvalidArgumentException devrait être levée.
+     * Une InvalidArgumentException devrait être levée, car la logique métier interdit
+     * une date de fin antérieure à la date de début.
      */
     public function testFindAvailableRoomsWithNoDates(): void
     {
@@ -53,13 +57,15 @@ class DisponibiliteServiceTest extends BaseWebTestCase
         $dateFin = new \DateTime('2026-06-15');
 
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('La date de fin ne peut pas être antérieure à la date de début.');
         $this->service->findAvailableRooms($dateDebut, $dateFin, 1);
     }
 
     /**
      * Teste la recherche de chambres disponibles lorsque aucune chambre ne correspond aux critères.
      *
-     * Le résultat attendu est un tableau vide.
+     * Le résultat attendu est un tableau vide, indiquant qu'aucune chambre ne remplit les conditions
+     * de disponibilité pour l'hôtel et les dates spécifiés.
      */
     public function testFindAvailableRoomsEmpty(): void
     {
@@ -75,7 +81,9 @@ class DisponibiliteServiceTest extends BaseWebTestCase
     /**
      * Teste la méthode isRoomAvailable pour vérifier la disponibilité d'une chambre.
      *
-     * Vérifie d'abord qu'une chambre est disponible, puis qu'elle ne l'est plus après une réservation.
+     * Vérifie d'abord qu'une chambre est disponible pour une période donnée,
+     * puis qu'elle ne l'est plus après qu'une réservation ait été effectuée
+     * pour une période qui chevauche la période testée.
      */
     public function testIsRoomAvailable(): void
     {
@@ -122,7 +130,7 @@ class DisponibiliteServiceTest extends BaseWebTestCase
 
         // Test lorsque la chambre est disponible
         $isAvailable = $this->service->isRoomAvailable($chambre, $dateDebut, $dateFin);
-        self::assertTrue($isAvailable, 'Room should be available initially.');
+        self::assertTrue($isAvailable, 'La chambre devrait être disponible initialement.');
 
         // Crée une réservation pour rendre la chambre indisponible
         $reservation = new Reservation();
@@ -140,6 +148,6 @@ class DisponibiliteServiceTest extends BaseWebTestCase
 
         // Test lorsque la chambre est indisponible en raison de la réservation
         $isAvailableAfterReservation = $this->service->isRoomAvailable($chambre, new \DateTime('2026-06-18'), new \DateTime('2026-06-21'));
-        self::assertFalse($isAvailableAfterReservation, 'Room should be unavailable after reservation.');
+        self::assertFalse($isAvailableAfterReservation, 'La chambre devrait être indisponible après la réservation.');
     }
 }

@@ -13,7 +13,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * Test du contrôleur d'administration des hôtels.
  *
  * Cette classe contient les tests fonctionnels pour la gestion des hôtels
- * par un administrateur.
+ * par un administrateur. Elle couvre les scénarios d'accès, de création,
+ * de modification, de consultation et de suppression d'hôtels, en vérifiant
+ * les autorisations nécessaires pour chaque action.
  */
 final class HotelControllerTest extends BaseWebTestCase
 {
@@ -25,6 +27,8 @@ final class HotelControllerTest extends BaseWebTestCase
      * Configure l'environnement de test avant chaque test.
      *
      * Initialise le client de test et prépare les données utilisateur (admin et non-admin).
+     * Cette méthode est appelée avant chaque exécution de test pour s'assurer
+     * d'un environnement propre et cohérent.
      */
     protected function setUp(): void
     {
@@ -35,6 +39,10 @@ final class HotelControllerTest extends BaseWebTestCase
 
     /**
      * Initialise les données de test, s'assurant qu'un utilisateur admin et un utilisateur non-admin existent.
+     *
+     * Crée un utilisateur avec le rôle 'ROLE_ADMIN' et un autre avec 'ROLE_USER'
+     * s'ils n'existent pas déjà, pour être utilisés dans les scénarios de test
+     * d'autorisation.
      */
     private function setupData(): void
     {
@@ -74,7 +82,8 @@ final class HotelControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des hôtels sans authentification.
      *
-     * Doit rediriger vers la page de connexion.
+     * Vérifie qu'un utilisateur non connecté est redirigé vers la page de connexion
+     * lorsqu'il tente d'accéder à la liste des hôtels.
      */
     public function testIndexWithoutAuthentication(): void
     {
@@ -85,7 +94,8 @@ final class HotelControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des hôtels avec un utilisateur non-admin.
      *
-     * Doit retourner un statut 403 (Accès interdit).
+     * Vérifie qu'un utilisateur avec le rôle 'ROLE_USER' reçoit une erreur 403
+     * (Accès interdit) lorsqu'il tente d'accéder à la liste des hôtels.
      */
     public function testIndexWithNonAdmin(): void
     {
@@ -97,7 +107,8 @@ final class HotelControllerTest extends BaseWebTestCase
     /**
      * Teste l'accès à la liste des hôtels avec un utilisateur admin.
      *
-     * Doit retourner un statut 200 (Succès).
+     * Vérifie qu'un utilisateur avec le rôle 'ROLE_ADMIN' peut accéder
+     * à la liste des hôtels avec succès (statut 200).
      */
     public function testIndexWithAdmin(): void
     {
@@ -109,7 +120,8 @@ final class HotelControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage du formulaire de création d'un nouvel hôtel.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Vérifie qu'un administrateur peut accéder au formulaire de création
+     * d'un hôtel avec succès (statut 200).
      */
     public function testNewFormGet(): void
     {
@@ -121,6 +133,7 @@ final class HotelControllerTest extends BaseWebTestCase
     /**
      * Teste la soumission du formulaire de création d'un nouvel hôtel.
      *
+     * Simule la soumission d'un formulaire de création d'hôtel avec des données valides.
      * Vérifie la redirection après soumission et la persistance de l'hôtel en base de données.
      */
     public function testNewFormSubmit(): void
@@ -148,7 +161,8 @@ final class HotelControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage des détails d'un hôtel existant.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Crée un hôtel de test, puis vérifie qu'un administrateur peut accéder
+     * à sa page de détails avec succès (statut 200).
      */
     public function testShowExistingHotel(): void
     {
@@ -170,7 +184,8 @@ final class HotelControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage des détails d'un hôtel inexistant.
      *
-     * Doit retourner un statut 404 (Non trouvé).
+     * Vérifie qu'une tentative d'accès aux détails d'un hôtel avec un ID
+     * qui n'existe pas renvoie une erreur 404 (Non trouvé).
      */
     public function testShowNonExistentHotel(): void
     {
@@ -182,7 +197,8 @@ final class HotelControllerTest extends BaseWebTestCase
     /**
      * Teste l'affichage du formulaire de modification d'un hôtel existant.
      *
-     * Doit retourner un statut 200 (Succès) pour un admin.
+     * Crée un hôtel de test, puis vérifie qu'un administrateur peut accéder
+     * à son formulaire de modification avec succès (statut 200).
      */
     public function testEditFormGet(): void
     {
@@ -204,7 +220,9 @@ final class HotelControllerTest extends BaseWebTestCase
     /**
      * Teste la soumission du formulaire de modification d'un hôtel.
      *
-     * Vérifie la redirection après soumission et que les données de l'hôtel ont été mises à jour.
+     * Crée un hôtel de test, simule la soumission de son formulaire de modification
+     * avec de nouvelles données. Vérifie la redirection après soumission et que
+     * les données de l'hôtel ont été mises à jour en base de données.
      */
     public function testEditFormSubmit(): void
     {
@@ -240,7 +258,9 @@ final class HotelControllerTest extends BaseWebTestCase
     /**
      * Teste la suppression d'un hôtel avec un jeton CSRF valide.
      *
-     * Crée un hôtel, le supprime via le formulaire et vérifie qu'il n'existe plus en base de données.
+     * Crée un hôtel de test, simule sa suppression via le formulaire de suppression
+     * (qui inclut un jeton CSRF). Vérifie la redirection après suppression et que
+     * l'hôtel n'existe plus en base de données.
      */
     public function testDeleteWithValidCsrfToken(): void
     {

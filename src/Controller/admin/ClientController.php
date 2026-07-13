@@ -13,15 +13,28 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\Exception\ORMException;
-use Symfony\Contracts\Translation\TranslatorInterface; // Import TranslatorInterface
-use Psr\Log\LoggerInterface; // Import LoggerInterface
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException; // Import NotFoundHttpException
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Contrôleur d'administration pour la gestion des clients.
+ *
+ * Ce contrôleur permet aux administrateurs (ROLE_ADMIN) de lister, créer,
+ * afficher, modifier et supprimer des clients. Il intègre la gestion des
+ * erreurs et la journalisation.
+ */
 #[Route('/admin/client')]
 #[IsGranted('ROLE_ADMIN')]
 final class ClientController extends AbstractController
 {
-    // Lister tous les clients avec pagination et recherche
+    /**
+     * Liste tous les clients avec des options de pagination et de recherche.
+     *
+     * @param Request $request La requête HTTP, utilisée pour récupérer les paramètres de page et de recherche.
+     * @param ClientRepository $clientRepository Le dépôt des clients pour l'accès aux données.
+     * @return Response Une réponse HTTP affichant la liste des clients.
+     */
     #[Route('/', name: 'app_admin_client_index', methods: ['GET'])]
     public function index(Request $request, ClientRepository $clientRepository): Response
     {
@@ -40,6 +53,18 @@ final class ClientController extends AbstractController
         ]);
     }
 
+    /**
+     * Crée un nouveau client.
+     *
+     * Affiche le formulaire de création et gère sa soumission. En cas de succès,
+     * le client est persisté en base de données.
+     *
+     * @param Request $request La requête HTTP.
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse HTTP affichant le formulaire ou redirigeant.
+     */
     #[Route('/new', name: 'app_admin_client_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
@@ -71,17 +96,36 @@ final class ClientController extends AbstractController
         ]);
     }
 
+    /**
+     * Affiche les détails d'un client spécifique.
+     *
+     * @param Client $client L'entité Client à afficher (résolue par le ParamConverter).
+     * @return Response Une réponse HTTP affichant les détails du client.
+     */
     #[Route('/{id}', name: 'app_admin_client_show', methods: ['GET'])]
     public function show(Client $client): Response
     {
-        // The Client entity is automatically resolved by Symfony's ParamConverter.
-        // If no client is found for the given ID, a NotFoundHttpException will be thrown automatically,
-        // resulting in a 404 response, which is what the test expects for a non-existent client.
+        // L'entité Client est automatiquement résolue par le ParamConverter de Symfony.
+        // Si aucun client n'est trouvé pour l'ID donné, une NotFoundHttpException sera levée automatiquement,
+        // résultant en une réponse 404, ce qui est le comportement attendu pour un client inexistant.
         return $this->render('admin/client/show.html.twig', [
             'client' => $client,
         ]);
     }
 
+    /**
+     * Modifie un client existant.
+     *
+     * Affiche le formulaire de modification et gère sa soumission. En cas de succès,
+     * les modifications sont persistées en base de données.
+     *
+     * @param Request $request La requête HTTP.
+     * @param Client $client L'entité Client à modifier (résolue par le ParamConverter).
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse HTTP affichant le formulaire ou redirigeant.
+     */
     #[Route('/{id}/edit', name: 'app_admin_client_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Client $client, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {
@@ -111,6 +155,18 @@ final class ClientController extends AbstractController
         ]);
     }
 
+    /**
+     * Supprime un client.
+     *
+     * Gère la suppression d'un client après vérification du jeton CSRF.
+     *
+     * @param Request $request La requête HTTP.
+     * @param Client $client L'entité Client à supprimer (résolue par le ParamConverter).
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction.
+     * @param LoggerInterface $logger Le service de journalisation.
+     * @return Response Une réponse de redirection après la suppression ou en cas d'erreur.
+     */
     #[Route('/{id}', name: 'app_admin_client_delete', methods: ['POST'])]
     public function delete(Request $request, Client $client, EntityManagerInterface $entityManager, TranslatorInterface $translator, LoggerInterface $logger): Response
     {

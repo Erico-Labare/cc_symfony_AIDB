@@ -8,24 +8,36 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use App\Entity\Compte;
 
-
 /**
- * Repository de gestion des clients
+ * Dépôt pour l'entité Client.
+ *
+ * Ce dépôt fournit des méthodes pour interagir avec la base de données
+ * spécifiquement pour l'entité Client, y compris la pagination, la recherche,
+ * et la récupération de clients associés à un compte utilisateur.
+ *
+ * @extends ServiceEntityRepository<Client>
  */
 class ClientRepository extends ServiceEntityRepository
 {
+    /**
+     * Constructeur du ClientRepository.
+     *
+     * @param ManagerRegistry $registry Le registre des gestionnaires d'entités.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Client::class);
     }
 
     /**
-     * Récupère une liste paginée de clients avec option de recherche.
+     * Récupère une liste paginée de clients avec une option de recherche.
      *
-     * @param int $page La page actuelle
-     * @param int $limit Le nombre d'éléments par page
-     * @param string|null $search Le terme de recherche (nom ou email)
-     * @return Paginator
+     * Permet de filtrer les clients par leur nom ou leur adresse email.
+     *
+     * @param int $page La page actuelle à récupérer (commence à 1).
+     * @param int $limit Le nombre maximum d'éléments par page.
+     * @param string|null $search Le terme de recherche pour filtrer par nom ou email.
+     * @return Paginator Une instance de Paginator contenant les clients pour la page demandée.
      */
     public function paginateClients(int $page, int $limit, ?string $search = null): Paginator
     {
@@ -41,10 +53,14 @@ class ClientRepository extends ServiceEntityRepository
         $query->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
-        return new Paginator($query, false); // Ajout de 'false' ici
+        return new Paginator($query, false);
     }
-        /**
-     * Retourne tous les clients déjà associés à un compte via ses réservations.
+
+    /**
+     * Retourne tous les clients qui ont au moins une réservation associée à un compte donné.
+     *
+     * @param Compte $compte Le compte utilisateur pour lequel récupérer les clients.
+     * @return Client[] Un tableau de clients distincts associés au compte.
      */
     public function findByCompte(Compte $compte): array
     {
@@ -57,9 +73,16 @@ class ClientRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-        /**
-     * Recherche un client appartenant déjà au compte connecté
-     * grâce à son adresse email.
+
+    /**
+     * Recherche un client spécifique associé à un compte donné par son adresse email.
+     *
+     * Utile pour vérifier si un client avec une certaine adresse email existe déjà
+     * et est lié à l'utilisateur connecté via une réservation.
+     *
+     * @param Compte $compte Le compte utilisateur.
+     * @param string $email L'adresse email du client à rechercher.
+     * @return Client|null Le client trouvé ou null si aucun client correspondant n'est trouvé.
      */
     public function findClientForCompteByEmail(Compte $compte, string $email): ?Client
     {

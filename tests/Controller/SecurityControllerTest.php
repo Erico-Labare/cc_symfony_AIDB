@@ -8,15 +8,32 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+/**
+ * Teste le contrôleur de sécurité.
+ *
+ * Cette classe contient les tests fonctionnels pour les actions liées à la sécurité,
+ * notamment la connexion, la déconnexion et la gestion des identifiants.
+ */
 class SecurityControllerTest extends WebTestCase
 {
     private $client;
 
+    /**
+     * Configure l'environnement de test avant chaque test.
+     *
+     * Initialise le client de test.
+     */
     protected function setUp(): void
     {
         $this->client = static::createClient();
     }
 
+    /**
+     * Teste que la page de connexion se charge avec succès.
+     *
+     * Vérifie que la page de connexion est accessible, affiche le titre correct
+     * et contient le formulaire de connexion avec les champs attendus.
+     */
     public function testLoginPageLoadsSuccessfully(): void
     {
         $this->client->request('GET', '/login');
@@ -27,6 +44,12 @@ class SecurityControllerTest extends WebTestCase
         $this->assertSelectorExists('input[name="_password"]');
     }
 
+    /**
+     * Teste la connexion avec de mauvais identifiants.
+     *
+     * Vérifie qu'une tentative de connexion avec des identifiants incorrects
+     * entraîne une redirection vers la page de connexion et l'affichage d'un message d'erreur.
+     */
     public function testLoginWithBadCredentials(): void
     {
         $crawler = $this->client->request('GET', '/login');
@@ -43,6 +66,13 @@ class SecurityControllerTest extends WebTestCase
         $this->assertSame('wrong@example.com', $form['_username']->getValue());
     }
 
+    /**
+     * Teste la connexion réussie d'un utilisateur.
+     *
+     * Crée un utilisateur de test, simule une connexion avec des identifiants valides,
+     * et vérifie que l'utilisateur est redirigé vers la page d'accueil et que son
+     * email ou un élément spécifique à l'utilisateur connecté est affiché.
+     */
     public function testSuccessfulLogin(): void
     {
         // Create a test user in the database for this test
@@ -83,6 +113,13 @@ class SecurityControllerTest extends WebTestCase
         }
     }
 
+    /**
+     * Teste la déconnexion d'un utilisateur.
+     *
+     * Crée et connecte un utilisateur de test, puis simule une déconnexion
+     * et vérifie que l'utilisateur est redirigé vers la page d'accueil
+     * et n'est plus authentifié.
+     */
     public function testLogout(): void
     {
         // Create a test user in the database for this test

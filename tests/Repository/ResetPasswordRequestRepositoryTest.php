@@ -12,12 +12,25 @@ use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
 
+/**
+ * Teste le ResetPasswordRequestRepository.
+ *
+ * Cette classe contient les tests unitaires pour vérifier le bon fonctionnement
+ * des méthodes personnalisées du ResetPasswordRequestRepository, qui gère
+ * les requêtes de réinitialisation de mot de passe.
+ */
 class ResetPasswordRequestRepositoryTest extends TestCase
 {
     private $entityManager;
     private $managerRegistry;
     private $repository;
 
+    /**
+     * Configure l'environnement de test avant chaque test.
+     *
+     * Crée des mocks pour l'EntityManager et le ManagerRegistry, puis initialise
+     * une instance mockée du ResetPasswordRequestRepository.
+     */
     protected function setUp(): void
     {
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
@@ -41,6 +54,12 @@ class ResetPasswordRequestRepositoryTest extends TestCase
             ->getMock();
     }
 
+    /**
+     * Teste la méthode createResetPasswordRequest.
+     *
+     * Vérifie que la méthode retourne une instance correcte de ResetPasswordRequest
+     * avec les propriétés attendues.
+     */
     public function testCreateResetPasswordRequest(): void
     {
         $user = $this->createMock(Compte::class);
@@ -58,6 +77,11 @@ class ResetPasswordRequestRepositoryTest extends TestCase
         $this->assertSame($hashedToken, $request->getHashedToken());
     }
 
+    /**
+     * Teste la méthode persistResetPasswordRequest.
+     *
+     * Vérifie que la méthode appelle correctement persist et flush sur l'EntityManager.
+     */
     public function testPersistResetPasswordRequest(): void
     {
         $request = $this->createMock(ResetPasswordRequestInterface::class);
@@ -71,6 +95,12 @@ class ResetPasswordRequestRepositoryTest extends TestCase
         $this->repository->persistResetPasswordRequest($request);
     }
 
+    /**
+     * Teste la méthode findResetPasswordRequest.
+     *
+     * Vérifie que la méthode utilise findOneBy pour récupérer une requête
+     * de réinitialisation de mot de passe par son sélecteur.
+     */
     public function testFindResetPasswordRequest(): void
     {
         $selector = 'testSelector';
@@ -86,6 +116,11 @@ class ResetPasswordRequestRepositoryTest extends TestCase
         $this->assertSame($mockRequest, $foundRequest);
     }
 
+    /**
+     * Teste la méthode removeResetPasswordRequest.
+     *
+     * Vérifie que la méthode appelle correctement remove et flush sur l'EntityManager.
+     */
     public function testRemoveResetPasswordRequest(): void
     {
         $request = $this->createMock(ResetPasswordRequestInterface::class);
@@ -99,6 +134,12 @@ class ResetPasswordRequestRepositoryTest extends TestCase
         $this->repository->removeResetPasswordRequest($request);
     }
 
+    /**
+     * Teste la méthode getUserIdentifier.
+     *
+     * Vérifie que la méthode retourne l'identifiant de l'utilisateur (email)
+     * pour une instance de Compte valide.
+     */
     public function testGetUserIdentifier(): void
     {
         $user = $this->createMock(Compte::class);
@@ -109,6 +150,12 @@ class ResetPasswordRequestRepositoryTest extends TestCase
         $this->assertSame('test@example.com', $identifier);
     }
 
+    /**
+     * Teste que getUserIdentifier lève une exception pour un utilisateur invalide.
+     *
+     * Vérifie qu'une InvalidArgumentException est levée si l'objet utilisateur
+     * n'est pas une instance de Compte.
+     */
     public function testGetUserIdentifierThrowsExceptionForInvalidUser(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -118,6 +165,12 @@ class ResetPasswordRequestRepositoryTest extends TestCase
         $this->repository->getUserIdentifier($invalidUser);
     }
 
+    /**
+     * Teste la méthode getMostRecentNonExpiredRequestDate.
+     *
+     * Vérifie que la méthode retourne la date d'expiration de la requête
+     * la plus récente et non expirée pour un utilisateur donné.
+     */
     public function testGetMostRecentNonExpiredRequestDate(): void
     {
         $user = $this->createMock(Compte::class);
@@ -147,6 +200,12 @@ class ResetPasswordRequestRepositoryTest extends TestCase
         $this->assertSame($expiresAt, $result);
     }
 
+    /**
+     * Teste que getMostRecentNonExpiredRequestDate retourne null si aucune requête n'est trouvée.
+     *
+     * Vérifie que la méthode retourne null si aucune requête de réinitialisation
+     * de mot de passe non expirée n'est trouvée pour l'utilisateur.
+     */
     public function testGetMostRecentNonExpiredRequestDateReturnsNullIfNoRequest(): void
     {
         $user = $this->createMock(Compte::class);
@@ -173,6 +232,12 @@ class ResetPasswordRequestRepositoryTest extends TestCase
         $this->assertNull($result);
     }
 
+    /**
+     * Teste la méthode removeExpiredResetPasswordRequests.
+     *
+     * Vérifie que la méthode supprime correctement les requêtes de réinitialisation
+     * de mot de passe expirées et retourne le nombre d'éléments supprimés.
+     */
     public function testRemoveExpiredResetPasswordRequests(): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
