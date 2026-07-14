@@ -1,45 +1,177 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Compte{% endblock %}
+{% block title %}Compte {{ compte.email }}{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1 class="mb-4">Détails du Compte</h1>
 
-        <table class="table table-bordered">
-            <tbody>
-                <tr>
-                    <th>Id</th>
-                    <td>{{ compte.id }}</td>
-                </tr>
-                <tr>
-                    <th>Role</th>
-                    <td>{{ compte.role }}</td>
-                </tr>
-                <tr>
-                    <th>Email</th>
-                    <td>{{ compte.email }}</td>
-                </tr>
-                <tr>
-                    <th>Password</th>
-                    <td>{{ compte.password }}</td>
-                </tr>
-                <tr>
-                    <th>IsVerified</th>
-                    <td>{{ compte.isVerified ? 'Oui' : 'Non' }}</td>
-                </tr>
-            </tbody>
-        </table>
+<div class="container">
 
-        <div class="d-flex justify-content-between mt-3">
-            <div>
-                <a href="{{ path('app_admin_compte_index') }}" class="btn btn-secondary">Retour à la liste</a>
-                <a href="{{ path('app_admin_compte_edit', {'id': compte.id}) }}" class="btn btn-warning">Modifier</a>
-            </div>
-            {{ include('admin/compte/_delete_form.html.twig') }}
-        </div>
-        <div class="mt-3">
-            <a href="{{ path('app_admin') }}" class="btn btn-secondary">Retour à la page Admin</a>
-        </div>
+    <div class="text-center mb-5">
+
+        <h1 class="page-title">
+
+            {{ compte.email }}
+
+        </h1>
+
+        <p class="page-subtitle">
+
+            Consultez les informations de ce compte utilisateur.
+
+        </p>
+
     </div>
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="reservation-card">
+
+                <h4 class="mb-4">
+
+                    <i class="bi bi-person-lock me-2"></i>
+
+                    Informations du compte
+
+                </h4>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-4">
+
+                        <strong>Identifiant</strong>
+
+                        <p class="mt-2">
+
+                            <span class="badge bg-primary">
+
+                                #{{ compte.id }}
+
+                            </span>
+
+                        </p>
+
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+
+                        <strong>Statut</strong>
+
+                        <p class="mt-2">
+
+                            {% if compte.isVerified %}
+
+                                <span class="badge bg-success">
+
+                                    Vérifié
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+
+                                    Non vérifié
+
+                                </span>
+
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <strong>Adresse email</strong>
+
+                    <p class="mt-2">
+
+                        {{ compte.email }}
+
+                    </p>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <strong>Rôle</strong>
+
+                    <p class="mt-2">
+
+                        {% if 'ROLE_ADMIN' in compte.roles %}
+
+                            <span class="badge bg-warning text-dark">
+
+                                Administrateur
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-info">
+
+                                Utilisateur
+
+                            </span>
+
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <strong>Mot de passe</strong>
+
+                    <p class="mt-2 text-muted">
+
+                        **************
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="reservation-actions mt-5">
+
+        <a
+            href="{{ path('app_admin_compte_index') }}"
+            class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-2"></i>
+
+            Retour
+
+        </a>
+
+        <div class="d-flex gap-2">
+
+            <a
+                href="{{ path('app_admin_compte_edit', {'id': compte.id}) }}"
+                class="btn btn-warning">
+
+                <i class="bi bi-pencil-square me-2"></i>
+
+                Modifier
+
+            </a>
+
+            {{ include('admin/compte/_delete_form.html.twig') }}
+
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}
