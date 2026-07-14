@@ -394,25 +394,7 @@ Cette section aborde les défis inhérents au projet, les contraintes imposées 
 
 ### 10.3. Dettes Techniques
 
-1.  **Couverture des Tests** :
-    *   **Dette** : Bien que des tests soient requis, la couverture complète (tests unitaires, fonctionnels, d'intégration) de toutes les fonctionnalités critiques peut être limitée par le temps. Une couverture insuffisante peut rendre les futures modifications risquées.
-    *   **Plan d'action** : Prioriser les tests des logiques métier critiques (réservation, disponibilité) et des contrôleurs principaux. Augmenter progressivement la couverture.
 
-2.  **Documentation du Code** :
-    *   **Dette** : La documentation du code source peut être hétérogène ou incomplète, en particulier pour les logiques complexes ou les choix d'architecture.
-    *   **Plan d'action** : Maintenir une documentation **Javadoc/PHPDoc** à jour pour les classes, méthodes et interfaces, ainsi qu'un README détaillé pour le projet.
-
-3.  **Optimisation SonarQube** :
-    *   **Dette** : Les rapports SonarQube peuvent révéler des "**code smells**", des duplications ou des vulnérabilités qui, bien que non bloquantes, augmentent la dette technique et la complexité de maintenance à long terme.
-    *   **Plan d'action** : Réviser et corriger les problèmes de haute priorité identifiés par SonarQube, en intégrant l'analyse SonarQube dans le processus de développement.
-
-4.  **Gestion des Exceptions et Messages Utilisateur** :
-    *   **Dette** : La gestion des exceptions peut être fonctionnelle mais ne pas toujours fournir des messages d'erreur clairs et conviviaux à l'utilisateur final, ou ne pas logguer suffisamment de détails pour le débogage.
-    *   **Plan d'action** : Affiner les messages d'erreur pour l'utilisateur, implémenter un système de **logging robuste** (ex: Monolog) pour les erreurs serveur.
-
-5.  **Évolutivité de l'Architecture** :
-    *   **Dette** : Bien que le projet suive une architecture MVC, certaines décisions de conception initiales pourraient ne pas être optimales pour une évolution vers des microservices ou une architecture plus distribuée.
-    *   **Plan d'action** : Réévaluer l'architecture à mesure que les besoins évoluent, en se concentrant sur la **séparation des préoccupations** et la **modularité**.
 
 ## 11. Crédits
 
