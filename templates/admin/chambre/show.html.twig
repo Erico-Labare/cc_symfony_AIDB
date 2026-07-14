@@ -1,45 +1,167 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Chambre{% endblock %}
+{% block title %}Chambre {{ chambre.id }}{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1 class="mb-4">Détails de la Chambre</h1>
 
-        <table class="table table-bordered">
-            <tbody>
-                <tr>
-                    <th>Id</th>
-                    <td>{{ chambre.id }}</td>
-                </tr>
-                <tr>
-                    <th>Etage</th>
-                    <td>{{ chambre.etage }}</td>
-                </tr>
-                <tr>
-                    <th>Type</th>
-                    <td>{{ chambre.type }}</td>
-                </tr>
-                <tr>
-                    <th>NombreLit</th>
-                    <td>{{ chambre.nombreLit }}</td>
-                </tr>
-                <tr>
-                    <th>Hôtel</th>
-                    <td>{{ chambre.hotel.nom }}</td>
-                </tr>
-            </tbody>
-        </table>
+<div class="container">
 
-        <div class="d-flex justify-content-between mt-3">
-            <div>
-                <a href="{{ path('app_admin_chambre_index') }}" class="btn btn-secondary">Retour à la liste</a>
-                <a href="{{ path('app_admin_chambre_edit', {'id': chambre.id}) }}" class="btn btn-warning">Modifier</a>
-            </div>
-            {{ include('admin/chambre/_delete_form.html.twig') }}
-        </div>
-        <div class="mt-3">
-            <a href="{{ path('app_admin') }}" class="btn btn-secondary">Retour à la page Admin</a>
-        </div>
+    <div class="text-center mb-5">
+
+        <h1 class="page-title">
+
+            Chambre #{{ chambre.id }}
+
+        </h1>
+
+        <p class="page-subtitle">
+
+            Consultez les informations de cette chambre.
+
+        </p>
+
     </div>
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="reservation-card">
+
+                <h4 class="mb-4">
+
+                    <i class="bi bi-door-open me-2"></i>
+
+                    Informations générales
+
+                </h4>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-4">
+
+                        <strong>Identifiant</strong>
+
+                        <p class="mt-2">
+
+                            <span class="badge bg-primary">
+
+                                #{{ chambre.id }}
+
+                            </span>
+
+                        </p>
+
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+
+                        <strong>Type</strong>
+
+                        <p class="mt-2">
+
+                            {{ chambre.type }}
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-4">
+
+                        <strong>Étage</strong>
+
+                        <p class="mt-2">
+
+                            {{ chambre.etage }}
+
+                        </p>
+
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+
+                        <strong>Nombre de lits</strong>
+
+                        <p class="mt-2">
+
+                            {{ chambre.nombreLit }}
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <strong>Hôtel</strong>
+
+                    <p class="mt-2">
+
+                        <i class="bi bi-building me-2"></i>
+
+                        {{ chambre.hotel.nom }}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="reservation-actions mt-5">
+
+        <a
+            href="{{ path('app_admin_chambre_index') }}"
+            class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-2"></i>
+
+            Retour
+
+        </a>
+
+        <div class="d-flex gap-2">
+
+            <a
+                href="{{ path('app_admin_chambre_edit', {'id': chambre.id}) }}"
+                class="btn btn-warning">
+
+                <i class="bi bi-pencil-square me-2"></i>
+
+                Modifier
+
+            </a>
+
+            <button
+                type="button"
+                class="btn btn-danger delete-button"
+
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+
+                data-action="{{ path('app_admin_chambre_delete',{id:chambre.id}) }}"
+
+                data-token="{{ csrf_token('delete' ~ chambre.id) }}"
+
+                data-message="Êtes-vous sûr de vouloir supprimer la chambre n°{{ chambre.id }} ?">
+
+                <i class="bi bi-trash me-2"></i>
+
+                Supprimer
+
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

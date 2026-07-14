@@ -1,3 +1,101 @@
-body {
-    background-color: skyblue;
+@import url('./variables.css');
+
+@import url('./base.css');
+
+@import url('./navbar.css');
+
+@import url('./footer.css');
+
+@import url('./home.css');
+
+@import url('./reservation.css');
+
+@import url('./profile.css');
+
+@import url('./admin.css');
+
+@import url('./responsive.css');
+
+/* ------------------------------
+   Google Font
+------------------------------ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+
+
+/* ------------------------------
+   Reset
+------------------------------ */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
+
+html{
+
+    scroll-behavior:smooth;
+
+}
+
+
+/* ------------------------------
+   Tables
+------------------------------ */
+
+.table{
+
+    overflow:hidden;
+
+    border-radius:var(--radius);
+
+    background:white;
+
+    box-shadow:var(--shadow);
+
+}
+
+.table thead{
+
+    background:var(--primary);
+
+    color:white;
+
+}
+
+.table th{
+
+    border:none;
+
+}
+
+.table td{
+
+    vertical-align:middle;
+
+}
+
+/* ------------------------------
+   Alerts
+------------------------------ */
+
+.alert{
+
+    border:none;
+
+    border-radius:12px;
+
+}
+
+/* ------------------------------
+   Footer
+------------------------------ */
+
+footer{
+
+    backdrop-filter:blur(10px);
+
+}
+

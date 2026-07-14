@@ -4,142 +4,167 @@
 
 {% block body %}
 
-<div class="container mt-4">
+<div class="container">
 
-    <h1 class="mb-4">Administration</h1>
+    <div class="text-center mb-5">
 
-    <div class="row">
+        <h1 class="page-title">
+            Tableau de bord
+        </h1>
 
-        <div class="col-md-4 mb-3">
+        <p class="page-subtitle">
+            Gérez les hôtels, chambres, clients, comptes et réservations.
+        </p>
 
-            <div class="card shadow-sm">
+    </div>
 
-                <div class="card-body">
+    <div class="row g-4">
 
-                    <h5 class="card-title">
-                        Hôtels
-                    </h5>
+        <div class="col-xl-4 col-md-6">
 
-                    <p class="card-text">
-                        Gérer les hôtels.
-                    </p>
+            <div class="admin-card">
 
-                    <a
-                        href="{{ path('app_admin_hotel_index') }}"
-                        class="btn btn-primary"
-                    >
-                        Accéder
-                    </a>
-
+                <div class="admin-icon">
+                    <i class="bi bi-building"></i>
                 </div>
+
+                <h3>Hôtels</h3>
+
+                <p class="admin-count">
+                    {{ hotelCount }}
+                </p>
+
+                <small>
+                    hôtel(s) enregistré(s)
+                </small>
+
+                <a
+                    href="{{ path('app_admin_hotel_index') }}"
+                    class="btn btn-primary w-100 mt-4">
+
+                    Gérer les hôtels
+
+                </a>
 
             </div>
 
         </div>
 
-        <div class="col-md-4 mb-3">
+        <div class="col-xl-4 col-md-6">
 
-            <div class="card shadow-sm">
+            <div class="admin-card">
 
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Chambres
-                    </h5>
-
-                    <p class="card-text">
-                        Gérer les chambres.
-                    </p>
-
-                    <a
-                        href="{{ path('app_admin_chambre_index') }}"
-                        class="btn btn-primary"
-                    >
-                        Accéder
-                    </a>
-
+                <div class="admin-icon">
+                    <i class="bi bi-door-open"></i>
                 </div>
+
+                <h3>Chambres</h3>
+
+                <p class="admin-count">
+                    {{ chambreCount }}
+                </p>
+
+                <small>
+                    chambre(s)
+                </small>
+
+                <a
+                    href="{{ path('app_admin_chambre_index') }}"
+                    class="btn btn-primary w-100 mt-4">
+
+                    Gérer les chambres
+
+                </a>
 
             </div>
 
         </div>
 
-        <div class="col-md-4 mb-3">
+        <div class="col-xl-4 col-md-6">
 
-            <div class="card shadow-sm">
+            <div class="admin-card">
 
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Comptes
-                    </h5>
-
-                    <p class="card-text">
-                        Gérer les utilisateurs (comptes de connexion).
-                    </p>
-
-                    <a
-                        href="{{ path('app_admin_compte_index') }}"
-                        class="btn btn-primary"
-                    >
-                        Accéder
-                    </a>
-
+                <div class="admin-icon">
+                    <i class="bi bi-people-fill"></i>
                 </div>
+
+                <h3>Clients</h3>
+
+                <p class="admin-count">
+                    {{ clientCount }}
+                </p>
+
+                <small>
+                    client(s)
+                </small>
+
+                <a
+                    href="{{ path('app_admin_client_index') }}"
+                    class="btn btn-primary w-100 mt-4">
+
+                    Gérer les clients
+
+                </a>
 
             </div>
 
         </div>
 
-        <div class="col-md-4 mb-3">
+        <div class="col-xl-4 col-md-6">
 
-            <div class="card shadow-sm">
+            <div class="admin-card">
 
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Clients
-                    </h5>
-
-                    <p class="card-text">
-                        Gérer les informations des clients.
-                    </p>
-
-                    <a
-                        href="{{ path('app_admin_client_index') }}"
-                        class="btn btn-primary"
-                    >
-                        Accéder
-                    </a>
-
+                <div class="admin-icon">
+                    <i class="bi bi-person-lock"></i>
                 </div>
+
+                <h3>Comptes</h3>
+
+                <p class="admin-count">
+                    {{ compteCount }}
+                </p>
+
+                <small>
+                    compte(s)
+                </small>
+
+                <a
+                    href="{{ path('app_admin_compte_index') }}"
+                    class="btn btn-primary w-100 mt-4">
+
+                    Gérer les comptes
+
+                </a>
 
             </div>
 
         </div>
 
-        <div class="col-md-4 mb-3">
+        <div class="col-xl-4 col-md-6">
 
-            <div class="card shadow-sm">
+            <div class="admin-card">
 
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Réservations
-                    </h5>
-
-                    <p class="card-text">
-                        Gérer les réservations des clients.
-                    </p>
-
-                    <a
-                        href="{{ path('app_admin_reservation_index') }}"
-                        class="btn btn-primary"
-                    >
-                        Accéder
-                    </a>
-
+                <div class="admin-icon">
+                    <i class="bi bi-calendar-check"></i>
                 </div>
+
+                <h3>Réservations</h3>
+
+                <p class="admin-count">
+                    {{ reservationCount }}
+                </p>
+
+                <small>
+                    réservation(s)
+                </small>
+
+                <a
+                    href="{{ path('app_admin_reservation_index') }}"
+                    class="btn btn-primary w-100 mt-4">
+
+                    Gérer les réservations
+
+                </a>
 
             </div>
 
@@ -147,8 +172,16 @@
 
     </div>
 
-    <div class="mt-4">
-        <a href="{{ path('app_home') }}" class="btn btn-secondary">Retour à l'accueil</a>
+    <div class="text-center mt-5">
+
+        <a
+            href="{{ path('app_home') }}"
+            class="btn btn-outline-light">
+
+            ← Retour au site
+
+        </a>
+
     </div>
 
 </div>

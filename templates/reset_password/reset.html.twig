@@ -1,19 +1,70 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Réinitialiser le mot de passe{% endblock %}
+{% block title %}Nouveau mot de passe{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1 class="mb-4">Réinitialiser le mot de passe</h1>
 
-        {{ form_start(resetForm) }}
-            <div class="mb-3">
-                {{ form_label(resetForm.plainPassword) }}
-                {{ form_widget(resetForm.plainPassword) }}
-                {{ form_errors(resetForm.plainPassword) }}
+<section class="profile-page">
+
+    <div class="text-center mb-5">
+
+        <div class="mb-3">
+            <i class="bi bi-shield-lock-fill fs-1 text-warning"></i>
+        </div>
+
+        <h1 class="page-title">
+            Nouveau mot de passe
+        </h1>
+
+        <p class="page-subtitle">
+            Choisissez un nouveau mot de passe sécurisé.
+        </p>
+
+    </div>
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-5">
+
+            <div class="reservation-card">
+
+                {{ form_start(resetForm) }}
+
+                    <div class="mb-4">
+
+                        {{ form_label(resetForm.plainPassword, 'Nouveau mot de passe', {
+                            label_attr: {
+                                class: 'form-label fw-semibold'
+                            }
+                        }) }}
+
+                        {{ form_widget(resetForm.plainPassword, {
+                            attr: {
+                                class: 'form-control',
+                                placeholder: 'Votre nouveau mot de passe'
+                            }
+                        }) }}
+
+                        {{ form_errors(resetForm.plainPassword) }}
+
+                    </div>
+
+                    <button class="btn btn-primary w-100">
+
+                        <i class="bi bi-check-circle"></i>
+
+                        Réinitialiser le mot de passe
+
+                    </button>
+
+                {{ form_end(resetForm) }}
+
             </div>
 
-            <button class="btn btn-primary">Réinitialiser le mot de passe</button>
-        {{ form_end(resetForm) }}
+        </div>
+
     </div>
+
+</section>
+
 {% endblock %}

@@ -1,7 +1,105 @@
-<footer class="bg-dark text-white text-center p-3 mt-5">
+<footer class="footer-custom">
+
     <div class="container">
-        <small>
-            © {{ "now"|date("Y") }} - Centrale de réservation hôtel
-        </small>
+
+        <div class="row gy-4">
+
+            <div class="col-lg-5">
+
+                <div class="footer-brand">
+
+                    <div class="footer-logo">
+                        HB
+                    </div>
+
+                    <div>
+
+                        <h5>HOTEL BOOKING</h5>
+
+                        <p>
+                            Reservation
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <small class="footer-description">
+
+                    Réservez votre séjour simplement parmi nos hôtels partenaires.
+
+                </small>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <h6>Navigation</h6>
+
+                <ul class="footer-links">
+
+                    <li>
+                        <a href="{{ path('app_home') }}">
+                            Accueil
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ path('app_reservation_search') }}">
+                            Réserver
+                        </a>
+                    </li>
+
+                    {% if app.user %}
+
+                        <li>
+                            <a href="{{ path('app_client_profile') }}">
+                                Mon profil
+                            </a>
+                        </li>
+
+                    {% else %}
+
+                        <li>
+                            <a href="{{ path('app_login') }}">
+                                Connexion
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+                </ul>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <h6>Projet</h6>
+
+                <p class="footer-contact">
+
+                    Symfony 7<br>
+
+                    Bootstrap 5<br>
+
+                    Doctrine ORM
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="footer-bottom">
+
+            © {{ "now"|date("Y") }}
+
+            Hotel Booking — Projet pédagogique AIBD
+
+        </div>
+
     </div>
+
 </footer>

@@ -1,0 +1,93 @@
+/* ------------------------------
+   Responsive
+------------------------------ */
+
+@media(max-width:992px){
+
+    main{
+
+        padding:25px 15px;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    h1{
+
+        font-size:1.8rem;
+
+    }
+
+    .btn{
+
+        width:100%;
+
+        margin-bottom:10px;
+
+    }
+
+    .card-body{
+
+        padding:1.3rem;
+
+    }
+
+}
+
+
+/* ---------- MOBILE ---------- */
+
+@media(max-width:992px){
+
+    .navbar-collapse{
+
+        margin-top:20px;
+
+        padding-top:20px;
+
+        border-top:1px solid rgba(255,255,255,.08);
+
+    }
+
+    .navbar-nav{
+
+        gap:5px;
+
+        margin-bottom:20px;
+
+    }
+
+    .user-pill{
+
+        width:100%;
+
+        text-align:center;
+
+    }
+
+    .navbar .btn{
+
+        width:100%;
+
+    }
+
+}
+
+
+@media(max-width:992px){
+
+    .footer-custom{
+
+        text-align:center;
+
+    }
+
+    .footer-brand{
+
+        justify-content:center;
+
+    }
+
+}

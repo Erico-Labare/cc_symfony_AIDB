@@ -1,39 +1,161 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Client{% endblock %}
+{% block title %}Client {{ client.nom }}{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1>Détails du Client</h1>
 
-        <table class="table table-bordered">
-            <tbody>
-                <tr>
-                    <th>Id</th>
-                    <td>{{ client.id }}</td>
-                </tr>
-                <tr>
-                    <th>Nom</th>
-                    <td>{{ client.nom }}</td>
-                </tr>
-                <tr>
-                    <th>Adresse</th>
-                    <td>{{ client.adresse }}</td>
-                </tr>
-                <tr>
-                    <th>Email</th>
-                    <td>{{ client.email }}</td>
-                </tr>
-                <tr>
-                    <th>Téléphone</th>
-                    <td>{{ client.telephone }}</td>
-                </tr>
-            </tbody>
-        </table>
+<div class="container">
 
-        <a href="{{ path('app_admin_client_index') }}" class="btn btn-secondary">Retour à la liste</a>
-        <a href="{{ path('app_admin_client_edit', { 'id': client.id }) }}" class="btn btn-warning">Modifier</a>
+    <div class="text-center mb-5">
 
-        {{ include('admin/client/_delete_form.html.twig') }}
+        <h1 class="page-title">
+
+            {{ client.nom }}
+
+        </h1>
+
+        <p class="page-subtitle">
+
+            Consultez les informations de ce client.
+
+        </p>
+
     </div>
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="reservation-card">
+
+                <h4 class="mb-4">
+
+                    <i class="bi bi-person-fill me-2"></i>
+
+                    Informations du client
+
+                </h4>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-4">
+
+                        <strong>Identifiant</strong>
+
+                        <p class="mt-2">
+
+                            <span class="badge bg-primary">
+
+                                #{{ client.id }}
+
+                            </span>
+
+                        </p>
+
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+
+                        <strong>Téléphone</strong>
+
+                        <p class="mt-2">
+
+                            {{ client.telephone ?: 'Non renseigné' }}
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <strong>Nom</strong>
+
+                    <p class="mt-2">
+
+                        {{ client.nom }}
+
+                    </p>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <strong>Adresse email</strong>
+
+                    <p class="mt-2">
+
+                        {{ client.email }}
+
+                    </p>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <strong>Adresse</strong>
+
+                    <p class="mt-2">
+
+                        {{ client.adresse }}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="reservation-actions mt-5">
+
+        <a
+            href="{{ path('app_admin_client_index') }}"
+            class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-2"></i>
+
+            Retour
+
+        </a>
+
+        <div class="d-flex gap-2">
+
+            <a
+                href="{{ path('app_admin_client_edit', {'id': client.id}) }}"
+                class="btn btn-warning">
+
+                <i class="bi bi-pencil-square me-2"></i>
+
+                Modifier
+
+            </a>
+
+            <button
+                type="button"
+                class="btn btn-danger delete-button"
+
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+
+                data-action="{{ path('app_admin_client_delete',{id:client.id}) }}"
+
+                data-token="{{ csrf_token('delete' ~ client.id) }}"
+
+                data-message="Êtes-vous sûr de vouloir supprimer le client « {{ client.nom }} » ?">
+
+                <i class="bi bi-trash me-2"></i>
+
+                Supprimer
+
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

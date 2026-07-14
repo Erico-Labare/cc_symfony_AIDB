@@ -1,0 +1,349 @@
+/* ==========================================================
+   SEARCH PAGE
+========================================================== */
+
+.room-card{
+
+    background:rgba(255,255,255,.96);
+
+    border-radius:20px;
+
+    padding:30px;
+
+    box-shadow:0 15px 35px rgba(0,0,0,.12);
+
+    transition:.30s;
+
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.room-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.room-card-header{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+}
+
+.room-badge{
+
+    background:#22C55E;
+
+    color:white;
+
+    border-radius:999px;
+
+    padding:6px 14px;
+
+    font-size:.80rem;
+
+    font-weight:600;
+
+}
+
+.room-icon{
+
+    width:80px;
+
+    height:80px;
+
+    margin:25px auto;
+
+    border-radius:50%;
+
+    background:var(--primary);
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:2rem;
+
+}
+
+.room-card h4{
+
+    text-align:center;
+
+    margin-bottom:20px;
+
+}
+
+.room-info{
+
+    flex:1;
+
+}
+
+.room-info p{
+
+    margin-bottom:12px;
+
+}
+
+.room-info i{
+
+    color:var(--gold);
+
+    width:25px;
+
+}
+
+
+.page-title{
+
+    color:white;
+
+    font-size:2.7rem;
+
+}
+
+.page-subtitle{
+
+    color:rgba(255,255,255,.85);
+
+}
+
+.reservation-card{
+
+    background:white;
+
+    border-radius:22px;
+
+    padding:30px;
+
+    box-shadow:var(--shadow);
+
+    height:100%;
+
+    transition:.30s;
+
+}
+
+.reservation-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.reservation-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+
+}
+
+.reservation-number{
+
+    color:#666;
+
+    font-size:.90rem;
+
+}
+
+.reservation-section h5{
+
+    margin-bottom:20px;
+
+}
+
+.reservation-info p{
+
+    margin-bottom:12px;
+
+}
+
+.reservation-info i{
+
+    color:var(--gold);
+
+    width:24px;
+
+}
+
+.traveler-card{
+
+    background:#F8FAFC;
+
+    border-radius:15px;
+
+    padding:18px;
+
+}
+
+.comment-box{
+
+    background:#F8FAFC;
+
+    border-radius:15px;
+
+    padding:18px;
+
+}
+
+.reservation-actions{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:25px;
+
+    gap:15px;
+
+}
+
+.empty-reservation{
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:70px;
+
+    text-align:center;
+
+}
+
+.empty-reservation i{
+
+    font-size:4rem;
+
+    color:var(--gold);
+
+    margin-bottom:20px;
+
+}
+
+@media(max-width:768px){
+
+    .reservation-actions{
+
+        flex-direction:column;
+
+    }
+
+    .reservation-actions .btn{
+
+        width:100%;
+
+    }
+
+}
+/* ==========================================================
+   EDIT COMMENT
+========================================================== */
+
+textarea.form-control{
+
+    min-height:170px;
+
+    resize:vertical;
+
+}
+
+.form-label{
+
+    color:var(--primary);
+
+    margin-bottom:10px;
+
+}
+.search-subtitle{
+
+    color:#FFFFFF;
+
+    opacity:.88;
+
+    font-size:1.05rem;
+
+    margin-top:10px;
+
+}
+.search-card label{
+
+    color:white;
+
+    font-weight:600;
+
+    margin-bottom:8px;
+
+}
+.search-box{
+
+    background:rgba(255,255,255,.12);
+
+    backdrop-filter:blur(14px);
+
+    border:1px solid rgba(255,255,255,.15);
+
+    border-radius:22px;
+
+    padding:30px;
+
+    margin-top:35px;
+
+}
+.search-box .btn{
+
+    height:80px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:6px;
+
+    line-height:1.1;
+
+    font-size:1.15rem;
+
+    font-weight:600;
+
+}
+.search-box .form-control,
+.search-box .form-select{
+
+    min-height:54px;
+
+    border-radius:14px;
+
+}
+.search-title{
+
+    font-size:3rem;
+
+    font-weight:700;
+
+}
+.search-hero{
+
+    margin-top:20px;
+
+    margin-bottom:50px;
+
+}

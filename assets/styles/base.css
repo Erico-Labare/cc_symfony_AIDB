@@ -1,0 +1,218 @@
+body{
+
+    font-family:'Poppins',sans-serif;
+
+    color:var(--text);
+
+    display:flex;
+    flex-direction:column;
+
+    min-height:100vh;
+
+    position:relative;
+
+    background:url('/images/hotel-background.jpg');
+
+    background-size:cover;
+
+    background-position:center;
+
+    background-repeat:no-repeat;
+
+    background-attachment:fixed;
+
+}
+
+/* ------------------------------
+   Overlay sombre
+------------------------------ */
+
+body::before{
+
+    content:"";
+
+    position:fixed;
+
+    inset:0;
+
+    background:
+        linear-gradient(
+            rgba(8,18,34,.78),
+            rgba(18,30,52,.68)
+        );
+
+    z-index:-1;
+
+    pointer-events:none;
+
+}
+
+/* ------------------------------
+   Main Container
+------------------------------ */
+
+main{
+
+    width:100%;
+
+    max-width:1250px;
+
+    margin:auto;
+
+    padding:40px 20px;
+
+}
+
+/* ------------------------------
+   Titles
+------------------------------ */
+
+h1{
+
+    color:white;
+
+    font-weight:700;
+
+    margin-bottom:25px;
+
+}
+
+h2{
+
+    color:white;
+
+    font-weight:600;
+
+}
+
+h3,
+h4,
+h5{
+
+    color:var(--primary);
+
+    font-weight:600;
+
+}
+.page-title{
+
+    color:white;
+
+    font-size:2.5rem;
+
+    font-weight:700;
+
+}
+
+.page-subtitle{
+
+    color:rgba(255,255,255,.82);
+
+    font-size:1.05rem;
+
+}
+/* ------------------------------
+   Cards
+------------------------------ */
+
+.card{
+
+    border:none;
+
+    border-radius:var(--radius);
+
+    background:rgba(255,255,255,.97);
+
+    box-shadow:var(--shadow);
+
+    overflow:hidden;
+
+}
+
+.card-body{
+
+    padding:2rem;
+
+}
+
+/* ------------------------------
+   Buttons
+------------------------------ */
+
+.btn{
+
+    border-radius:12px;
+
+    padding:.65rem 1.4rem;
+
+    font-weight:500;
+
+    transition:.25s;
+
+}
+
+.btn:hover{
+
+    transform:translateY(-2px);
+
+}
+
+.btn-primary{
+
+    background:var(--primary);
+
+    border:none;
+
+}
+
+.btn-primary:hover{
+
+    background:var(--primary-light);
+
+}
+
+.btn-warning{
+
+    color:white;
+
+    background:var(--gold);
+
+    border:none;
+
+}
+
+.btn-warning:hover{
+
+    background:#B9934E;
+
+}
+
+.btn-danger{
+
+    border:none;
+
+}
+
+/* ------------------------------
+   Forms
+------------------------------ */
+
+.form-control,
+.form-select{
+
+    border-radius:12px;
+
+    min-height:48px;
+
+    border:1px solid #D8DDE5;
+
+}
+
+.form-control:focus,
+.form-select:focus{
+
+    border-color:var(--primary);
+
+    box-shadow:0 0 0 .20rem rgba(30,58,95,.15);
+
+}

@@ -1,13 +1,93 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Email de réinitialisation de mot de passe envoyé{% endblock %}
+{% block title %}Email envoyé{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <p>
-            Si un compte correspondant à votre adresse e-mail existe, un e-mail vient d'être envoyé avec un lien que vous pouvez utiliser pour réinitialiser votre mot de passe.
-            Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+
+<section class="profile-page">
+
+    <div class="text-center mb-5">
+
+        <div class="mb-3">
+            <i class="bi bi-envelope-check-fill fs-1 text-success"></i>
+        </div>
+
+        <h1 class="page-title">
+            Vérifiez votre boîte mail
+        </h1>
+
+        <p class="page-subtitle">
+            Nous avons traité votre demande.
         </p>
-        <p>Si vous ne recevez pas d'e-mail, veuillez vérifier votre dossier de spam ou <a href="{{ path('app_forgot_password_request') }}">réessayer</a>.</p>
+
     </div>
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7">
+
+            <div class="reservation-card">
+
+                <div class="reservation-summary">
+
+                    <div class="summary-item">
+
+                        <i class="bi bi-envelope-paper"></i>
+
+                        <span>
+
+                            Si un compte correspondant à votre adresse email existe,
+                            un email vient d'être envoyé.
+
+                        </span>
+
+                    </div>
+
+                    <div class="summary-item">
+
+                        <i class="bi bi-clock-history"></i>
+
+                        <span>
+
+                            Ce lien expirera
+                            {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="text-center mt-4">
+
+                    <p>
+
+                        Vous ne trouvez pas le message ?
+
+                    </p>
+
+                    <p class="text-muted">
+
+                        Vérifiez votre dossier spam ou renvoyez une nouvelle demande.
+
+                    </p>
+
+                    <a
+                        href="{{ path('app_forgot_password_request') }}"
+                        class="btn btn-outline-primary">
+
+                        Réessayer
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
 {% endblock %}

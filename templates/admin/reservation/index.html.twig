@@ -3,63 +3,260 @@
 {% block title %}Gestion des Réservations{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1 class="mb-4">Gestion des Réservations</h1>
+    <div class="container">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <a href="{{ path('app_admin_reservation_new') }}" class="btn btn-primary">Créer une nouvelle réservation</a>
-            <div class="d-flex">
-                {# Nouvelle barre de recherche par ID de réservation #}
-                <form method="GET" action="{{ path('app_admin_reservation_index') }}" class="d-flex me-2">
-                    <input type="text" name="reservation_id" class="form-control me-2" placeholder="Rechercher par ID Réservation" value="{{ app.request.query.get('reservation_id') }}" style="width: 250px;">
-                    <button type="submit" class="btn btn-outline-secondary">Rechercher ID</button>
+    <div class="text-center mb-5">
+
+        <h1 class="page-title">
+            Gestion des réservations
+        </h1>
+
+        <p class="page-subtitle">
+            Consultez, recherchez et gérez toutes les réservations de votre établissement.
+        </p>
+
+    </div>
+
+    <div class="admin-toolbar">
+
+        <div class="row g-3 align-items-end">
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+                    ID réservation
+                </label>
+
+                <form method="GET" action="{{ path('app_admin_reservation_index') }}">
+
+                    <input
+                        type="text"
+                        name="reservation_id"
+                        class="form-control"
+                        value="{{ app.request.query.get('reservation_id') }}"
+                        placeholder="Ex : 15">
+
                 </form>
-                {# Barre de recherche existante modifiée #}
-                <form method="GET" action="{{ path('app_admin_reservation_index') }}" class="d-flex">
-                    <input type="text" name="search" class="form-control me-2" placeholder="Rechercher (email client, ID chambre)" value="{{ search }}" style="width: 350px;">
-                    <button type="submit" class="btn btn-outline-secondary">Rechercher</button>
-                </form>
+
             </div>
+
+            <div class="col-lg-5">
+
+                <label class="form-label">
+                    Client ou chambre
+                </label>
+
+                <form method="GET" action="{{ path('app_admin_reservation_index') }}">
+
+                    <input
+                        type="text"
+                        name="search"
+                        class="form-control"
+                        value="{{ search }}"
+                        placeholder="Email client ou ID chambre">
+
+                </form>
+
+            </div>
+
+            <div class="col-lg-2 d-grid">
+
+                <button
+                    formmethod="GET"
+                    formaction="{{ path('app_admin_reservation_index') }}"
+                    class="btn btn-primary">
+
+                    <i class="bi bi-search me-2"></i>
+
+                    Rechercher
+
+                </button>
+
+            </div>
+
+            <div class="col-lg-2 d-grid">
+
+                <a
+                    href="{{ path('app_admin_reservation_new') }}"
+                    class="btn btn-success">
+
+                    <i class="bi bi-plus-circle me-2"></i>
+
+                    Nouvelle
+
+                </a>
+
+            </div>
+
         </div>
 
-        <table class="table table-striped">
+    </div>
+
+        <table class="table admin-table align-middle">
+
             <thead>
+
                 <tr>
-                    <th>Id</th>
-                    <th>Date de début</th>
-                    <th>Date de fin</th>
+
+                    <th style="width:90px;">#</th>
+
+                    <th>Séjour</th>
+
+                    <th>Client</th>
+
+                    <th>Chambre</th>
+
                     <th>Commentaire</th>
-                    <th>Compte (Email)</th>
-                    <th>Client (Email)</th>
-                    <th>Chambre (ID)</th>
-                    <th>Actions</th>
+
+                    <th class="text-center" style="width:170px;">Actions</th>
+
                 </tr>
+
             </thead>
+
             <tbody>
-                {% for reservation in reservations %}
-                    <tr>
-                        <td>{{ reservation.id }}</td>
-                        <td>{{ reservation.dateDebut ? reservation.dateDebut|date('Y-m-d') : '' }}</td>
-                        <td>{{ reservation.dateFin ? reservation.dateFin|date('Y-m-d') : '' }}</td>
-                        <td>{{ reservation.commentaire }}</td>
-                        <td>{{ reservation.compte ? reservation.compte.email : 'N/A' }}</td>
-                        <td>{{ reservation.client ? reservation.client.email : 'N/A' }}</td>
-                        <td>{{ reservation.chambre ? reservation.chambre.id : 'N/A' }}</td>
-                        <td>
-                            <a href="{{ path('app_admin_reservation_show', { 'id': reservation.id }) }}" class="btn btn-info btn-sm">Voir</a>
-                            <a href="{{ path('app_admin_reservation_edit', { 'id': reservation.id }) }}" class="btn btn-warning btn-sm">Modifier</a>
-                            <form method="post" action="{{ path('app_admin_reservation_delete', { 'id': reservation.id }) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?');" style="display: inline-block;">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
-                                <button class="btn btn-danger btn-sm">Supprimer</button>
-                            </form>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="8">Aucune réservation trouvée</td>
-                    </tr>
-                {% endfor %}
+
+            {% for reservation in reservations %}
+
+                <tr>
+
+                    <td>
+
+                        <span class="badge bg-primary fs-6">
+
+                            #{{ reservation.id }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <strong>
+
+                            {{ reservation.dateDebut|date('d/m/Y') }}
+
+                        </strong>
+
+                        <br>
+
+                        <small class="text-muted">
+
+                            →
+
+                            {{ reservation.dateFin|date('d/m/Y') }}
+
+                        </small>
+
+                    </td>
+
+                    <td>
+
+                        <strong>
+
+                            {{ reservation.client.nom }}
+
+                        </strong>
+
+                        <br>
+
+                        <small class="text-muted">
+
+                            {{ reservation.client.email }}
+
+                        </small>
+
+                    </td>
+
+                    <td>
+
+                        <strong>
+
+                            Chambre {{ reservation.chambre.id }}
+
+                        </strong>
+
+                        <br>
+
+                        <small class="text-muted">
+
+                            {{ reservation.chambre.hotel.nom }}
+
+                        </small>
+
+                    </td>
+
+                    <td>
+
+                        {{ reservation.commentaire ? reservation.commentaire|slice(0, 35) ~ (reservation.commentaire|length > 35 ? '...' : '') : '—' }}
+
+                    </td>
+
+                    <td class="text-center">
+
+                        <div class="d-flex justify-content-center gap-2">
+
+                            <a
+                                href="{{ path('app_admin_reservation_show', {'id': reservation.id}) }}"
+                                class="btn btn-outline-primary btn-sm"
+                                title="Voir">
+
+                                <i class="bi bi-eye"></i>
+
+                            </a>
+
+                            <a
+                                href="{{ path('app_admin_reservation_edit', {'id': reservation.id}) }}"
+                                class="btn btn-outline-warning btn-sm"
+                                title="Modifier">
+
+                                <i class="bi bi-pencil-square"></i>
+
+                            </a>
+
+                            <button
+                                type="button"
+                                class="btn btn-outline-danger btn-sm delete-button"
+
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal"
+
+                                data-action="{{ path('app_admin_reservation_delete',{id:reservation.id}) }}"
+
+                                data-token="{{ csrf_token('delete' ~ reservation.id) }}"
+
+                                data-message="Êtes-vous sûr de vouloir supprimer la réservation n°{{ reservation.id }} ?">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="6" class="text-center py-5">
+
+                        <i class="bi bi-calendar-x fs-1 text-secondary"></i>
+
+                        <br><br>
+
+                        Aucune réservation trouvée.
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
             </tbody>
+
         </table>
 
         {# Pagination #}

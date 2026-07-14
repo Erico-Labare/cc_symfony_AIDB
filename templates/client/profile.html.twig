@@ -1,31 +1,99 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon compte{% endblock %}
+{% block title %}Mon profil{% endblock %}
 
 {% block body %}
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h1 class="card-title mb-4">Mon compte</h1> {# Changed h5 to h1 #}
 
-            {# Removed the conditional display of client.nom #}
-            <p class="card-text mb-2">
-                <strong>Nom d'utilisateur / Email :</strong> {{ compte.email }} {# Renamed label #}
-            </p>
-            <p class="card-text mb-2">
-                <strong>Type de compte :</strong> {# Renamed label #}
-                {% if 'ROLE_ADMIN' in compte.roles %}
-                    Administrateur
-                {% else %}
-                    Utilisateur
-                {% endif %}
-            </p>
-            <p class="card-text mb-4">
-                <strong>Mot de passe :</strong> ************
-            </p>
+<section class="profile-page">
 
-            <a href="{{ path('app_client_change_password') }}" class="btn btn-warning">Changer mon mot de passe</a>
-            <a href="{{ path('app_reservation_my_reservations') }}" class="btn btn-primary">Mes réservations</a>
-            <a href="{{ path('app_home') }}" class="btn btn-outline-secondary">Retour à l'accueil</a>
-        </div>
+    <div class="text-center mb-5">
+
+        <h1 class="page-title">
+            Mon profil
+        </h1>
+
+        <p class="page-subtitle">
+            Consultez les informations de votre compte.
+        </p>
+
     </div>
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="reservation-card">
+
+                <div class="traveler-card">
+
+                    <h5 class="mb-4">
+
+                        <i class="bi bi-person-circle"></i>
+
+                        Informations du compte
+
+                    </h5>
+
+                    <p>
+                        <strong>Email</strong><br>
+                        {{ compte.email }}
+                    </p>
+
+                    <p>
+                        <strong>Type de compte</strong><br>
+
+                        {% if 'ROLE_ADMIN' in compte.roles %}
+
+                            Administrateur
+
+                        {% else %}
+
+                            Utilisateur
+
+                        {% endif %}
+
+                    </p>
+
+                    <p>
+
+                        <strong>Mot de passe</strong><br>
+
+                        ••••••••••••
+
+                    </p>
+
+                </div>
+
+                <div class="reservation-actions mt-4">
+
+                    <a
+                        href="{{ path('app_client_change_password') }}"
+                        class="btn btn-warning">
+
+                        <i class="bi bi-key"></i>
+
+                        Changer le mot de passe
+
+                    </a>
+
+                    <a
+                        href="{{ path('app_reservation_my_reservations') }}"
+                        class="btn btn-primary">
+
+                        <i class="bi bi-calendar-check"></i>
+
+                        Mes réservations
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
 {% endblock %}

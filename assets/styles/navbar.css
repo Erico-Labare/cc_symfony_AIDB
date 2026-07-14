@@ -1,0 +1,169 @@
+/* ==========================================================
+   NAVBAR
+========================================================== */
+
+.navbar-custom{
+
+    background:rgba(16,28,44,.72);
+
+    backdrop-filter:blur(16px);
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+    box-shadow:0 10px 30px rgba(0,0,0,.20);
+
+    padding:14px 0;
+
+}
+
+/* ---------- BRAND ---------- */
+
+.brand{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    text-decoration:none;
+
+}
+
+.brand-logo{
+
+    width:52px;
+
+    height:52px;
+
+    border-radius:14px;
+
+    background:linear-gradient(135deg,#1E3A5F,#284D7A);
+
+    border:2px solid var(--gold);
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:1.1rem;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+}
+
+.brand-text{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.brand-title{
+
+    color:white;
+
+    font-weight:700;
+
+    font-size:1rem;
+
+    letter-spacing:2px;
+
+}
+
+.brand-subtitle{
+
+    color:var(--gold);
+
+    font-size:.72rem;
+
+    letter-spacing:1.5px;
+
+    text-transform:uppercase;
+
+}
+
+/* ---------- MENU ---------- */
+
+.navbar-nav{
+
+    gap:10px;
+
+}
+
+.nav-link{
+
+    position:relative;
+
+    color:white !important;
+
+    font-weight:500;
+
+    padding:.6rem 1rem !important;
+
+}
+
+.nav-link::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:15%;
+
+    bottom:4px;
+
+    width:0;
+
+    height:2px;
+
+    background:var(--gold);
+
+    transition:.30s;
+
+}
+
+.nav-link:hover::after,
+
+.nav-link.active::after{
+
+    width:70%;
+
+}
+
+.nav-link:hover{
+
+    color:white !important;
+
+}
+
+/* ---------- USER ---------- */
+
+.user-pill{
+
+    background:rgba(255,255,255,.10);
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    color:white;
+
+    font-size:.90rem;
+
+}
+
+/* ---------- BUTTON ---------- */
+
+.navbar .btn{
+
+    min-width:120px;
+
+}
