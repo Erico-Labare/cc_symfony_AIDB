@@ -29,6 +29,18 @@ class CompteType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $constraints = [
+            new Length(
+                min: 6,
+                minMessage: 'Votre mot de passe doit contenir au moins {{ limit }} caractères',
+                max: 4096, // Longueur max de Symfony Security
+            ),
+        ];
+
+        if ($options['is_new']) {
+            $constraints[] = new NotBlank(message: 'Veuillez entrer un mot de passe');
+        }
+
         $builder
             ->add('email', EmailType::class, [
                 'label' => 'Adresse Email',
@@ -39,15 +51,7 @@ class CompteType extends AbstractType
                 'required' => $options['is_new'], // Requis seulement lors de la création d'un nouveau compte
                 'label' => 'Mot de passe',
                 'attr' => ['autocomplete' => 'new-password', 'placeholder' => 'Laissez vide pour ne pas changer'],
-                'constraints' => [
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Votre mot de passe doit contenir au moins {{ limit }} caractères',
-                        'max' => 4096, // Longueur max de Symfony Security
-                    ]),
-                    // NotBlank est ajouté conditionnellement si 'is_new' est vrai
-                    ($options['is_new'] ? new NotBlank(['message' => 'Veuillez entrer un mot de passe']) : null),
-                ],
+                'constraints' => $constraints,
             ])
             ->add('role', ChoiceType::class, [
                 'label' => 'Rôle',

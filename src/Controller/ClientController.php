@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Contracts\Translation\TranslatorInterface; // Added for translation
 
 /**
  * Contrôleur gérant les actions spécifiques aux clients.
@@ -32,7 +33,6 @@ final class ClientController extends AbstractController
      * @param ClientRepository $clientRepository Le dépôt des clients pour récupérer les données du client.
      * @return Response Une réponse HTTP affichant le profil client.
      * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté.
-     * @throws NotFoundHttpException Si aucun profil client n'est trouvé pour l'utilisateur connecté.
      */
     #[Route('/profile', name: 'app_client_profile', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
@@ -44,16 +44,14 @@ final class ClientController extends AbstractController
         }
 
         // Find the Client associated with the logged-in Compte via email
+        // If no client profile is found for the logged-in user, $client will be null.
+        // We no longer throw an exception here, allowing admins (who might not have a Client entity)
+        // to still view their Compte profile.
         $client = $clientRepository->findOneBy(['email' => $compte->getEmail()]);
-
-        if (!$client) {
-            // If no client profile is found for the logged-in user, throw a 404
-            throw new NotFoundHttpException('No client profile found for this user.');
-        }
 
         return $this->render('client/profile.html.twig', [
             'compte' => $compte,
-            'client' => $client, // Pass the client object to the template
+            'client' => $client, // Pass the client object (can be null) to the template
         ]);
     }
 
@@ -66,6 +64,7 @@ final class ClientController extends AbstractController
      * @param Request $request La requête HTTP.
      * @param UserPasswordHasherInterface $passwordHasher Le service de hachage de mot de passe.
      * @param EntityManagerInterface $entityManager Le gestionnaire d'entités Doctrine.
+     * @param TranslatorInterface $translator Le service de traduction. // Added for translation
      * @return Response Une réponse HTTP affichant le formulaire ou redirigeant après succès/échec.
      * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté.
      */
@@ -75,11 +74,12 @@ final class ClientController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager,
+        TranslatorInterface $translator // Added for translation
     ): Response {
         $compte = $this->getUser();
 
         if (!$compte instanceof Compte) {
-            throw $this->createAccessDeniedException('Vous devez être connecté.');
+            throw $this->createAccessDeniedException($translator->trans('access_denied.not_connected', [], 'app'));
         }
 
         $form = $this->createForm(AccountPasswordType::class);
@@ -91,7 +91,7 @@ final class ClientController extends AbstractController
             if (!$passwordHasher->isPasswordValid($compte, $currentPassword)) {
                 $this->addFlash(
                     'danger',
-                    'Votre ancien mot de passe est incorrect.'
+                    $translator->trans('client.change_password.error.old_password_incorrect', [], 'app')
                 );
 
                 return $this->redirectToRoute('app_client_change_password');
@@ -110,7 +110,7 @@ final class ClientController extends AbstractController
 
             $this->addFlash(
                 'success',
-                'Votre mot de passe a été modifié avec succès.'
+                $translator->trans('client.change_password.success', [], 'app')
             );
 
             return $this->redirectToRoute('app_client_profile');

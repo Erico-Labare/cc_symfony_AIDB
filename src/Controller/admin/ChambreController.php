@@ -75,7 +75,7 @@ final class ChambreController extends AbstractController
             try {
                 $entityManager->persist($chambre);
                 $entityManager->flush();
-                $this->addFlash('success', 'La chambre a été créée avec succès.');
+                $this->addFlash('success', $translator->trans('admin.chambre.new.success', [], 'app'));
                 return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER); // Corrected route name
             } catch (UniqueConstraintViolationException $e) {
                 $logger->error('Admin chambre creation failed due to unique constraint violation: ' . $e->getMessage());
@@ -131,7 +131,7 @@ final class ChambreController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $entityManager->flush();
-                $this->addFlash('success', 'La chambre a été modifiée avec succès.');
+                $this->addFlash('success', $translator->trans('admin.chambre.edit.success', [], 'app'));
                 return $this->redirectToRoute('app_admin_chambre_index', [], Response::HTTP_SEE_OTHER); // Corrected route name
             } catch (UniqueConstraintViolationException $e) {
                 $logger->error('Admin chambre edit failed due to unique constraint violation: ' . $e->getMessage());
@@ -176,7 +176,7 @@ final class ChambreController extends AbstractController
                 $this->addFlash('error', $translator->trans('admin.chambre.delete.error.orm_exception', [], 'app'));
             } catch (\Exception $e) {
                 $logger->critical('Unexpected error during admin chambre deletion: ' . $e->getMessage());
-                $this->addFlash('error', $translator->trans('admin.chambre.delete.error.unexpected', [], 'app'));
+                $this->addFlash('error', $translator->trans('admin.chambre.error.unexpected', [], 'app'));
             }
         } else {
             $this->addFlash('error', $translator->trans('csrf.invalid_token', [], 'app'));

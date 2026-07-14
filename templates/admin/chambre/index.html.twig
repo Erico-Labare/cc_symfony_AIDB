@@ -36,6 +36,10 @@
                     <td>
                         <a href="{{ path('app_admin_chambre_show', {'id': chambre.id}) }}" class="btn btn-info btn-sm">Voir</a>
                         <a href="{{ path('app_admin_chambre_edit', {'id': chambre.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                        <form method="post" action="{{ path('app_admin_chambre_delete', {'id': chambre.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette chambre ?');" style="display: inline-block;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ chambre.id) }}">
+                            <button class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
                     </td>
                 </tr>
             {% else %}

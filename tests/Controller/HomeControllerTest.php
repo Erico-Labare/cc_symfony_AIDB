@@ -88,7 +88,7 @@ final class HomeControllerTest extends BaseWebTestCase
 
         self::assertResponseIsSuccessful();
 
-        // Vérifier que le rôle est affiché
-        self::assertSelectorTextContains('body', 'ROLE_USER');
+        // Vérifier que l'email de l'utilisateur est affiché
+        self::assertSelectorTextContains('body', 'test@test.com');
     }
 }

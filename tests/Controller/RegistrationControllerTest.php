@@ -63,7 +63,7 @@ class RegistrationControllerTest extends WebTestCase
     {
         $this->client->request('GET', '/register');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h1', 'Register'); // Assurez-vous que votre template a un h1 avec "Register"
+        $this->assertSelectorTextContains('h1', 'Inscription'); // Assurez-vous que votre template a un h1 avec "Inscription"
         $this->assertSelectorExists('form[name="registration_form"]');
     }
 
@@ -176,13 +176,11 @@ class RegistrationControllerTest extends WebTestCase
     public function testRegistrationWithInvalidData(): void
     {
         $crawler = $this->client->request('GET', '/register');
-        $form = $crawler->selectButton('Register')->form([
+        $this->client->submitForm('S\'inscrire', [
             'registration_form[email]' => 'invalid-email', // Email invalide
             'registration_form[plainPassword]' => 'short', // Mot de passe trop court
             'registration_form[agreeTerms]' => false, // Termes non acceptés
         ]);
-
-        $this->client->submit($form);
 
         // Changed assertion to expect 422 Unprocessable Content
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -285,7 +283,6 @@ class RegistrationControllerTest extends WebTestCase
         // Simule un utilisateur authentifié
         $this->client->loginUser($persistedUser);
 
-        // Simule une exception de vérification
         $this->mockEmailVerifier->expects($this->once())
             ->method('handleEmailConfirmation')
             ->willThrowException(new ExpiredSignatureException('Invalid link'));

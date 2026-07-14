@@ -76,7 +76,7 @@ class ClientControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Mon compte'); // Updated assertion
-        self::assertSelectorTextContains('p', 'Doe'); // Updated assertion to check for client name in a <p> tag
+        self::assertSelectorTextContains('p', 'Nom d\'utilisateur / Email : test@example.com'); // Updated assertion to check for the email
 
         // Clean up the created entities
         $userToRemove = $entityManager->getRepository(Compte::class)->findOneBy(['email' => 'test@example.com']);

@@ -11,6 +11,7 @@ use App\Form\ReservationFormType;
 use App\Repository\ClientRepository;
 use App\Repository\ChambreRepository;
 use App\Repository\HotelRepository;
+use App\Repository\ReservationRepository;
 use App\Services\DisponibiliteService;
 use App\Services\ReservationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -73,10 +74,8 @@ final class ReservationController extends AbstractController
             $session->remove('last_search_criteria'); // Clear it after use
 
             if (isset($storedCriteria['hotel_id'])) {
-                $hotel = $hotelRepository->find($storedCriteria['hotel_id']);
-                if ($hotel) {
-                    $formData['hotel'] = $hotel;
-                }
+                // If hotel_id was null, it should remain null for pre-filling
+                $formData['hotel'] = $storedCriteria['hotel_id'] ? $hotelRepository->find($storedCriteria['hotel_id']) : null;
             }
             if (isset($storedCriteria['dateDebut'])) {
                 $formData['dateDebut'] = new \DateTime($storedCriteria['dateDebut']);
@@ -93,10 +92,9 @@ final class ReservationController extends AbstractController
 
             // Pre-fill hotel
             if (isset($submittedData['hotel'])) {
-                $hotel = $hotelRepository->find($submittedData['hotel']);
-                if ($hotel) {
-                    $formData['hotel'] = $hotel;
-                }
+                $formData['hotel'] = $submittedData['hotel'] ? $hotelRepository->find($submittedData['hotel']) : null;
+            } else {
+                $formData['hotel'] = null; // Ensure it's null if not submitted
             }
 
             // Pre-fill dateDebut
@@ -129,16 +127,18 @@ final class ReservationController extends AbstractController
             $hotel = $form->get('hotel')->getData();
             $dateDebut = $form->get('dateDebut')->getData();
             $dateFin = $form->get('dateFin')->getData();
-            $hotelId = $hotel?->getId();
+            $hotelId = $hotel?->getId(); // This will be null if "Tous les Hôtels" is selected
 
-            if ($hotelId && $dateDebut && $dateFin) {
+            // Modified condition: allow hotelId to be null
+            if ($dateDebut && $dateFin) {
                 try {
+                    // Pass hotelId (which can be null) to the service
                     $availableRooms = $disponibiliteService->findAvailableRooms($dateDebut, $dateFin, $hotelId);
 
                     // Store search criteria in session if user is not logged in
                     if (!$this->getUser()) {
                         $session->set('last_search_criteria', [
-                            'hotel_id' => $hotelId,
+                            'hotel_id' => $hotelId, // Store null if no hotel selected
                             'dateDebut' => $dateDebut->format('Y-m-d'),
                             'dateFin' => $dateFin->format('Y-m-d'),
                         ]);
@@ -228,7 +228,7 @@ final class ReservationController extends AbstractController
             $chambre = $chambreRepository->find($chambreId);
 
             if (!$chambre) {
-                throw new \Exception('Chambre non trouvée.');
+                throw new \Exception($translator->trans('reservation.create.error.room_not_found_generic', [], 'app'));
             }
 
             /*
@@ -243,7 +243,7 @@ final class ReservationController extends AbstractController
                 $client = $clientRepository->find($clientId);
 
                 if (!$client) {
-                    throw new \Exception('Client introuvable.');
+                    throw new \Exception($translator->trans('reservation.create.error.client_not_found', [], 'app'));
                 }
 
                 // Mise à jour éventuelle des informations.
@@ -264,7 +264,7 @@ final class ReservationController extends AbstractController
 
                 if ($existingClient) {
                     throw new \Exception(
-                        'Un client avec cette adresse email existe déjà. Veuillez le sélectionner dans la liste.'
+                        $translator->trans('reservation.create.error.client_email_exists', [], 'app')
                     );
                 }
 
@@ -339,19 +339,26 @@ final class ReservationController extends AbstractController
      * Affiche la liste des réservations de l'utilisateur connecté.
      *
      * @param TranslatorInterface $translator Le service de traduction.
+     * @param ReservationRepository $reservationRepository Le dépôt des réservations. // Added this line
      * @return Response Une réponse HTTP affichant la liste des réservations.
      * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException Si l'utilisateur n'est pas connecté.
      */
     #[Route('/my-reservations', name: 'app_reservation_my_reservations', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function myReservations(TranslatorInterface $translator): Response
-    {
+    public function myReservations(
+        TranslatorInterface $translator,
+        ReservationRepository $reservationRepository // Added this line
+    ): Response {
         $compte = $this->getUser();
         if (!$compte instanceof Compte) {
             throw $this->createAccessDeniedException($translator->trans('access_denied.not_connected', [], 'app'));
         }
 
-        $reservations = $compte->getReservations();
+        // Fetch reservations for the current account, ordered by ID descending
+        $reservations = $reservationRepository->findBy(
+            ['compte' => $compte],
+            ['id' => 'DESC'] // Order by ID descending
+        );
 
         return $this->render('reservation/my-reservations.html.twig', [
             'reservations' => $reservations,

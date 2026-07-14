@@ -8,7 +8,7 @@ use App\Entity\Client;
 use App\Entity\Chambre;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\DateType; // Changed from DateTimeType
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -31,13 +31,13 @@ class ReservationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('dateDebut', DateTimeType::class, [
+            ->add('dateDebut', DateType::class, [ // Changed to DateType
                 'widget' => 'single_text',
                 'html5' => true,
                 'attr' => ['class' => 'form-control'],
                 'label' => 'Date de début',
             ])
-            ->add('dateFin', DateTimeType::class, [
+            ->add('dateFin', DateType::class, [ // Changed to DateType
                 'widget' => 'single_text',
                 'html5' => true,
                 'attr' => ['class' => 'form-control'],

@@ -1,0 +1,103 @@
+# translations/messages.fr.yaml
+access_denied:
+    not_connected: "Vous devez être connecté pour accéder à cette ressource."
+
+reservation:
+    create:
+        success: "La réservation a été créée avec succès."
+        error:
+            room_not_found: "Chambre non trouvée."
+            room_not_found_generic: "La chambre spécifiée n'a pas été trouvée."
+            client_not_found: "Client introuvable."
+            client_email_exists: "Un client avec cette adresse email existe déjà. Veuillez le sélectionner dans la liste."
+            unique_constraint: "Une erreur est survenue lors de la création de la réservation (violation de contrainte unique)."
+            orm_exception: "Une erreur de base de données est survenue lors de la création de la réservation."
+            invalid_dates: "Les dates de réservation sont invalides."
+            room_unavailable: "La chambre n'est pas disponible pour les dates sélectionnées."
+            invalid_data: "Données de réservation invalides."
+            unexpected: "Une erreur inattendue est survenue lors de la création de la réservation."
+    search:
+        error:
+            invalid_dates: "Les dates de recherche sont invalides."
+            generic_invalid_argument: "Argument invalide lors de la recherche."
+    edit_comment:
+        access_denied: "Vous n'êtes pas autorisé à modifier le commentaire de cette réservation."
+        success: "Le commentaire de la réservation a été modifié avec succès."
+    cancel:
+        access_denied: "Vous n'êtes pas autorisé à annuler cette réservation."
+        success: "La réservation a été annulée avec succès."
+        error:
+            orm_exception: "Une erreur de base de données est survenue lors de l'annulation de la réservation."
+            unexpected: "Une erreur inattendue est survenue lors de l'annulation de la réservation."
+
+csrf:
+    invalid_token: "Jeton CSRF invalide."
+
+admin:
+    hotel:
+        new:
+            success: "L'hôtel a été créé avec succès."
+        edit:
+            success: "L'hôtel a été modifié avec succès."
+        delete:
+            success: "L'hôtel a été supprimé avec succès."
+        error:
+            unique_constraint: "Une erreur est survenue (violation de contrainte unique)."
+            orm_exception: "Une erreur de base de données est survenue."
+            unexpected: "Une erreur inattendue est survenue."
+    client:
+        new:
+            success: "Le client a été créé avec succès."
+        edit:
+            success: "Le client a été modifié avec succès."
+        delete:
+            success: "Le client a été supprimé avec succès."
+        error:
+            unique_constraint: "Une erreur est survenue (violation de contrainte unique)."
+            orm_exception: "Une erreur de base de données est survenue."
+            unexpected: "Une erreur inattendue est survenue."
+    compte:
+        new:
+            success: "Le compte a été créé avec succès."
+        edit:
+            success: "Le compte a été modifié avec succès."
+        delete:
+            success: "Le compte a été supprimé avec succès."
+        error:
+            email_exists: "Un compte avec cette adresse email existe déjà."
+            orm_exception: "Une erreur de base de données est survenue."
+            unexpected: "Une erreur inattendue est survenue."
+    chambre:
+        new:
+            success: "La chambre a été créée avec succès."
+        edit:
+            success: "La chambre a été modifiée avec succès."
+        delete:
+            success: "La chambre a été supprimée avec succès."
+        error:
+            unique_constraint: "Une erreur est survenue (violation de contrainte unique)."
+            orm_exception: "Une erreur de base de données est survenue."
+            unexpected: "Une erreur inattendue est survenue."
+client:
+    change_password:
+        error:
+            old_password_incorrect: "Votre ancien mot de passe est incorrect."
+        success: "Votre mot de passe a été modifié avec succès."
+registration:
+    email:
+        subject: "Veuillez confirmer votre adresse e-mail"
+    success: "Votre compte a été créé avec succès. Veuillez vérifier votre e-mail pour valider votre compte."
+    error:
+        email_exists: "Un compte avec cette adresse e-mail existe déjà."
+        orm_exception: "Une erreur de base de données est survenue lors de l'inscription."
+        unexpected: "Une erreur inattendue est survenue lors de l'inscription."
+email_verification:
+    success: "Votre adresse e-mail a été vérifiée avec succès."
+reset_password:
+    error:
+        no_token: "Aucun jeton de réinitialisation de mot de passe trouvé dans l'URL ou la session."
+    success: "Votre mot de passe a été réinitialisé avec succès."
+    email:
+        subject: "Votre demande de réinitialisation de mot de passe"
+        error:
+            send_failed: "Un problème est survenu lors de l'envoi de l'e-mail de réinitialisation de mot de passe. Veuillez réessayer."
