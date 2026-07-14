@@ -156,23 +156,22 @@
 
                         </a>
 
-                        <form
-                            method="post"
-                            action="{{ path('app_admin_chambre_delete',{id:chambre.id}) }}"
-                            onsubmit="return confirm('Supprimer cette chambre ?');">
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm delete-button"
 
-                            <input
-                                type="hidden"
-                                name="_token"
-                                value="{{ csrf_token('delete' ~ chambre.id) }}">
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal"
 
-                            <button class="btn btn-outline-danger btn-sm">
+                            data-action="{{ path('app_admin_chambre_delete',{id:chambre.id}) }}"
 
-                                <i class="bi bi-trash"></i>
+                            data-token="{{ csrf_token('delete' ~ chambre.id) }}"
 
-                            </button>
+                            data-message="Êtes-vous sûr de vouloir supprimer la chambre n°{{ chambre.id }} ?">
 
-                        </form>
+                            <i class="bi bi-trash"></i>
+
+                        </button>
 
                     </div>
 

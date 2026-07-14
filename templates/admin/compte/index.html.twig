@@ -186,23 +186,21 @@
 
                         </a>
 
-                        <form
-                            method="post"
-                            action="{{ path('app_admin_compte_delete',{id:compte.id}) }}"
-                            onsubmit="return confirm('Supprimer ce compte ?');">
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm delete-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal"
 
-                            <input
-                                type="hidden"
-                                name="_token"
-                                value="{{ csrf_token('delete' ~ compte.id) }}">
+                            data-action="{{ path('app_admin_compte_delete',{id:compte.id}) }}"
 
-                            <button class="btn btn-outline-danger btn-sm">
+                            data-token="{{ csrf_token('delete' ~ compte.id) }}"
 
-                                <i class="bi bi-trash"></i>
+                            data-message="Êtes-vous sûr de vouloir supprimer le compte « {{ compte.email }} » ?">
 
-                            </button>
+                            <i class="bi bi-trash"></i>
 
-                        </form>
+                        </button>
 
                     </div>
 

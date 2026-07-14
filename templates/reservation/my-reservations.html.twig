@@ -168,26 +168,28 @@
 
                             </a>
 
-                            <form
-                                method="post"
-                                action="{{ path('app_reservation_cancel', {'id': reservation.id}) }}"
-                                onsubmit="return confirm('Voulez-vous vraiment annuler cette réservation ?');">
+                            <button
+                                type="button"
+                                class="btn btn-outline-danger delete-button"
 
-                                <input
-                                    type="hidden"
-                                    name="_token"
-                                    value="{{ csrf_token('cancel' ~ reservation.id) }}">
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal"
 
-                                <button
-                                    class="btn btn-outline-danger">
+                                data-action="{{ path('app_reservation_cancel', {'id': reservation.id}) }}"
 
-                                    <i class="bi bi-trash"></i>
+                                data-token="{{ csrf_token('cancel' ~ reservation.id) }}"
 
-                                    Annuler
+                                data-title="Annulation"
 
-                                </button>
+                                data-confirm="Annuler la réservation"
 
-                            </form>
+                                data-message="Voulez-vous vraiment annuler votre réservation à l'hôtel « {{ reservation.chambre.hotel.nom }} » ?">
+
+                                <i class="bi bi-trash"></i>
+
+                                Annuler
+
+                            </button>
 
                         </div>
 

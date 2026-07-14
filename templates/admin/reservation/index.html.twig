@@ -214,25 +214,22 @@
 
                             </a>
 
-                            <form
-                                method="post"
-                                action="{{ path('app_admin_reservation_delete', {'id': reservation.id}) }}"
-                                onsubmit="return confirm('Supprimer cette réservation ?');">
+                            <button
+                                type="button"
+                                class="btn btn-outline-danger btn-sm delete-button"
 
-                                <input
-                                    type="hidden"
-                                    name="_token"
-                                    value="{{ csrf_token('delete' ~ reservation.id) }}">
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal"
 
-                                <button
-                                    class="btn btn-outline-danger btn-sm"
-                                    title="Supprimer">
+                                data-action="{{ path('app_admin_reservation_delete',{id:reservation.id}) }}"
 
-                                    <i class="bi bi-trash"></i>
+                                data-token="{{ csrf_token('delete' ~ reservation.id) }}"
 
-                                </button>
+                                data-message="Êtes-vous sûr de vouloir supprimer la réservation n°{{ reservation.id }} ?">
 
-                            </form>
+                                <i class="bi bi-trash"></i>
+
+                            </button>
 
                         </div>
 

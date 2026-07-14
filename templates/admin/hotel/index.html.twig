@@ -158,25 +158,22 @@
 
                         </a>
 
-                        <form
-                            method="post"
-                            action="{{ path('app_admin_hotel_delete', {'id': hotel.id}) }}"
-                            onsubmit="return confirm('Supprimer cet hôtel ?');">
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm delete-button"
 
-                            <input
-                                type="hidden"
-                                name="_token"
-                                value="{{ csrf_token('delete' ~ hotel.id) }}">
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal"
 
-                            <button
-                                class="btn btn-outline-danger btn-sm"
-                                title="Supprimer">
+                            data-action="{{ path('app_admin_hotel_delete',{id:hotel.id}) }}"
 
-                                <i class="bi bi-trash"></i>
+                            data-token="{{ csrf_token('delete' ~ hotel.id) }}"
 
-                            </button>
+                            data-message="Êtes-vous sûr de vouloir supprimer l'hôtel « {{ hotel.nom }} » ?">
 
-                        </form>
+                            <i class="bi bi-trash"></i>
+
+                        </button>
 
                     </div>
 

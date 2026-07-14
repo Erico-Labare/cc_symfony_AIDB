@@ -126,8 +126,24 @@
 
             </a>
 
-            {{ include('admin/hotel/_delete_form.html.twig') }}
+            <button
+                type="button"
+                class="btn btn-danger delete-button"
 
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+
+                data-action="{{ path('app_admin_hotel_delete',{id:hotel.id}) }}"
+
+                data-token="{{ csrf_token('delete' ~ hotel.id) }}"
+
+                data-message="Êtes-vous sûr de vouloir supprimer l'hôtel « {{ hotel.nom }} » ?">
+
+                <i class="bi bi-trash me-2"></i>
+
+                Supprimer
+
+            </button>
         </div>
 
     </div>

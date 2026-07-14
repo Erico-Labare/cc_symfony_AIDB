@@ -160,23 +160,22 @@
 
                         </a>
 
-                        <form
-                            method="post"
-                            action="{{ path('app_admin_client_delete',{id:client.id}) }}"
-                            onsubmit="return confirm('Supprimer ce client ?');">
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm delete-button"
 
-                            <input
-                                type="hidden"
-                                name="_token"
-                                value="{{ csrf_token('delete' ~ client.id) }}">
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal"
 
-                            <button class="btn btn-outline-danger btn-sm">
+                            data-action="{{ path('app_admin_client_delete',{id:client.id}) }}"
 
-                                <i class="bi bi-trash"></i>
+                            data-token="{{ csrf_token('delete' ~ client.id) }}"
 
-                            </button>
+                            data-message="Êtes-vous sûr de vouloir supprimer le client « {{ client.nom }} » ?">
 
-                        </form>
+                            <i class="bi bi-trash"></i>
+
+                        </button>
 
                     </div>
 
