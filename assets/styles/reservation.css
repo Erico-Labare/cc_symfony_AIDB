@@ -103,3 +103,169 @@
     width:25px;
 
 }
+
+
+.page-title{
+
+    color:white;
+
+    font-size:2.7rem;
+
+}
+
+.page-subtitle{
+
+    color:rgba(255,255,255,.85);
+
+}
+
+.reservation-card{
+
+    background:white;
+
+    border-radius:22px;
+
+    padding:30px;
+
+    box-shadow:var(--shadow);
+
+    height:100%;
+
+    transition:.30s;
+
+}
+
+.reservation-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.reservation-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+
+}
+
+.reservation-number{
+
+    color:#666;
+
+    font-size:.90rem;
+
+}
+
+.reservation-section h5{
+
+    margin-bottom:20px;
+
+}
+
+.reservation-info p{
+
+    margin-bottom:12px;
+
+}
+
+.reservation-info i{
+
+    color:var(--gold);
+
+    width:24px;
+
+}
+
+.traveler-card{
+
+    background:#F8FAFC;
+
+    border-radius:15px;
+
+    padding:18px;
+
+}
+
+.comment-box{
+
+    background:#F8FAFC;
+
+    border-radius:15px;
+
+    padding:18px;
+
+}
+
+.reservation-actions{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:25px;
+
+    gap:15px;
+
+}
+
+.empty-reservation{
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:70px;
+
+    text-align:center;
+
+}
+
+.empty-reservation i{
+
+    font-size:4rem;
+
+    color:var(--gold);
+
+    margin-bottom:20px;
+
+}
+
+@media(max-width:768px){
+
+    .reservation-actions{
+
+        flex-direction:column;
+
+    }
+
+    .reservation-actions .btn{
+
+        width:100%;
+
+    }
+
+}
+/* ==========================================================
+   EDIT COMMENT
+========================================================== */
+
+textarea.form-control{
+
+    min-height:170px;
+
+    resize:vertical;
+
+}
+
+.form-label{
+
+    color:var(--primary);
+
+    margin-bottom:10px;
+
+}

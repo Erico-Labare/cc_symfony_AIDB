@@ -3,18 +3,148 @@
 {% block title %}Modifier le commentaire{% endblock %}
 
 {% block body %}
-    <h1>Modifier le commentaire</h1>
 
-    <p>Réservation #{{ reservation.id }}</p>
+<section class="reservation-page">
 
-    {{ form_start(form) }}
-        <div class="form-group mb-3">
-            {{ form_label(form.commentaire) }}
-            {{ form_widget(form.commentaire, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.commentaire) }}
+    <div class="text-center mb-5">
+
+        <h1 class="page-title">
+
+            Personnaliser votre séjour
+
+        </h1>
+
+        <p class="page-subtitle">
+
+            Réservation #{{ reservation.id }}
+
+        </p>
+
+    </div>
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="reservation-card">
+
+                <div class="reservation-summary">
+
+                    <div class="summary-item">
+
+                        <i class="bi bi-building"></i>
+
+                        <span>
+
+                            <strong>Hôtel :</strong>
+
+                            {{ reservation.chambre.hotel.nom }}
+
+                        </span>
+
+                    </div>
+
+                    <div class="summary-item">
+
+                        <i class="bi bi-door-open"></i>
+
+                        <span>
+
+                            <strong>Chambre :</strong>
+
+                            {{ reservation.chambre.type }}
+
+                        </span>
+
+                    </div>
+
+                    <div class="summary-item">
+
+                        <i class="bi bi-calendar-event"></i>
+
+                        <span>
+
+                            <strong>Séjour :</strong>
+
+                            {{ reservation.dateDebut|date('d/m/Y') }}
+
+                            →
+
+                            {{ reservation.dateFin|date('d/m/Y') }}
+
+                        </span>
+
+                    </div>
+
+                    <div class="summary-item">
+
+                        <i class="bi bi-person-circle"></i>
+
+                        <span>
+
+                            <strong>Voyageur :</strong>
+
+                            {{ reservation.client.nom }}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                {{ form_start(form) }}
+
+                    <div class="mt-4">
+
+                        {{ form_label(form.commentaire, 'Demandes particulières', {
+                            label_attr: {
+                                class: 'form-label fw-semibold'
+                            }
+                        }) }}
+
+                        {{ form_widget(form.commentaire, {
+                            attr: {
+                                class: 'form-control',
+                                rows: 6,
+                                placeholder: 'Exemple : chambre calme, étage élevé, lit bébé...'
+                            }
+                        }) }}
+
+                        {{ form_errors(form.commentaire) }}
+
+                    </div>
+
+                    <div class="reservation-actions mt-4">
+
+                        <a
+                            href="{{ path('app_reservation_my_reservations') }}"
+                            class="btn btn-outline-secondary">
+
+                            <i class="bi bi-arrow-left"></i>
+
+                            Retour
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary">
+
+                            <i class="bi bi-check-circle"></i>
+
+                            Enregistrer
+
+                        </button>
+
+                    </div>
+
+                {{ form_end(form) }}
+
+            </div>
+
         </div>
 
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-        <a href="{{ path('app_reservation_my_reservations') }}" class="btn btn-secondary">Annuler</a>
-    {{ form_end(form) }}
+    </div>
+
+</section>
+
 {% endblock %}
