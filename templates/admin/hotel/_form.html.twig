@@ -1,18 +1,73 @@
 {{ form_start(form) }}
-    <div class="mb-3">
+
+<div class="reservation-card">
+
+    <div class="mb-4">
+
         {{ form_label(form.nom) }}
-        {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+
+        {{ form_widget(form.nom,{
+            attr:{
+                class:'form-control',
+                placeholder:"Nom de l'hôtel"
+            }
+        }) }}
+
         {{ form_errors(form.nom) }}
+
     </div>
-    <div class="mb-3">
+
+    <div class="mb-4">
+
         {{ form_label(form.adresse) }}
-        {{ form_widget(form.adresse, {'attr': {'class': 'form-control'}}) }}
+
+        {{ form_widget(form.adresse,{
+            attr:{
+                class:'form-control',
+                placeholder:"Adresse complète"
+            }
+        }) }}
+
         {{ form_errors(form.adresse) }}
+
     </div>
-    <div class="mb-3">
+
+    <div class="mb-4">
+
         {{ form_label(form.categorie) }}
-        {{ form_widget(form.categorie, {'attr': {'class': 'form-control'}}) }}
+
+        {{ form_widget(form.categorie,{
+            attr:{
+                class:'form-select'
+            }
+        }) }}
+
         {{ form_errors(form.categorie) }}
+
     </div>
-    <button class="btn btn-success">{{ button_label|default('Enregistrer') }}</button>
+
+    <div class="reservation-actions">
+
+        <a
+            href="{{ path('app_admin_hotel_index') }}"
+            class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-2"></i>
+
+            Retour
+
+        </a>
+
+        <button class="btn btn-success">
+
+            <i class="bi bi-check-circle me-2"></i>
+
+            {{ button_label|default('Enregistrer') }}
+
+        </button>
+
+    </div>
+
+</div>
+
 {{ form_end(form) }}
