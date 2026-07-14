@@ -14,7 +14,7 @@
 *   [5. Modèle Conceptuel de Données (MCD)](#5-modèle-conceptuel-de-données-mcd)
 *   [6. Guide d'Installation](#6-guide-dinstallation)
     *   [6.1. Installation du Projet](#61-installation-du-projet)
-    *   [6.2. Configuration de la Base de Données (Développement)](#62-configuration-de-la-base-de-données-développement)
+    *   [6.2. Base de Données (Développement)](#62-configuration-de-la-base-de-données-développement)
     *   [6.3. Base de Données (Tests)](#63-base-de-données-tests)
 *   [7. Utilisation et Lancement](#7-utilisation-et-lancement)
     *   [7.1. Lancer l'Application](#71-lancer-lapplication)
@@ -134,7 +134,7 @@ Ce guide fournit les étapes nécessaires pour installer et configurer le projet
 2.  **Installer les dépendances** : Exécutez `composer install` à la racine du projet.
 3.  **(Optionnel) Résolution des problèmes de cache** : En cas d'erreur lors du `clear:cache`, supprimez les dossiers `vendor` et le fichier `composer.lock` (`Remove-Item -Recurse -Force vendor` et `Remove-Item -Force composer.lock` sur PowerShell ou `rm -rf vendor composer.lock` sur Bash/Zsh), puis réinstallez les dépendances avec `composer install`.
 
-### 6.2. Configuration de la Base de Données (Développement)
+### 6.2. Base de Données (Développement)
 
 Ces étapes concernent la mise en place de la base de données pour l'environnement de développement.
 
