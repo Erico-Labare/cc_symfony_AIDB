@@ -1,23 +1,94 @@
 {{ form_start(form) }}
-    <div class="mb-3">
-        {{ form_label(form.etage) }}
-        {{ form_widget(form.etage, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.etage) }}
+
+<div class="reservation-card">
+
+    <div class="row">
+
+        <div class="col-md-6 mb-4">
+
+            {{ form_label(form.type) }}
+
+            {{ form_widget(form.type,{
+                attr:{
+                    class:'form-control',
+                    placeholder:'Ex : Double Deluxe'
+                }
+            }) }}
+
+            {{ form_errors(form.type) }}
+
+        </div>
+
+        <div class="col-md-6 mb-4">
+
+            {{ form_label(form.hotel) }}
+
+            {{ form_widget(form.hotel,{
+                attr:{
+                    class:'form-select'
+                }
+            }) }}
+
+            {{ form_errors(form.hotel) }}
+
+        </div>
+
     </div>
-    <div class="mb-3">
-        {{ form_label(form.type) }}
-        {{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.type) }}
+
+    <div class="row">
+
+        <div class="col-md-6 mb-4">
+
+            {{ form_label(form.etage) }}
+
+            {{ form_widget(form.etage,{
+                attr:{
+                    class:'form-control'
+                }
+            }) }}
+
+            {{ form_errors(form.etage) }}
+
+        </div>
+
+        <div class="col-md-6 mb-4">
+
+            {{ form_label(form.nombreLit) }}
+
+            {{ form_widget(form.nombreLit,{
+                attr:{
+                    class:'form-control'
+                }
+            }) }}
+
+            {{ form_errors(form.nombreLit) }}
+
+        </div>
+
     </div>
-    <div class="mb-3">
-        {{ form_label(form.nombreLit) }}
-        {{ form_widget(form.nombreLit, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.nombreLit) }}
+
+    <div class="reservation-actions">
+
+        <a
+            href="{{ path('app_admin_chambre_index') }}"
+            class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-2"></i>
+
+            Retour
+
+        </a>
+
+        <button class="btn btn-success">
+
+            <i class="bi bi-check-circle me-2"></i>
+
+            {{ button_label|default('Enregistrer') }}
+
+        </button>
+
     </div>
-    <div class="mb-3">
-        {{ form_label(form.hotel) }}
-        {{ form_widget(form.hotel, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.hotel) }}
-    </div>
-    <button class="btn btn-success">{{ button_label|default('Enregistrer') }}</button>
+
+</div>
+
 {{ form_end(form) }}
