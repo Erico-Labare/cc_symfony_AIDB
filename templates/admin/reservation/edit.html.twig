@@ -1,14 +1,37 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier Réservation{% endblock %}
+{% block title %}Modifier la réservation{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1>Modifier la Réservation</h1>
 
-        {{ include('admin/reservation/_form.html.twig', { 'button_label': 'Mettre à jour' }) }}
+<div class="container">
 
-        <a href="{{ path('app_admin_reservation_index') }}" class="btn btn-secondary mt-3">Retour à la liste</a>
-        {{ include('admin/reservation/_delete_form.html.twig') }}
+    <div class="text-center mb-5">
+
+        <h1 class="page-title">
+
+            Modifier la réservation
+
+        </h1>
+
+        <p class="page-subtitle">
+
+            Mettez à jour les informations de cette réservation.
+
+        </p>
+
     </div>
+
+    {{ include('admin/reservation/_form.html.twig',{
+        button_label:'Mettre à jour'
+    }) }}
+
+    <div class="text-end mt-3">
+
+        {{ include('admin/reservation/_delete_form.html.twig') }}
+
+    </div>
+
+</div>
+
 {% endblock %}

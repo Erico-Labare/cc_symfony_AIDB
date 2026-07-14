@@ -1,0 +1,279 @@
+/* ==========================================================
+   ADMIN DASHBOARD
+========================================================== */
+
+.admin-card{
+
+    background:rgba(255,255,255,.97);
+
+    border-radius:22px;
+
+    padding:35px;
+
+    text-align:center;
+
+    box-shadow:var(--shadow);
+
+    height:100%;
+
+    transition:.30s;
+
+}
+
+.admin-card:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:0 20px 45px rgba(0,0,0,.18);
+
+}
+
+.admin-icon{
+
+    width:80px;
+
+    height:80px;
+
+    margin:0 auto 25px;
+
+    border-radius:50%;
+
+    background:var(--primary);
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:2rem;
+
+}
+
+.admin-card h3{
+
+    margin-bottom:15px;
+
+}
+
+.admin-count{
+
+    font-size:2.4rem;
+
+    font-weight:700;
+
+    color:var(--primary);
+
+    margin-bottom:5px;
+
+}
+
+.admin-card small{
+
+    color:#6B7280;
+
+    font-size:.95rem;
+
+}
+
+.admin-card .btn{
+
+    margin-top:auto;
+
+}
+/* ==========================================================
+   ADMIN TOOLBAR
+========================================================== */
+
+.admin-toolbar{
+
+    background:rgba(255,255,255,.97);
+
+    border-radius:22px;
+
+    padding:30px;
+
+    margin-bottom:35px;
+
+    box-shadow:var(--shadow);
+
+}
+
+.admin-toolbar label{
+
+    color:var(--primary);
+
+    font-weight:600;
+
+    margin-bottom:8px;
+
+}
+/* ==========================================================
+   ADMIN TABLE
+========================================================== */
+
+.admin-table{
+
+    background:rgba(255,255,255,.97);
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    box-shadow:var(--shadow);
+
+}
+
+.admin-table thead{
+
+    background:var(--primary);
+
+    color:white;
+
+}
+
+.admin-table thead th{
+
+    border:none;
+
+    padding:18px;
+
+    font-weight:600;
+
+}
+
+.admin-table td{
+
+    padding:18px;
+
+    vertical-align:middle;
+
+}
+
+.admin-table tbody tr{
+
+    transition:.25s;
+
+}
+
+.admin-table tbody tr:hover{
+
+    background:#F8FAFC;
+
+}
+
+.admin-table .badge{
+
+    font-size:.95rem;
+
+    padding:8px 12px;
+
+}
+
+.admin-table .btn{
+
+    width:38px;
+
+    height:38px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:0;
+
+}
+/* ==========================================================
+   ADMIN SHOW PAGE
+========================================================== */
+
+.reservation-card{
+
+    background:rgba(255,255,255,.97);
+
+    border-radius:22px;
+
+    padding:30px;
+
+    box-shadow:var(--shadow);
+
+    height:100%;
+
+}
+
+.reservation-card h4{
+
+    color:var(--primary);
+
+    font-weight:600;
+
+}
+
+.reservation-card p{
+
+    margin-bottom:18px;
+
+}
+
+.comment-box{
+
+    background:#F8FAFC;
+
+    border-radius:14px;
+
+    padding:18px;
+
+    min-height:120px;
+
+}
+
+.reservation-actions{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+    gap:15px;
+
+}
+/* ==========================================================
+   ADMIN FORM
+========================================================== */
+
+.reservation-card hr{
+
+    opacity:.10;
+
+}
+
+.reservation-card label{
+
+    color:var(--primary);
+
+    font-weight:600;
+
+    margin-bottom:8px;
+
+}
+
+.reservation-card textarea{
+
+    min-height:140px;
+
+    resize:vertical;
+
+}
+
+.reservation-card .form-select{
+
+    min-height:48px;
+
+}

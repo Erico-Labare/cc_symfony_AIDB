@@ -1,13 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouvelle Réservation{% endblock %}
+{% block title %}Nouvelle réservation{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1>Créer une nouvelle Réservation</h1>
 
-        {{ include('admin/reservation/_form.html.twig') }}
+<div class="container">
 
-        <a href="{{ path('app_admin_reservation_index') }}" class="btn btn-secondary mt-3">Retour à la liste</a>
+    <div class="text-center mb-5">
+
+        <h1 class="page-title">
+
+            Nouvelle réservation
+
+        </h1>
+
+        <p class="page-subtitle">
+
+            Créez une réservation pour un client.
+
+        </p>
+
     </div>
+
+    {{ include('admin/reservation/_form.html.twig') }}
+
+</div>
+
 {% endblock %}
