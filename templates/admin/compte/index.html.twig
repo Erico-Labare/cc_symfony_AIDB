@@ -20,17 +20,17 @@
 
     <div class="admin-toolbar">
 
-        <div class="row g-3 align-items-end">
+        <form method="GET" action="{{ path('app_admin_compte_index') }}">
 
-            <div class="col-lg-8">
+            <div class="row g-3 align-items-end">
 
-                <label class="form-label">
+                <div class="col-lg-8">
 
-                    Rechercher un compte
+                    <label class="form-label">
 
-                </label>
+                        Rechercher un compte
 
-                <form method="GET" action="{{ path('app_admin_compte_index') }}">
+                    </label>
 
                     <input
                         type="text"
@@ -39,40 +39,39 @@
                         value="{{ search }}"
                         placeholder="Email ou rôle">
 
-                </form>
+                </div>
+
+                <div class="col-lg-2 d-grid">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i class="bi bi-search me-2"></i>
+
+                        Rechercher
+
+                    </button>
+
+                </div>
+
+                <div class="col-lg-2 d-grid">
+
+                    <a
+                        href="{{ path('app_admin_compte_new') }}"
+                        class="btn btn-success">
+
+                        <i class="bi bi-plus-circle me-2"></i>
+
+                        Nouveau
+
+                    </a>
+
+                </div>
 
             </div>
 
-            <div class="col-lg-2 d-grid">
-
-                <button
-                    formmethod="GET"
-                    formaction="{{ path('app_admin_compte_index') }}"
-                    class="btn btn-primary">
-
-                    <i class="bi bi-search me-2"></i>
-
-                    Rechercher
-
-                </button>
-
-            </div>
-
-            <div class="col-lg-2 d-grid">
-
-                <a
-                    href="{{ path('app_admin_compte_new') }}"
-                    class="btn btn-success">
-
-                    <i class="bi bi-plus-circle me-2"></i>
-
-                    Nouveau
-
-                </a>
-
-            </div>
-
-        </div>
+        </form>
 
     </div>
 
