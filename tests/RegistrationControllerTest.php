@@ -53,7 +53,7 @@ class RegistrationControllerTest extends BaseWebTestCase
         /*
          * Soumission du formulaire d'enregistrement
          */
-        $this->client->submitForm('S\'inscrire', [
+        $this->client->submitForm('Créer mon compte', [
             'registration_form[email]' => 'newuser@example.com',
             'registration_form[plainPassword]' => 'password',
             'registration_form[agreeTerms]' => 1,

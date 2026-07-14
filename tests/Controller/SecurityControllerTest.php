@@ -38,7 +38,7 @@ class SecurityControllerTest extends WebTestCase
     {
         $this->client->request('GET', '/login');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h1', 'Veuillez vous connecter'); // Corrected assertion text
+        $this->assertSelectorTextContains('h1', 'Connexion'); // Corrected assertion text
         $this->assertSelectorExists('form');
         $this->assertSelectorExists('input[name="_username"]');
         $this->assertSelectorExists('input[name="_password"]');
@@ -101,7 +101,7 @@ class SecurityControllerTest extends WebTestCase
 
         // Assert that the user is now authenticated (e.g., by checking for a logout link or user-specific content)
         // Make the selector more specific for the logout link
-        $this->assertSelectorTextContains('a.nav-link.text-danger[href="/logout"]', 'Déconnexion'); // More specific selector
+        $this->assertSelectorTextContains('a.btn.btn-outline-light.btn-sm[href="/logout"]', 'Déconnexion'); // More specific selector
         $this->assertSelectorTextContains('body', 'valid_login@example.com'); // Assuming user email is displayed somewhere
 
         // Clean up the created user
@@ -143,7 +143,7 @@ class SecurityControllerTest extends WebTestCase
 
         // Optionally, follow the redirect and assert that the user is no longer authenticated
         $this->client->followRedirect();
-        $this->assertSelectorTextContains('h1', 'Bienvenue sur la plateforme de réservation'); // Check for home page content (or whatever is on your home page)
+        $this->assertSelectorTextContains('h1', 'Votre séjour commence ici.'); // Check for home page content (or whatever is on your home page)
         // You could also try to access a protected page and assert redirection to login
 
         // Clean up the created user

@@ -267,10 +267,16 @@ final class CompteControllerTest extends BaseWebTestCase
 
         // Supprime le compte via le formulaire
         $this->client->loginUser($this->admin);
-        $crawler = $this->client->request('GET', '/admin/compte/' . $id); // Accède à la page du compte pour obtenir le formulaire de suppression
-        $form = $crawler->selectButton('Supprimer')->form();
+        $crawler = $this->client->request('GET', '/admin/compte/' . $id); // Accède à la page du compte pour obtenir le bouton de suppression
 
-        $this->client->submit($form);
+        // Trouver le bouton de suppression et extraire les données nécessaires
+        $deleteButton = $crawler->filter('button.delete-button')->first();
+        $deleteUrl = $deleteButton->attr('data-action');
+        $csrfToken = $deleteButton->attr('data-token');
+
+        // Soumettre la requête POST directement
+        $this->client->request('POST', $deleteUrl, ['_token' => $csrfToken]);
+
         self::assertResponseRedirects('/admin/compte');
 
         // Vérifie que le compte a été supprimé

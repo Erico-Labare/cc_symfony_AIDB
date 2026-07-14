@@ -370,9 +370,15 @@ final class ReservationControllerTest extends BaseWebTestCase
         // Supprime la réservation via le formulaire
         $this->client->loginUser($this->admin);
         $crawler = $this->client->request('GET', '/admin/reservation/' . $id); // Navigue vers la page show pour obtenir le formulaire de suppression
-        $form = $crawler->selectButton('Supprimer')->form();
 
-        $this->client->submit($form);
+        // Extract data-action and data-token from the delete button
+        $deleteButton = $crawler->filter('.delete-button');
+        $deleteUrl = $deleteButton->attr('data-action');
+        $csrfToken = $deleteButton->attr('data-token');
+
+        // Submit a POST request directly to the delete URL with the CSRF token
+        $this->client->request('POST', $deleteUrl, ['_token' => $csrfToken]);
+
         self::assertResponseRedirects('/admin/reservation/');
 
         // Vérifie que la réservation a été supprimée

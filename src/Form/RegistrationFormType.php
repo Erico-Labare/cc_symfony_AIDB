@@ -53,11 +53,7 @@ class RegistrationFormType extends AbstractType
 
                 'constraints' => [
 
-                    new NotBlank([
-
-                        'message' => 'Veuillez entrer un mot de passe.',
-
-                    ]),
+                    new NotBlank(message: 'Veuillez entrer un mot de passe.'),
 
                     new Length(
 
@@ -87,11 +83,7 @@ class RegistrationFormType extends AbstractType
 
                 'constraints' => [
 
-                    new IsTrue([
-
-                        'message' => "Vous devez accepter les conditions d'utilisation.",
-
-                    ]),
+                    new IsTrue(message: "Vous devez accepter les conditions d'utilisation."),
 
                 ],
 

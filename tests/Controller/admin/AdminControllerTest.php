@@ -91,7 +91,7 @@ class AdminControllerTest extends WebTestCase
         $client->request('GET', '/admin');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h1', 'Administration'); // Corrected assertion text
+        $this->assertSelectorTextContains('h1', 'Tableau de bord'); // Corrected assertion text to match the template
 
         // Clean up the created user
         $entityManager->remove($adminUser);
