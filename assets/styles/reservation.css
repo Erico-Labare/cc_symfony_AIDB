@@ -269,3 +269,81 @@ textarea.form-control{
     margin-bottom:10px;
 
 }
+.search-subtitle{
+
+    color:#FFFFFF;
+
+    opacity:.88;
+
+    font-size:1.05rem;
+
+    margin-top:10px;
+
+}
+.search-card label{
+
+    color:white;
+
+    font-weight:600;
+
+    margin-bottom:8px;
+
+}
+.search-box{
+
+    background:rgba(255,255,255,.12);
+
+    backdrop-filter:blur(14px);
+
+    border:1px solid rgba(255,255,255,.15);
+
+    border-radius:22px;
+
+    padding:30px;
+
+    margin-top:35px;
+
+}
+.search-box .btn{
+
+    height:80px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:6px;
+
+    line-height:1.1;
+
+    font-size:1.15rem;
+
+    font-weight:600;
+
+}
+.search-box .form-control,
+.search-box .form-select{
+
+    min-height:54px;
+
+    border-radius:14px;
+
+}
+.search-title{
+
+    font-size:3rem;
+
+    font-weight:700;
+
+}
+.search-hero{
+
+    margin-top:20px;
+
+    margin-bottom:50px;
+
+}
