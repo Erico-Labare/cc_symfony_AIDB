@@ -19,15 +19,15 @@
 
     <div class="admin-toolbar">
 
-        <div class="row g-3 align-items-end">
+        <form method="GET" action="{{ path('app_admin_reservation_index') }}">
 
-            <div class="col-lg-3">
+            <div class="row g-3 align-items-end">
 
-                <label class="form-label">
-                    ID réservation
-                </label>
+                <div class="col-lg-3">
 
-                <form method="GET" action="{{ path('app_admin_reservation_index') }}">
+                    <label class="form-label">
+                        ID réservation
+                    </label>
 
                     <input
                         type="text"
@@ -36,17 +36,13 @@
                         value="{{ app.request.query.get('reservation_id') }}"
                         placeholder="Ex : 15">
 
-                </form>
+                </div>
 
-            </div>
+                <div class="col-lg-5">
 
-            <div class="col-lg-5">
-
-                <label class="form-label">
-                    Client ou chambre
-                </label>
-
-                <form method="GET" action="{{ path('app_admin_reservation_index') }}">
+                    <label class="form-label">
+                        Client ou chambre
+                    </label>
 
                     <input
                         type="text"
@@ -55,43 +51,41 @@
                         value="{{ search }}"
                         placeholder="Email client ou ID chambre">
 
-                </form>
+                </div>
+
+                <div class="col-lg-2 d-grid">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i class="bi bi-search me-2"></i>
+
+                        Rechercher
+
+                    </button>
+
+                </div>
+
+                <div class="col-lg-2 d-grid">
+
+                    <a
+                        href="{{ path('app_admin_reservation_new') }}"
+                        class="btn btn-success">
+
+                        <i class="bi bi-plus-circle me-2"></i>
+
+                        Nouvelle
+
+                    </a>
+
+                </div>
 
             </div>
 
-            <div class="col-lg-2 d-grid">
-
-                <button
-                    formmethod="GET"
-                    formaction="{{ path('app_admin_reservation_index') }}"
-                    class="btn btn-primary">
-
-                    <i class="bi bi-search me-2"></i>
-
-                    Rechercher
-
-                </button>
-
-            </div>
-
-            <div class="col-lg-2 d-grid">
-
-                <a
-                    href="{{ path('app_admin_reservation_new') }}"
-                    class="btn btn-success">
-
-                    <i class="bi bi-plus-circle me-2"></i>
-
-                    Nouvelle
-
-                </a>
-
-            </div>
-
-        </div>
+        </form>
 
     </div>
-
         <table class="table admin-table align-middle">
 
             <thead>

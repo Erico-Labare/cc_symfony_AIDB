@@ -20,15 +20,15 @@
 
     <div class="admin-toolbar">
 
-        <div class="row g-3 align-items-end">
+        <form method="GET" action="{{ path('app_admin_hotel_index') }}">
 
-            <div class="col-lg-8">
+            <div class="row g-3 align-items-end">
 
-                <label class="form-label">
-                    Rechercher un hôtel
-                </label>
+                <div class="col-lg-8">
 
-                <form method="GET" action="{{ path('app_admin_hotel_index') }}">
+                    <label class="form-label">
+                        Rechercher un hôtel
+                    </label>
 
                     <input
                         type="text"
@@ -37,40 +37,39 @@
                         value="{{ search }}"
                         placeholder="Nom ou catégorie">
 
-                </form>
+                </div>
+
+                <div class="col-lg-2 d-grid">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i class="bi bi-search me-2"></i>
+
+                        Rechercher
+
+                    </button>
+
+                </div>
+
+                <div class="col-lg-2 d-grid">
+
+                    <a
+                        href="{{ path('app_admin_hotel_new') }}"
+                        class="btn btn-success">
+
+                        <i class="bi bi-plus-circle me-2"></i>
+
+                        Nouveau
+
+                    </a>
+
+                </div>
 
             </div>
 
-            <div class="col-lg-2 d-grid">
-
-                <button
-                    formmethod="GET"
-                    formaction="{{ path('app_admin_hotel_index') }}"
-                    class="btn btn-primary">
-
-                    <i class="bi bi-search me-2"></i>
-
-                    Rechercher
-
-                </button>
-
-            </div>
-
-            <div class="col-lg-2 d-grid">
-
-                <a
-                    href="{{ path('app_admin_hotel_new') }}"
-                    class="btn btn-success">
-
-                    <i class="bi bi-plus-circle me-2"></i>
-
-                    Nouveau
-
-                </a>
-
-            </div>
-
-        </div>
+        </form>
 
     </div>
 
