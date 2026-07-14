@@ -1,0 +1,21 @@
+/* ==========================================================
+   PROFILE
+========================================================== */
+
+.profile-page .traveler-card{
+
+    background:#F8FAFC;
+
+}
+
+.profile-page strong{
+
+    color:var(--primary);
+
+}
+
+.profile-page p{
+
+    margin-bottom:22px;
+
+}
