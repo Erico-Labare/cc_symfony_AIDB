@@ -1,34 +1,102 @@
-<footer class="footer-custom mt-auto">
+<footer class="footer-custom">
 
     <div class="container">
 
-        <div class="row align-items-center gy-3">
+        <div class="row gy-4">
 
-            <div class="col-md-6 text-center text-md-start">
+            <div class="col-lg-5">
 
-                <h5 class="footer-title mb-1">
-                    🏨 Hotel Booking
-                </h5>
+                <div class="footer-brand">
 
-                <small>
-                    Réservez votre séjour simplement et rapidement.
+                    <div class="footer-logo">
+                        HB
+                    </div>
+
+                    <div>
+
+                        <h5>HOTEL BOOKING</h5>
+
+                        <p>
+                            Reservation
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <small class="footer-description">
+
+                    Réservez votre séjour simplement parmi nos hôtels partenaires.
+
                 </small>
 
             </div>
 
-            <div class="col-md-6 text-center text-md-end">
+            <div class="col-lg-3">
 
-                <small>
+                <h6>Navigation</h6>
 
-                    © {{ "now"|date("Y") }}
+                <ul class="footer-links">
 
-                    Hotel Booking
+                    <li>
+                        <a href="{{ path('app_home') }}">
+                            Accueil
+                        </a>
+                    </li>
 
-                    • Projet Symfony
+                    <li>
+                        <a href="{{ path('app_reservation_search') }}">
+                            Réserver
+                        </a>
+                    </li>
 
-                </small>
+                    {% if app.user %}
+
+                        <li>
+                            <a href="{{ path('app_client_profile') }}">
+                                Mon profil
+                            </a>
+                        </li>
+
+                    {% else %}
+
+                        <li>
+                            <a href="{{ path('app_login') }}">
+                                Connexion
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+                </ul>
 
             </div>
+
+            <div class="col-lg-4">
+
+                <h6>Projet</h6>
+
+                <p class="footer-contact">
+
+                    Symfony 7<br>
+
+                    Bootstrap 5<br>
+
+                    Doctrine ORM
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="footer-bottom">
+
+            © {{ "now"|date("Y") }}
+
+            Hotel Booking — Projet pédagogique AIBD
 
         </div>
 

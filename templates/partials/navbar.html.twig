@@ -2,15 +2,29 @@
 
     <div class="container">
 
-        <a class="navbar-brand fw-bold" href="{{ path('app_home') }}">
-            🏨 Hotel Booking
+        <a class="navbar-brand brand" href="{{ path('app_home') }}">
+
+            <div class="brand-logo">
+                HB
+            </div>
+
+            <div class="brand-text">
+                <span class="brand-title">
+                    HOTEL BOOKING
+                </span>
+
+                <span class="brand-subtitle">
+                    Reservation
+                </span>
+            </div>
+
         </a>
 
         <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav">
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
 
             <span class="navbar-toggler-icon"></span>
 
@@ -21,13 +35,15 @@
             <ul class="navbar-nav mx-auto">
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ path('app_home') }}">
+                    <a class="nav-link {{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}"
+                       href="{{ path('app_home') }}">
                         Accueil
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ path('app_reservation_search') }}">
+                    <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_reservation' ? 'active' : '' }}"
+                       href="{{ path('app_reservation_search') }}">
                         Réserver
                     </a>
                 </li>
@@ -35,14 +51,7 @@
                 {% if app.user %}
 
                     <li class="nav-item">
-                        <a class="nav-link"
-                           href="{{ path('app_reservation_my_reservations') }}">
-                            Mes réservations
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link"
+                        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_client' ? 'active' : '' }}"
                            href="{{ path('app_client_profile') }}">
                             Mon profil
                         </a>
@@ -51,7 +60,7 @@
                     {% if is_granted('ROLE_ADMIN') %}
 
                         <li class="nav-item">
-                            <a class="nav-link"
+                            <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_admin' ? 'active' : '' }}"
                                href="{{ path('app_admin') }}">
                                 Administration
                             </a>
@@ -63,61 +72,44 @@
 
             </ul>
 
-            <ul class="navbar-nav align-items-lg-center">
+            <div class="d-flex align-items-center gap-3">
 
                 {% if app.user %}
 
-                    <li class="nav-item me-lg-3">
+                    <span class="user-pill">
 
-                        <span class="navbar-user">
+                        <i class="bi bi-person-circle"></i>
 
-                            {{ app.user.userIdentifier }}
+                        {{ app.user.userIdentifier }}
 
-                        </span>
+                    </span>
 
-                    </li>
+                    <a href="{{ path('app_logout') }}"
+                       class="btn btn-outline-light btn-sm">
 
-                    <li class="nav-item">
+                        Déconnexion
 
-                        <a
-                            class="btn btn-outline-light btn-sm"
-                            href="{{ path('app_logout') }}">
-
-                            Déconnexion
-
-                        </a>
-
-                    </li>
+                    </a>
 
                 {% else %}
 
-                    <li class="nav-item me-lg-2">
+                    <a href="{{ path('app_login') }}"
+                       class="btn btn-outline-light btn-sm">
 
-                        <a
-                            class="btn btn-outline-light btn-sm"
-                            href="{{ path('app_login') }}">
+                        Connexion
 
-                            Connexion
+                    </a>
 
-                        </a>
+                    <a href="{{ path('app_register') }}"
+                       class="btn btn-primary btn-sm">
 
-                    </li>
+                        Inscription
 
-                    <li class="nav-item">
-
-                        <a
-                            class="btn btn-primary btn-sm"
-                            href="{{ path('app_register') }}">
-
-                            Inscription
-
-                        </a>
-
-                    </li>
+                    </a>
 
                 {% endif %}
 
-            </ul>
+            </div>
 
         </div>
 
