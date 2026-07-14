@@ -355,7 +355,7 @@ Une fois SonarQube et SonarScanner configurés, vous pouvez lancer l'analyse de 
 
 ## 10. Dettes techniques
 
-Cette section aborde les améliorations techniques envisagées pour des évolutions futures, témoignant d'une approche proactive et réaliste face aux exigences d'un développement logiciel professionnel.
+Cette section aborde des pistes d'améliorations techniques envisagées pour des évolutions futures.
 
 *   **Absence de tests unitaires et fonctionnels exhaustifs** : Bien que des tests soient mentionnés dans le guide d'installation, une couverture de test insuffisante peut entraîner des régressions et rendre les refactorings risqués.
 *   **Optimisation des requêtes base de données (N+1 problem)** : Certaines requêtes Doctrine ORM pourraient ne pas être optimisées, menant à des problèmes de performance, notamment lors de l'affichage de listes d'entités avec des relations.
