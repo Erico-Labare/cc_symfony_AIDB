@@ -25,10 +25,7 @@
     *   [8.3. Configuration du Service d'E-mail](#83-configuration-du-service-de-mail)
     *   [8.4. Exemple de Fichier .env.local Complet](#84-exemple-de-fichier-envlocal-complet)
 *   [9. Analyse de Code avec SonarQube](#9-analyse-de-code-avec-sonarqube)
-*   [10. Risques, Limites et Dettes Techniques](#10-risques-limites-et-dettes-techniques)
-    *   [10.1. Risques](#101-risques)
-    *   [10.2. Limites](#102-limites)
-    *   [10.3. Dettes Techniques](#103-dettes-techniques)
+*   [10. Dettes techniques](#10-dettes-techniques)
 *   [11. Crédits](#11-crédits)
 
 ---
@@ -61,17 +58,36 @@ L'application est structurée en plusieurs espaces, chacun offrant des fonctionn
 *   **Connexion** : Accès sécurisé à la plateforme.
 *   **Mot de passe oublié** : Fonctionnalité de récupération de mot de passe.
 
-#### 2.2.2. Espace Client
+#### 7.2.2. Scénarios pour les Utilisateurs Connectés (Clients)
 
-*   **Visualisation des Réservations** : Affichage de l'historique des réservations effectuées par le client.
-*   **Ajout de Commentaires** : Possibilité d'ajouter des demandes spéciales ou commentaires à une réservation (ex: lit bébé, préférences).
-*   **Effectuer une nouvelle réservation** : Le client, une fois connecté, peut rechercher et réserver une chambre. Ses informations personnelles (email, téléphone) sont pré-remplies ou facilement accessibles.
+*   **Gérer ses réservations** :
+    1.  Le client se connecte à son espace.
+    2.  Il accède à la section "**Mes Réservations**".
+    3.  Il peut visualiser le statut et les détails de ses réservations passées et futures.
+*   **Ajouter un commentaire à une réservation** :
+    1.  Depuis la liste de ses réservations, le client sélectionne une réservation.
+    2.  Il utilise le formulaire dédié pour ajouter une demande spéciale (ex: lit bébé, préférences).
+    3.  Le commentaire est enregistré et visible par l'administration.
+*   **Effectuer une nouvelle réservation** :
+    1.  Le client, une fois connecté, peut rechercher et réserver une chambre.
+    2.  Ses informations personnelles (email, téléphone) sont pré-remplies ou facilement accessibles.
 
-#### 2.2.3. Espace Administrateur
+#### 7.2.3. Scénarios pour les Administrateurs
 
-*   **Gestion des Chambres (CRUD)** : Interface complète pour la création, lecture, mise à jour et suppression des chambres, incluant pagination et recherche.
-*   **Gestion des Réservations (CRUD)** : Interface complète pour la gestion des réservations clients, avec pagination et recherche par numéro de réservation. Le détail d'une réservation affiche toutes les chambres associées.
-*   **Gestion des Clients (CRUD)** : Interface complète pour la gestion des profils clients, avec pagination et recherche par nom ou email.
+*   **Gérer les chambres (CRUD)** :
+    1.  L'administrateur se connecte à l'espace d'administration.
+    2.  Il navigue vers la section "**Gestion des Chambres**".
+    3.  Il peut **ajouter** de nouvelles chambres, **modifier** les informations existantes, **supprimer** des chambres, et **rechercher** des chambres spécifiques.
+    4.  La pagination est disponible pour les listes longues.
+*   **Gérer les réservations (CRUD)** :
+    1.  L'administrateur accède à la section "**Gestion des Réservations**".
+    2.  Il peut **consulter** toutes les réservations, les **modifier** (ex: statut, dates si nécessaire), les **supprimer**, et **rechercher** par numéro de réservation.
+    3.  Le détail d'une réservation affiche toutes les chambres associées.
+    4.  La pagination est disponible.
+*   **Gérer les clients (CRUD)** :
+    1.  L'administrateur accède à la section "**Gestion des Clients**".
+    2.  Il peut **ajouter**, **modifier** ou **supprimer** des profils clients, et **rechercher** des clients par nom ou e-mail.
+    3.  La pagination est disponible.
 
 **Note :** Toutes les vues Twig sont conçues pour être ***responsive design***, sans charte graphique imposée. L'intégration d'un template Bootstrap est autorisée.
 
@@ -177,36 +193,19 @@ Cette section décrit les principaux parcours utilisateurs et les fonctionnalit�
     3.  Le système envoie un lien de réinitialisation par e-mail.
     4.  L'utilisateur clique sur le lien et définit un nouveau mot de passe.
 
-#### 7.2.2. Scénarios pour les Utilisateurs Connectés (Clients)
+#### 7.2.2. Espace Client
 
-*   **Gérer ses réservations** :
-    1.  Le client se connecte à son espace.
-    2.  Il accède à la section "**Mes Réservations**".
-    3.  Il peut visualiser le statut et les détails de ses réservations passées et futures.
-*   **Ajouter un commentaire à une réservation** :
-    1.  Depuis la liste de ses réservations, le client sélectionne une réservation.
-    2.  Il utilise le formulaire dédié pour ajouter une demande spéciale (ex: lit bébé, préférences).
-    3.  Le commentaire est enregistré et visible par l'administration.
-*   **Effectuer une nouvelle réservation** :
-    1.  Le client, une fois connecté, peut rechercher et réserver une chambre.
-    2.  Ses informations personnelles (email, téléphone) sont pré-remplies ou facilement accessibles.
+*   **Visualisation des Réservations** : Affichage de l'historique des réservations effectuées par le client.
+*   **Ajout de Commentaires** : Possibilité d'ajouter des demandes spéciales ou commentaires à une réservation (ex: lit bébé, préférences).
+*   **Effectuer une nouvelle réservation** : Le client, une fois connecté, peut rechercher et réserver une chambre. Ses informations personnelles (email, téléphone) sont pré-remplies ou facilement accessibles.
 
-#### 7.2.3. Scénarios pour les Administrateurs
+#### 2.2.3. Espace Administrateur
 
-*   **Gérer les chambres (CRUD)** :
-    1.  L'administrateur se connecte à l'espace d'administration.
-    2.  Il navigue vers la section "**Gestion des Chambres**".
-    3.  Il peut **ajouter** de nouvelles chambres, **modifier** les informations existantes, **supprimer** des chambres, et **rechercher** des chambres spécifiques.
-    4.  La pagination est disponible pour les listes longues.
-*   **Gérer les réservations (CRUD)** :
-    1.  L'administrateur accède à la section "**Gestion des Réservations**".
-    2.  Il peut **consulter** toutes les réservations, les **modifier** (ex: statut, dates si nécessaire), les **supprimer**, et **rechercher** par numéro de réservation.
-    3.  Le détail d'une réservation affiche toutes les chambres associées.
-    4.  La pagination est disponible.
-*   **Gérer les clients (CRUD)** :
-    1.  L'administrateur accède à la section "**Gestion des Clients**".
-    2.  Il peut **ajouter**, **modifier** ou **supprimer** des profils clients, et **rechercher** des clients par nom ou e-mail.
-    3.  La pagination est disponible.
+*   **Gestion des Chambres (CRUD)** : Interface complète pour la création, lecture, mise à jour et suppression des chambres, incluant pagination et recherche.
+*   **Gestion des Réservations (CRUD)** : Interface complète pour la gestion des réservations clients, avec pagination et recherche par numéro de réservation. Le détail d'une réservation affiche toutes les chambres associées.
+*   **Gestion des Clients (CRUD)** : Interface complète pour la gestion des profils clients, avec pagination et recherche par nom ou email.
+
+**Note :** Toutes les vues Twig sont conçues pour être ***responsive design***, sans charte graphique imposée. L'intégration d'un template Bootstrap est autorisée.
 
 ## 8. Gestion des Variables d'Environnement (.env)
 
@@ -354,47 +353,20 @@ Une fois SonarQube et SonarScanner configurés, vous pouvez lancer l'analyse de 
 
 3.  **Consulter les résultats** : Après l'exécution de la commande, les résultats de l'analyse seront envoyés à votre instance SonarQube. Vous pouvez les consulter en vous rendant sur `http://localhost:9000` et en sélectionnant votre projet (`CC-Symfony`).
 
-## 10. Risques, Limites et Dettes Techniques
+## 10. Dettes techniques
 
-Cette section aborde les défis inhérents au projet, les contraintes imposées par son périmètre actuel et les améliorations techniques envisagées pour des évolutions futures. Elle témoigne d'une approche proactive et réaliste face aux exigences d'un développement logiciel professionnel.
+Cette section aborde les améliorations techniques envisagées pour des évolutions futures, témoignant d'une approche proactive et réaliste face aux exigences d'un développement logiciel professionnel.
 
-### 10.1. Risques
-
-1.  **Sécurité des Données et Authentification** :
-    *   **Risque** : Vulnérabilités potentielles dans la gestion des mots de passe (stockage, réinitialisation) et des sessions utilisateurs, pouvant mener à des accès non autorisés. Les injections SQL ou autres attaques web sont également un risque constant si les validations d'entrée ne sont pas rigoureuses.
-    *   **Mitigation** : Utilisation des fonctionnalités de sécurité intégrées de Symfony (**Symfony Security Component**), validation stricte des entrées utilisateur, hachage des mots de passe avec des algorithmes robustes (ex: **Argon2i, bcrypt**).
-
-2.  **Performance de la Base de Données** :
-    *   **Risque** : Avec l'augmentation du nombre de réservations, de clients ou de chambres, les requêtes de recherche et de pagination pourraient devenir lentes, impactant l'expérience utilisateur.
-    *   **Mitigation** : Optimisation des requêtes Doctrine, ajout d'**index pertinents** sur les colonnes fréquemment utilisées (dates, IDs, noms), utilisation de **caches** (ex: Redis pour les résultats de recherche fréquents).
-
-3.  **Complexité de la Gestion des Conflits de Réservation** :
-    *   **Risque** : Bien que le MCD permette de réserver plusieurs chambres à la même date, la gestion des disponibilités en temps réel et la prévention des sur-réservations peut devenir complexe, surtout en cas de forte concurrence.
-    *   **Mitigation** : Implémentation de mécanismes de **verrouillage optimistes ou pessimistes** au niveau de la base de données lors des tentatives de réservation.
-
-4.  **Dépendances Tierces (Bootstrap, etc.)** :
-    *   **Risque** : L'intégration d'un template Bootstrap ou d'autres bibliothèques tierces peut introduire des vulnérabilités ou des problèmes de compatibilité si elles ne sont pas maintenues à jour.
-    *   **Mitigation** : Suivi régulier des **mises à jour de sécurité** des dépendances, utilisation d'outils comme `composer audit`.
-
-### 10.2. Limites
-
-1.  **Fonctionnalités Commerciales** :
-    *   **Paiement** : L'absence de système de paiement intégré est une limitation majeure pour une application de réservation réelle.
-    *   **Tarification Dynamique** : Le projet ne gère pas de règles de tarification complexes (saisons, promotions, durée du séjour, etc.).
-    *   **Gestion des Annulations/Modifications** : Les fonctionnalités CRUD sont axées sur la création et la visualisation, mais la gestion complète des cycles de vie des réservations (annulations, modifications de dates/chambres) n'est pas détaillée.
-
-2.  **Expérience Utilisateur (UX) Avancée** :
-    *   Bien que le design responsive soit une exigence, l'application ne propose pas de fonctionnalités UX avancées comme des calendriers interactifs pour la sélection des dates, des suggestions de chambres basées sur les préférences, ou des notifications en temps réel.
-
-3.  **Internationalisation (i18n)** :
-    *   Le projet est monolingue. L'ajout de la prise en charge de plusieurs langues serait nécessaire pour une centrale de réservation nationale ou internationale.
-
-4.  **Reporting et Statistiques** :
-    *   L'application ne fournit pas d'outils de reporting ou de statistiques pour les administrateurs (taux d'occupation, revenus, etc.).
-
-### 10.3. Dettes Techniques
-
-
+*   **Absence de tests unitaires et fonctionnels exhaustifs** : Bien que des tests soient mentionnés dans le guide d'installation, une couverture de test insuffisante peut entraîner des régressions et rendre les refactorings risqués.
+*   **Optimisation des requêtes base de données (N+1 problem)** : Certaines requêtes Doctrine ORM pourraient ne pas être optimisées, menant à des problèmes de performance, notamment lors de l'affichage de listes d'entités avec des relations.
+*   **Gestion des erreurs et logs** : Une gestion des erreurs et une journalisation (logging) basiques peuvent être présentes, mais une stratégie plus robuste (ex: Sentry, ELK Stack) pourrait manquer pour la production.
+*   **Sécurité approfondie** : Les fonctionnalités de sécurité de base de Symfony sont utilisées, mais des analyses de sécurité plus poussées (OWASP Top 10) ou l'intégration de solutions de sécurité tierces pourraient être nécessaires.
+*   **Internationalisation (i18n) et Localisation (l10n)** : Le projet est actuellement monolingue. L'ajout de la prise en charge de plusieurs langues nécessiterait une refonte des textes et des formats.
+*   **Amélioration de l'expérience utilisateur (UX)** : Bien que le design soit responsive, des améliorations UX (animations, chargement asynchrone, feedback utilisateur plus riche) pourraient être apportées.
+*   **Code dupliqué ou non DRY (Don't Repeat Yourself)** : Certaines parties du code, notamment dans les contrôleurs ou les vues, pourraient contenir des répétitions qui pourraient être factorisées dans des services, des Twig components ou des macros.
+*   **Mise à jour des dépendances** : Ne pas maintenir les dépendances à jour peut introduire des vulnérabilités de sécurité et empêcher l'accès aux nouvelles fonctionnalités ou optimisations.
+*   **Documentation interne du code** : La documentation du code (docblocks, commentaires explicatifs) pourrait être améliorée pour faciliter la compréhension et la maintenance par d'autres développeurs.
+*   **Scalabilité de l'infrastructure** : Le projet est conçu pour un environnement local. Pour une mise en production à grande échelle, des considérations d'infrastructure (équilibrage de charge, bases de données répliquées, mise en cache distribuée) seraient à adresser.
 
 ## 11. Crédits
 
