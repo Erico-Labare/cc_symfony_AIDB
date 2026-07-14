@@ -1,80 +1,126 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-	<div class="container-fluid">
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
 
-		<a class="navbar-brand" href="{{ path('app_home') }}">
-			Hôtel Booking
-		</a>
+    <div class="container">
 
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-			<span class="navbar-toggler-icon"></span>
-		</button>
+        <a class="navbar-brand fw-bold" href="{{ path('app_home') }}">
+            🏨 Hotel Booking
+        </a>
 
-		<div class="collapse navbar-collapse" id="navbarNav">
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav">
 
-			<ul class="navbar-nav me-auto">
+            <span class="navbar-toggler-icon"></span>
 
-				<li class="nav-item">
-					<a class="nav-link" href="{{ path('app_home') }}">Accueil</a>
-				</li>
+        </button>
 
-				<li class="nav-item">
-					<a class="nav-link" href="{{ path('app_reservation_search') }}">Rechercher</a>
-				</li>
+        <div class="collapse navbar-collapse" id="navbarNav">
 
-				{% if app.user %}
-					<li class="nav-item">
-						<a class="nav-link" href="{{ path('app_reservation_my_reservations') }}">Mes réservations</a>
-					</li>
-					<li class="nav-item">
-    					<a class="nav-link" href="{{ path('app_client_profile') }}">
-        					Mon profil
-    					</a>
-					</li>
-					{% if is_granted('ROLE_ADMIN') %} {# Added conditional check for admin role #}
-						<li class="nav-item">
-							<a class="nav-link" href="{{ path('app_admin') }}">
-								Gestion de l'administration
-							</a>
-						</li>
-					{% endif %}
-				{% endif %}
+            <ul class="navbar-nav mx-auto">
 
-			</ul>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('app_home') }}">
+                        Accueil
+                    </a>
+                </li>
 
-			<ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('app_reservation_search') }}">
+                        Réserver
+                    </a>
+                </li>
 
-				{% if app.user %}
+                {% if app.user %}
 
-					<li class="nav-item">
-						<span class="nav-link text-light">
-							{{ app.user.userIdentifier }}
-						</span>
-					</li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="{{ path('app_reservation_my_reservations') }}">
+                            Mes réservations
+                        </a>
+                    </li>
 
-					<li class="nav-item">
-						<a class="nav-link text-danger" href="{{ path('app_logout') }}">
-							Déconnexion
-						</a>
-					</li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="{{ path('app_client_profile') }}">
+                            Mon profil
+                        </a>
+                    </li>
 
-				{% else %}
+                    {% if is_granted('ROLE_ADMIN') %}
 
-					<li class="nav-item">
-						<a class="nav-link" href="{{ path('app_login') }}">
-							Connexion
-						</a>
-					</li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               href="{{ path('app_admin') }}">
+                                Administration
+                            </a>
+                        </li>
 
-					<li class="nav-item">
-						<a class="nav-link" href="{{ path('app_register') }}">
-							Inscription
-						</a>
-					</li>
+                    {% endif %}
 
-				{% endif %}
+                {% endif %}
 
-			</ul>
+            </ul>
 
-		</div>
-	</div>
+            <ul class="navbar-nav align-items-lg-center">
+
+                {% if app.user %}
+
+                    <li class="nav-item me-lg-3">
+
+                        <span class="navbar-user">
+
+                            {{ app.user.userIdentifier }}
+
+                        </span>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a
+                            class="btn btn-outline-light btn-sm"
+                            href="{{ path('app_logout') }}">
+
+                            Déconnexion
+
+                        </a>
+
+                    </li>
+
+                {% else %}
+
+                    <li class="nav-item me-lg-2">
+
+                        <a
+                            class="btn btn-outline-light btn-sm"
+                            href="{{ path('app_login') }}">
+
+                            Connexion
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a
+                            class="btn btn-primary btn-sm"
+                            href="{{ path('app_register') }}">
+
+                            Inscription
+
+                        </a>
+
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+        </div>
+
+    </div>
+
 </nav>
