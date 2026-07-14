@@ -1,0 +1,6 @@
+projectKey=CC-Symfony
+serverUrl=http://localhost:9000
+serverVersion=26.7.0.124771
+dashboardUrl=http://localhost:9000/dashboard?id=CC-Symfony
+ceTaskId=86b87a79-63ea-45d9-b463-97cc8ae4da74
+ceTaskUrl=http://localhost:9000/api/ce/task?id=86b87a79-63ea-45d9-b463-97cc8ae4da74

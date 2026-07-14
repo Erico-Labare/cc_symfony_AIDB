@@ -5,7 +5,7 @@
 *   [1. Contexte du Projet](#1-contexte-du-projet)
 *   [2. Spécifications Fonctionnelles](#2-spécifications-fonctionnelles)
     *   [2.1. Règles de Gestion](#21-règles-de-gestion)
-    *   [2.2. Fonctionnalités Détaillées](#22-fonctionnalités-détaillées)
+    *   [2.2. Fonctionnalités Détaillées](#221-espace-public)
         *   [2.2.1. Espace Public](#221-espace-public)
         *   [2.2.2. Espace Client](#222-espace-client)
         *   [2.2.3. Espace Administrateur](#223-espace-administrateur)
@@ -24,11 +24,12 @@
     *   [8.2. Configuration Locale Essentielle](#82-configuration-locale-essentielle)
     *   [8.3. Configuration du Service d'E-mail](#83-configuration-du-service-de-mail)
     *   [8.4. Exemple de Fichier .env.local Complet](#84-exemple-de-fichier-envlocal-complet)
-*   [9. Risques, Limites et Dettes Techniques](#9-risques-limites-et-dettes-techniques)
-    *   [9.1. Risques](#91-risques)
-    *   [9.2. Limites](#92-limites)
-    *   [9.3. Dettes Techniques](#93-dettes-techniques)
-*   [10. Crédits](#10-crédits)
+*   [9. Analyse de Code avec SonarQube](#9-analyse-de-code-avec-sonarqube)
+*   [10. Risques, Limites et Dettes Techniques](#10-risques-limites-et-dettes-techniques)
+    *   [10.1. Risques](#101-risques)
+    *   [10.2. Limites](#102-limites)
+    *   [10.3. Dettes Techniques](#103-dettes-techniques)
+*   [11. Crédits](#11-crédits)
 
 ---
 
@@ -305,11 +306,59 @@ MAILER_DSN=smtp://VOTRE_USERNAME_MAILTRAP:VOTRE_PASSWORD_MAILTRAP@smtp.mailtrap.
 # DATABASE_URL_TEST="mysql://root:@127.0.0.1:3306/cc_symfony_aidb_test?serverVersion=5.7&charset=utf8mb4"
 ```
 
-## 9. Risques, Limites et Dettes Techniques
+## 9. Analyse de Code avec SonarQube
+
+SonarQube est une plateforme open source dédiée à l'amélioration continue de la qualité du code. Voici les étapes pour configurer et lancer une analyse SonarQube en local.
+
+### 9.1. Installation de SonarQube (via Docker)
+
+1.  **Prérequis** : Assurez-vous que Docker est installé et en cours d'exécution sur votre machine.
+2.  **Lancer l'image SonarQube** : Ouvrez votre terminal et exécutez la commande suivante pour démarrer un conteneur SonarQube. Cela téléchargera l'image si elle n'est pas déjà présente.
+    ```bash
+    docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
+    ```
+    *   `-d` : Démarre le conteneur en mode détaché (en arrière-plan).
+    *   `--name sonarqube` : Donne un nom au conteneur pour faciliter sa gestion.
+    *   `-p 9000:9000` : Mappe le port 9000 de votre machine hôte au port 9000 du conteneur (interface web SonarQube).
+    *   `-p 9092:9092` : Mappe le port 9092 de votre machine hôte au port 9092 du conteneur (pour le SonarScanner).
+3.  **Accéder à SonarQube** : Une fois le conteneur démarré (cela peut prendre quelques minutes), ouvrez votre navigateur et accédez à `http://localhost:9000`.
+4.  **Connexion initiale** : Les identifiants par défaut sont `admin` / `admin`. Il vous sera demandé de changer le mot de passe lors de la première connexion.
+5.  **Générer un jeton (token)** : Pour lancer l'analyse depuis SonarScanner, vous aurez besoin d'un jeton.
+    *   Connectez-vous à SonarQube.
+    *   Allez dans `Create a project`.
+    *   Suiver les instructions que votre version de sonarqube vous donne.
+    *   Un nouveau jeton sera généré, copiez-le. Ce jeton sera utilisé dans la commande d'analyse.
+
+### 9.2. Installation de SonarScanner
+
+SonarScanner est l'outil client qui analyse votre code et envoie les résultats à votre instance SonarQube.
+
+1.  **Télécharger SonarScanner** : Rendez-vous sur la page de téléchargement de SonarScanner : [https://docs.sonarqube.org/latest/analyzing-source/scanners/sonarscanner/](https://docs.sonarqube.org/latest/analyzing-source/scanners/sonarscanner/) et téléchargez la version correspondant à votre système d'exploitation.
+2.  **Extraire l'archive** : Décompressez le fichier téléchargé dans un répertoire de votre choix (par exemple, `C:\sonar-scanner` sur Windows ou `/opt/sonar-scanner` sur Linux/macOS).
+3.  **Ajouter au PATH (recommandé)** : Ajoutez le répertoire `bin` de SonarScanner à la variable d'environnement `PATH` de votre système. Cela vous permettra d'exécuter `sonar-scanner` depuis n'importe quel répertoire.
+
+### 9.3. Lancer l'Analyse
+
+Une fois SonarQube et SonarScanner configurés, vous pouvez lancer l'analyse de votre projet.
+
+1.  **Ouvrir un terminal** : Naviguez jusqu'à la racine de votre projet Symfony.
+2.  **Exécuter la commande d'analyse** : Utilisez la commande suivante, en remplaçant `YOUR_TOKEN` par le jeton que vous avez généré précédemment dans SonarQube.
+    ```bash
+    sonar-scanner.bat -D"sonar.projectKey=CC-Symfony" -D"sonar.sources=src" -D"sonar.tests=tests" -D"sonar.host.url=http://localhost:9000" -D"sonar.token=YOUR_TOKEN"
+    ```
+    *   `sonar.projectKey` : Une clé unique pour identifier votre projet dans SonarQube.
+    *   `sonar.sources` : Le répertoire contenant le code source à analyser.
+    *   `sonar.tests` : Le répertoire contenant les tests (optionnel, mais recommandé).
+    *   `sonar.host.url` : L'URL de votre instance SonarQube.
+    *   `sonar.token` : Le jeton d'authentification généré dans SonarQube.
+
+3.  **Consulter les résultats** : Après l'exécution de la commande, les résultats de l'analyse seront envoyés à votre instance SonarQube. Vous pouvez les consulter en vous rendant sur `http://localhost:9000` et en sélectionnant votre projet (`CC-Symfony`).
+
+## 10. Risques, Limites et Dettes Techniques
 
 Cette section aborde les défis inhérents au projet, les contraintes imposées par son périmètre actuel et les améliorations techniques envisagées pour des évolutions futures. Elle témoigne d'une approche proactive et réaliste face aux exigences d'un développement logiciel professionnel.
 
-### 9.1. Risques
+### 10.1. Risques
 
 1.  **Sécurité des Données et Authentification** :
     *   **Risque** : Vulnérabilités potentielles dans la gestion des mots de passe (stockage, réinitialisation) et des sessions utilisateurs, pouvant mener à des accès non autorisés. Les injections SQL ou autres attaques web sont également un risque constant si les validations d'entrée ne sont pas rigoureuses.
@@ -327,7 +376,7 @@ Cette section aborde les défis inhérents au projet, les contraintes imposées 
     *   **Risque** : L'intégration d'un template Bootstrap ou d'autres bibliothèques tierces peut introduire des vulnérabilités ou des problèmes de compatibilité si elles ne sont pas maintenues à jour.
     *   **Mitigation** : Suivi régulier des **mises à jour de sécurité** des dépendances, utilisation d'outils comme `composer audit`.
 
-### 9.2. Limites
+### 10.2. Limites
 
 1.  **Fonctionnalités Commerciales** :
     *   **Paiement** : L'absence de système de paiement intégré est une limitation majeure pour une application de réservation réelle.
@@ -343,7 +392,7 @@ Cette section aborde les défis inhérents au projet, les contraintes imposées 
 4.  **Reporting et Statistiques** :
     *   L'application ne fournit pas d'outils de reporting ou de statistiques pour les administrateurs (taux d'occupation, revenus, etc.).
 
-### 9.3. Dettes Techniques
+### 10.3. Dettes Techniques
 
 1.  **Couverture des Tests** :
     *   **Dette** : Bien que des tests soient requis, la couverture complète (tests unitaires, fonctionnels, d'intégration) de toutes les fonctionnalités critiques peut être limitée par le temps. Une couverture insuffisante peut rendre les futures modifications risquées.
@@ -365,7 +414,7 @@ Cette section aborde les défis inhérents au projet, les contraintes imposées 
     *   **Dette** : Bien que le projet suive une architecture MVC, certaines décisions de conception initiales pourraient ne pas être optimales pour une évolution vers des microservices ou une architecture plus distribuée.
     *   **Plan d'action** : Réévaluer l'architecture à mesure que les besoins évoluent, en se concentrant sur la **séparation des préoccupations** et la **modularité**.
 
-## 10. Crédits
+## 11. Crédits
 
 *   **Uly AUSTRIE** - Master AIDB
 *   **Abel CORREIA** - Master AIDB
