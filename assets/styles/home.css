@@ -1,0 +1,235 @@
+/* ==========================================================
+   HOME
+========================================================== */
+
+.hero-section{
+
+    padding:90px 20px;
+
+    text-align:center;
+
+    color:white;
+
+    animation:fadeUp .8s ease;
+
+}
+
+.hero-content{
+
+    max-width:850px;
+
+    margin:auto;
+
+}
+
+.hero-badge{
+
+    display:inline-block;
+
+    background:rgba(255,255,255,.12);
+
+    border:1px solid rgba(255,255,255,.18);
+
+    color:var(--gold);
+
+    padding:10px 20px;
+
+    border-radius:999px;
+
+    letter-spacing:2px;
+
+    margin-bottom:30px;
+
+    font-size:.85rem;
+
+}
+
+.hero-title{
+
+    color:white;
+
+    font-size:3.4rem;
+
+    margin-bottom:25px;
+
+    font-weight:700;
+
+}
+
+.hero-subtitle{
+
+    color:rgba(255,255,255,.92);
+
+    font-size:1.2rem;
+
+    line-height:1.9;
+
+    margin-bottom:40px;
+
+}
+
+.hero-buttons{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:20px;
+
+    flex-wrap:wrap;
+
+}
+
+.stats-section{
+
+    margin:80px 0;
+
+}
+
+.stat-card{
+
+    background:rgba(255,255,255,.94);
+
+    border-radius:18px;
+
+    padding:35px;
+
+    text-align:center;
+
+    box-shadow:var(--shadow);
+
+    transition:.3s;
+
+    height:100%;
+
+}
+
+.stat-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.stat-icon{
+
+    width:75px;
+
+    height:75px;
+
+    border-radius:50%;
+
+    background:var(--primary);
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    margin:auto auto 20px;
+
+    font-size:2rem;
+
+}
+
+.stat-card h2{
+
+    font-size:2.4rem;
+
+    margin-bottom:8px;
+
+}
+
+.stat-card p{
+
+    margin:0;
+
+    color:#666;
+
+}
+
+.features-section{
+
+    margin:70px 0;
+
+}
+
+.section-title{
+
+    text-align:center;
+
+    margin-bottom:20px;
+
+}
+
+.feature-item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin:18px 0;
+
+    font-size:1.05rem;
+
+}
+
+.feature-item i{
+
+    color:var(--gold);
+
+    font-size:1.3rem;
+
+}
+
+.cta-section{
+
+    margin-top:70px;
+
+}
+
+.cta-section .card{
+
+    background:rgba(255,255,255,.95);
+
+}
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(40px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .hero-title{
+
+        font-size:2.2rem;
+
+    }
+
+    .hero-subtitle{
+
+        font-size:1rem;
+
+    }
+
+}

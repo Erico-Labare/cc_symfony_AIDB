@@ -4,44 +4,213 @@
 
 {% block body %}
 
-<div class="p-5 bg-light rounded">
+<section class="hero-section">
 
-    <h1>Bienvenue sur la plateforme de réservation</h1>
+    <div class="hero-content">
 
-    <p class="lead">
-        Recherchez et réservez des chambres d'hôtel en quelques clics.
-    </p>
+        <span class="hero-badge">
+            HOTEL BOOKING
+        </span>
 
+        <h1 class="hero-title">
+            Votre séjour commence ici.
+        </h1>
 
+        <p class="hero-subtitle">
+            Réservez une chambre parmi nos hôtels partenaires pour vous ou vos proches.
+            Gérez facilement vos réservations, vos voyageurs et vos commentaires depuis une interface moderne.
+        </p>
 
-    <div class="mt-4 d-flex align-items-center"> {# Added d-flex and align-items-center for horizontal alignment #}
-        <a href="{{ path('app_reservation_search') }}" class="btn btn-success btn-lg me-2"> {# Added me-2 for margin-end #}
-            Chercher une chambre
-        </a>
-        {% if app.user %} {# Moved this block here #}
-            <a href="{{ path('app_reservation_my_reservations') }}" class="btn btn-info btn-lg me-2"> {# Added btn-lg me-2 #}
-                Voir mes réservations
+        <div class="hero-buttons">
+
+            <a href="{{ path('app_reservation_search') }}"
+               class="btn btn-primary btn-lg">
+
+                <i class="bi bi-search"></i>
+
+                Réserver une chambre
+
             </a>
-        {% endif %}
-        {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn btn-warning btn-lg" href="{{ path('app_admin') }}">
-                Gestion de l'administration
-            </a>
-        {% endif %}
+
+            {% if app.user %}
+
+                <a href="{{ path('app_reservation_my_reservations') }}"
+                   class="btn btn-outline-light btn-lg">
+
+                    <i class="bi bi-calendar-check"></i>
+
+                    Mes réservations
+
+                </a>
+
+            {% endif %}
+
+        </div>
+
     </div>
 
-    {% if not app.user %} {# Changed condition to display only if user is NOT logged in #}
-        <div class="mt-4">
-            <a href="{{ path('app_register') }}" class="btn btn-primary">
-                Créer un compte
-            </a>
+</section>
 
-            <a href="{{ path('app_login') }}" class="btn btn-outline-dark">
-                Se connecter
-            </a>
+
+<section class="stats-section">
+
+    <div class="row g-4">
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="bi bi-building"></i>
+                </div>
+
+                <h2>{{ hotelCount }}</h2>
+
+                <p>Hôtels partenaires</p>
+
+            </div>
+
         </div>
-    {% endif %}
 
-</div>
+        <div class="col-md-6 col-xl-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="bi bi-door-open"></i>
+                </div>
+
+                <h2>{{ roomCount }}</h2>
+
+                <p>Chambres</p>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+
+                <h2>{{ reservationCount }}</h2>
+
+                <p>Réservations</p>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+
+                <h2>{{ clientCount }}</h2>
+
+                <p>Clients</p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="features-section">
+
+    <div class="card">
+
+        <div class="card-body">
+
+            <h2 class="section-title">
+                Pourquoi choisir Hotel Booking ?
+            </h2>
+
+            <div class="row mt-4">
+
+                <div class="col-md-6">
+
+                    <div class="feature-item">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        Recherche rapide des chambres disponibles
+
+                    </div>
+
+                    <div class="feature-item">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        Réservation pour vous ou vos proches
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="feature-item">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        Modification des commentaires
+
+                    </div>
+
+                    <div class="feature-item">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        Annulation sécurisée des réservations
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="cta-section">
+
+    <div class="card">
+
+        <div class="card-body text-center">
+
+            <h2>
+                Prêt à réserver ?
+            </h2>
+
+            <p>
+                Trouvez dès maintenant la chambre idéale parmi nos établissements partenaires.
+            </p>
+
+            <a href="{{ path('app_reservation_search') }}"
+               class="btn btn-primary btn-lg">
+
+                Commencer une réservation
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
 
 {% endblock %}
