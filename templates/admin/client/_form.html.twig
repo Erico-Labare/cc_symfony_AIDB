@@ -1,23 +1,97 @@
 {{ form_start(form) }}
-    <div class="mb-3">
-        {{ form_label(form.nom) }}
-        {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.nom) }}
+
+<div class="reservation-card">
+
+    <div class="row">
+
+        <div class="col-md-6 mb-4">
+
+            {{ form_label(form.nom) }}
+
+            {{ form_widget(form.nom,{
+                attr:{
+                    class:'form-control',
+                    placeholder:'Nom complet'
+                }
+            }) }}
+
+            {{ form_errors(form.nom) }}
+
+        </div>
+
+        <div class="col-md-6 mb-4">
+
+            {{ form_label(form.email) }}
+
+            {{ form_widget(form.email,{
+                attr:{
+                    class:'form-control',
+                    placeholder:'Adresse email'
+                }
+            }) }}
+
+            {{ form_errors(form.email) }}
+
+        </div>
+
     </div>
-    <div class="mb-3">
-        {{ form_label(form.adresse) }}
-        {{ form_widget(form.adresse, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.adresse) }}
+
+    <div class="row">
+
+        <div class="col-md-6 mb-4">
+
+            {{ form_label(form.telephone) }}
+
+            {{ form_widget(form.telephone,{
+                attr:{
+                    class:'form-control',
+                    placeholder:'Téléphone'
+                }
+            }) }}
+
+            {{ form_errors(form.telephone) }}
+
+        </div>
+
+        <div class="col-md-6 mb-4">
+
+            {{ form_label(form.adresse) }}
+
+            {{ form_widget(form.adresse,{
+                attr:{
+                    class:'form-control',
+                    placeholder:'Adresse'
+                }
+            }) }}
+
+            {{ form_errors(form.adresse) }}
+
+        </div>
+
     </div>
-    <div class="mb-3">
-        {{ form_label(form.email) }}
-        {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.email) }}
+
+    <div class="reservation-actions">
+
+        <a
+            href="{{ path('app_admin_client_index') }}"
+            class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-2"></i>
+
+            Retour
+
+        </a>
+
+        <button class="btn btn-success">
+
+            <i class="bi bi-check-circle me-2"></i>
+
+            {{ button_label|default('Enregistrer') }}
+
+        </button>
+
     </div>
-    <div class="mb-3">
-        {{ form_label(form.telephone) }}
-        {{ form_widget(form.telephone, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.telephone) }}
-    </div>
-    <button class="btn btn-success">{{ button_label|default('Enregistrer') }}</button>
+
+</div>
+
 {{ form_end(form) }}

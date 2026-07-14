@@ -1,13 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouveau Client{% endblock %}
+{% block title %}Nouveau client{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1>Créer un nouveau Client</h1>
 
-        {{ include('admin/client/_form.html.twig') }}
+<div class="container">
 
-        <a href="{{ path('app_admin_client_index') }}" class="btn btn-secondary mt-3">Retour à la liste</a>
+    <div class="text-center mb-5">
+
+        <h1 class="page-title">
+
+            Nouveau client
+
+        </h1>
+
+        <p class="page-subtitle">
+
+            Ajoutez un nouveau client.
+
+        </p>
+
     </div>
+
+    {{ include('admin/client/_form.html.twig') }}
+
+</div>
+
 {% endblock %}
