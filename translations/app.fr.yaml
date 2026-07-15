@@ -78,6 +78,17 @@ admin:
             unique_constraint: "Une erreur est survenue (violation de contrainte unique)."
             orm_exception: "Une erreur de base de données est survenue."
             unexpected: "Une erreur inattendue est survenue."
+    reservation:
+        new:
+            success: "La réservation a été créée avec succès."
+        edit:
+            success: "La réservation a été modifiée avec succès."
+        delete:
+            success: "La réservation a été supprimée avec succès."
+        error:
+            unique_constraint: "Une erreur est survenue lors de la création de la réservation (violation de contrainte unique)."
+            orm_exception: "Une erreur de base de données est survenue lors de la gestion de la réservation."
+            unexpected: "Une erreur inattendue est survenue lors de la gestion de la réservation."
 client:
     change_password:
         error:
