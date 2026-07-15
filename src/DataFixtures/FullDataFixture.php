@@ -185,18 +185,18 @@ class FullDataFixture extends Fixture implements FixtureGroupInterface
 
         // Réservations
         $reservation1 = new Reservation();
-        $reservation1->setDateDebut(new \DateTime('2026-05-12'));
-        $reservation1->setDateFin(new \DateTime('2026-05-15'));
-        $reservation1->setCommentaire('Très bon séjour, chambre calme et personnel accueillant.');
+        $reservation1->setDateDebut(new \DateTime('2026-09-12'));
+        $reservation1->setDateFin(new \DateTime('2026-09-15'));
+        $reservation1->setCommentaire('Installer au moins une ventilateur.');
         $reservation1->setCompte($compte1);
         $reservation1->setClient($client2);
         $reservation1->setChambre($chambre3);
         $manager->persist($reservation1);
 
         $reservation2 = new Reservation();
-        $reservation2->setDateDebut(new \DateTime('2026-06-02'));
-        $reservation2->setDateFin(new \DateTime('2026-06-05'));
-        $reservation2->setCommentaire('Aucun');
+        $reservation2->setDateDebut(new \DateTime('2026-09-02'));
+        $reservation2->setDateFin(new \DateTime('2026-09-05'));
+        $reservation2->setCommentaire('');
         $reservation2->setCompte($compte1);
         $reservation2->setClient($client3);
         $reservation2->setChambre($chambre8);
@@ -205,7 +205,7 @@ class FullDataFixture extends Fixture implements FixtureGroupInterface
         $reservation3 = new Reservation();
         $reservation3->setDateDebut(new \DateTime('2026-08-15'));
         $reservation3->setDateFin(new \DateTime('2026-08-18'));
-        $reservation3->setCommentaire('Voyage professionnel.');
+        $reservation3->setCommentaire('Installer un lit bébé.');
         $reservation3->setCompte($compte2);
         $reservation3->setClient($client4);
         $reservation3->setChambre($chambre2);
@@ -214,7 +214,7 @@ class FullDataFixture extends Fixture implements FixtureGroupInterface
         $reservation4 = new Reservation();
         $reservation4->setDateDebut(new \DateTime('2026-09-10'));
         $reservation4->setDateFin(new \DateTime('2026-09-13'));
-        $reservation4->setCommentaire('Hôtel très agréable, je recommande.');
+        $reservation4->setCommentaire('Verifier pour la présence de poussière (allergie).');
         $reservation4->setCompte($compte2);
         $reservation4->setClient($client5);
         $reservation4->setChambre($chambre5);
@@ -223,7 +223,7 @@ class FullDataFixture extends Fixture implements FixtureGroupInterface
         $reservation5 = new Reservation();
         $reservation5->setDateDebut(new \DateTime('2026-10-01'));
         $reservation5->setDateFin(new \DateTime('2026-10-04'));
-        $reservation5->setCommentaire('Merci pour votre accueil.');
+        $reservation5->setCommentaire('I want a coca in the mini-fridge.');
         $reservation5->setCompte($compte2);
         $reservation5->setClient($client6);
         $reservation5->setChambre($chambre9);
@@ -232,7 +232,7 @@ class FullDataFixture extends Fixture implements FixtureGroupInterface
         $reservation6 = new Reservation();
         $reservation6->setDateDebut(new \DateTime('2026-11-07'));
         $reservation6->setDateFin(new \DateTime('2026-11-10'));
-        $reservation6->setCommentaire('Séjour en famille très réussi.');
+        $reservation6->setCommentaire('');
         $reservation6->setCompte($compte2);
         $reservation6->setClient($client4);
         $reservation6->setChambre($chambre10);
