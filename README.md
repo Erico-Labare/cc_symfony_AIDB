@@ -355,17 +355,15 @@ Une fois SonarQube et SonarScanner configurés, vous pouvez lancer l'analyse de 
 
 ## 10. Dettes techniques
 
-Cette section aborde des pistes d'améliorations techniques envisagées pour des évolutions futures.
+Cette section aborde des pistes d'améliorations techniques envisagées pour des évolutions futures en lien avec des éléments observés de dettes techniques.
 
-*   **Absence de tests unitaires et fonctionnels exhaustifs** : Bien que des tests soient mentionnés dans le guide d'installation, une couverture de test insuffisante peut entraîner des régressions et rendre les refactorings risqués.
-*   **Optimisation des requêtes base de données (N+1 problem)** : Certaines requêtes Doctrine ORM pourraient ne pas être optimisées, menant à des problèmes de performance, notamment lors de l'affichage de listes d'entités avec des relations.
-*   **Gestion des erreurs et logs** : Une gestion des erreurs et une journalisation (logging) basiques peuvent être présentes, mais une stratégie plus robuste (ex: Sentry, ELK Stack) pourrait manquer pour la production.
-*   **Sécurité approfondie** : Les fonctionnalités de sécurité de base de Symfony sont utilisées, mais des analyses de sécurité plus poussées (OWASP Top 10) ou l'intégration de solutions de sécurité tierces pourraient être nécessaires.
+*   **Absence de couverture de tests unitaires et fonctionnels complette** : Bien que des tests rigoureux soient réalisés dans le projet, une évalution de la couverture de test n'as pas été réalisé.
+*   **Optimisation des requêtes base de données (N+1 problem)** : Certaines requêtes Doctrine ORM pourraient être plus optimisées, augmentant ainsi les performances, notamment lors de l'affichage de listes d'entités avec des relations.
+*   **Gestion des erreurs et logs** : Une gestion des erreurs et une journalisation (logging) basiques peuvent être présentes, mais une stratégie plus robuste (ex: Sentry, ELK Stack) pourrait manquer pour la mise en production.
+*   **Sécurité approfondie** : Les fonctionnalités de sécurité de base de Symfony sont utilisées, mais des analyses de sécurité plus poussées (standard OWASP Top 10) ou l'intégration de solutions de sécurité tierces pourraient être nécessaire a une production professionelle.
 *   **Internationalisation (i18n) et Localisation (l10n)** : Le projet est actuellement monolingue. L'ajout de la prise en charge de plusieurs langues nécessiterait une refonte des textes et des formats.
-*   **Amélioration de l'expérience utilisateur (UX)** : Bien que le design soit responsive, des améliorations UX (animations, chargement asynchrone, feedback utilisateur plus riche) pourraient être apportées.
-*   **Code dupliqué ou non DRY (Don't Repeat Yourself)** : Certaines parties du code, notamment dans les contrôleurs ou les vues, pourraient contenir des répétitions qui pourraient être factorisées dans des services, des Twig components ou des macros.
-*   **Mise à jour des dépendances** : Ne pas maintenir les dépendances à jour peut introduire des vulnérabilités de sécurité et empêcher l'accès aux nouvelles fonctionnalités ou optimisations.
-*   **Documentation interne du code** : La documentation du code (docblocks, commentaires explicatifs) pourrait être améliorée pour faciliter la compréhension et la maintenance par d'autres développeurs.
+*   **Code dupliqué ou non DRY (Don't Repeat Yourself)** : Certaines parties du code, notamment dans les contrôleurs ou les vues, pourraient contenir des répétitions qui pourraient être factorisées dans des services, des Twig components ou des macros. L'estimation par SonarQube est de 5,7% de code répété.
+*   **Mise à jour des dépendances** : Ne pas maintenir les dépendances à jour peut introduire des vulnérabilités de sécurité et empêcher l'accès aux nouvelles fonctionnalités ou optimisations. Une mise a jour des dépendances complètes ainsi qu'un suivit dans le futur pourrait être necessaire au niveau de maintenabilité et de la sécurité.
 *   **Scalabilité de l'infrastructure** : Le projet est conçu pour un environnement local. Pour une mise en production à grande échelle, des considérations d'infrastructure (équilibrage de charge, bases de données répliquées, mise en cache distribuée) seraient à adresser.
 
 ## 11. Crédits
