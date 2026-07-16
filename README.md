@@ -110,8 +110,6 @@ Le projet adhère à une architecture en couches, respectant les bonnes pratique
 *   **Entités** : Représentent les objets métier et sont mappées aux tables de la base de données.
 *   **Repositories** : Fournissent des méthodes pour interagir avec les entités et la base de données.
 
-*(**Recommandation :** Il est fortement conseillé d'ajouter ici un diagramme d'architecture (ex: C4 model, diagramme de composants) pour une meilleure visualisation des interactions entre les couches et les composants du système.)*
-
 ## 5. Modèle Conceptuel de Données (MCD)
 
 Cette section présente la structure des données de l'application, essentielle à la compréhension de la logique métier et de la persistance.
